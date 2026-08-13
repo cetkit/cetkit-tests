@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MHT-CET 2025 — CBT</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['\\[','\\]'],['$$','$$']], packages: {'[+]':['ams']} },
+  options: { skipHtmlTags: ['script','noscript','style','textarea'] }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --header-h: 64px;
+  --nav-h: 44px;
+  --sidebar-w: 280px;
+  --navy: #0d1b35;
+  --blue: #1b3f7a;
+  --mid: #2563eb;
+  --amber: #f59e0b;
+  --green: #16a34a;
+  --red: #dc2626;
+  --purple: #7c3aed;
+  --cyan: #0891b2;
+  --gray: #9ca3af;
+  --light: #f1f5fb;
+  --white: #ffffff;
+}
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--light); color: #1e293b; min-height: 100vh; }
+
+/* ===================== LOGIN ===================== */
+#loginScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #0d1b35 0%, #1b3f7a 60%, #0a2550 100%);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.lc { background: #fff; border-radius: 18px; width: 100%; max-width: 430px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.lc-top { background: linear-gradient(135deg, #0d1b35, #1b3f7a); padding: 28px 28px 22px; color: white; text-align: center; }
+.lc-top .emblem { width: 56px; height: 56px; background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px; }
+.lc-top h1 { font-size: 20px; font-weight: 800; letter-spacing: .5px; }
+.lc-top p { font-size: 12px; opacity: .7; margin-top: 4px; }
+.lc-body { padding: 26px 28px 28px; }
+.lc-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+.lc-stat { background: #f0f4ff; border-radius: 10px; padding: 10px 8px; text-align: center; }
+.lc-stat .v { font-size: 20px; font-weight: 800; color: #1b3f7a; }
+.lc-stat .l { font-size: 10px; color: #6b7280; margin-top: 2px; }
+.fg { margin-bottom: 14px; }
+.fg label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #374151; margin-bottom: 6px; }
+.fg input { width: 100%; padding: 11px 14px; border: 2px solid #e5e7eb; border-radius: 9px; font-size: 14px; color: #1f2937; outline: none; transition: border-color .2s; }
+.fg input:focus { border-color: #1b3f7a; }
+.fg input:disabled { background: #f9fafb; color: #6b7280; cursor: not-allowed; }
+.hint { background: #fffbeb; border: 1px solid #fbbf24; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #92400e; margin-bottom: 14px; }
+.lbtn { width: 100%; padding: 13px; background: linear-gradient(135deg, #1b3f7a, #0d1b35); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity .2s; letter-spacing: .5px; }
+.lbtn:hover { opacity: .9; }
+.lc-credit {
+  text-align: center; margin-top: 14px;
+}
+.lc-credit-inner {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+  border-radius: 12px; padding: 10px 28px;
+}
+.lc-credit .lc-cl { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,.45); font-weight: 600; }
+.lc-credit .lc-cn {
+  font-size: 18px; font-weight: 900; letter-spacing: .5px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===================== TOP HEADER ===================== */
+#hdr {
+  display: none; position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: var(--navy); color: white;
+  display: none; align-items: center; padding: 0 16px; gap: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.4);
+}
+.hdr-logo { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+.hdr-logo .logo-badge { background: var(--amber); color: var(--navy); font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+.hdr-logo .logo-title { font-size: 15px; font-weight: 800; white-space: nowrap; }
+.hdr-logo .logo-sub { font-size: 10px; opacity: .6; white-space: nowrap; }
+.hdr-candidate { flex: 1; text-align: center; }
+.hdr-candidate .cname { font-size: 13px; font-weight: 700; }
+.hdr-candidate .cid { font-size: 11px; opacity: .6; margin-top: 2px; }
+.hdr-right { display: flex; align-items: center; gap: 10px; }
+.timer-box {
+  background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.2);
+  border-radius: 10px; padding: 6px 14px; text-align: center; min-width: 90px;
+}
+.timer-box .tlabel { font-size: 9px; opacity: .65; text-transform: uppercase; letter-spacing: .5px; }
+.timer-box .tval { font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 2px; line-height: 1.1; }
+.timer-box.warn .tval { color: var(--amber); }
+.timer-box.crit { animation: crit-pulse 1s infinite; }
+.timer-box.crit .tval { color: #ff4444; }
+@keyframes crit-pulse { 0%,100%{background:rgba(220,38,38,.15)} 50%{background:rgba(220,38,38,.35)} }
+
+/* ===================== SUBJECT NAV BAR ===================== */
+#subjectNav {
+  display: none; position: fixed; top: var(--header-h); left: 0; right: 0; height: var(--nav-h); z-index: 99;
+  background: #fff; border-bottom: 2px solid #e2e8f0;
+  display: none; align-items: stretch;
+  box-shadow: 0 1px 6px rgba(0,0,0,.08);
+}
+.snav-tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer;
+  border-bottom: 3px solid transparent; transition: all .2s; gap: 1px;
+  padding: 0 8px; white-space: nowrap;
+}
+.snav-tab:hover:not(.locked) { background: #f0f4ff; color: var(--blue); }
+.snav-tab.active { color: var(--blue); border-bottom-color: var(--amber); background: #eff6ff; }
+.snav-tab.locked { opacity: .4; cursor: not-allowed; }
+.snav-tab .stab-name { font-size: 13px; font-weight: 700; }
+.snav-tab .stab-meta { font-size: 10px; font-weight: 400; opacity: .7; }
+.snav-divider { width: 1px; background: #e2e8f0; margin: 8px 0; }
+
+/* ===================== MAIN LAYOUT ===================== */
+#examWrap {
+  display: none; padding-top: calc(var(--header-h) + var(--nav-h));
+  min-height: 100vh; display: none;
+}
+.exam-grid {
+  display: flex; min-height: calc(100vh - var(--header-h) - var(--nav-h));
+}
+
+/* ===================== LEFT QUESTION PANEL ===================== */
+.q-panel {
+  flex: 1; padding: 18px 20px 120px; overflow-y: auto; min-width: 0;
+  margin-right: var(--sidebar-w);
+}
+@media(max-width:768px){
+  .q-panel { margin-right: 0; }
+}
+.qp-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: white; border-radius: 12px; padding: 12px 16px; margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.07);
+}
+.qp-info { display: flex; align-items: center; gap: 10px; }
+.qp-num { background: var(--blue); color: white; font-size: 13px; font-weight: 700; padding: 5px 14px; border-radius: 20px; white-space: nowrap; }
+.qp-sect { font-size: 13px; color: #64748b; }
+.qp-marks { display: flex; gap: 6px; }
+.marks-chip { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 15px; white-space: nowrap; }
+.marks-pos { background: #dcfce7; color: #166534; }
+
+.question-box { background: white; border-radius: 12px; padding: 22px 22px 8px; box-shadow: 0 1px 6px rgba(0,0,0,.07); margin-bottom: 14px; }
+.q-text { font-size: 16px; line-height: 1.75; color: #1e293b; margin-bottom: 22px; }
+
+.options-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.opt {
+  display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px;
+  border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer;
+  transition: all .15s; background: white; text-align: left; width: 100%;
+}
+.opt:hover { border-color: #93c5fd; background: #eff6ff; }
+.opt.selected { border-color: var(--blue); background: #eff6ff; }
+.opt-radio {
+  width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cbd5e1;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+  transition: all .15s;
+}
+.opt.selected .opt-radio { border-color: var(--blue); background: var(--blue); }
+.opt.selected .opt-radio::after { content:''; width: 8px; height: 8px; border-radius: 50%; background: white; }
+.opt-letter { width: 26px; height: 26px; border-radius: 6px; background: #f1f5f9; font-size: 12px; font-weight: 700; color: #475569; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+.opt.selected .opt-letter { background: var(--blue); color: white; }
+.opt-text { font-size: 14px; line-height: 1.6; padding-top: 1px; flex: 1; }
+
+/* Action buttons — fixed bottom bar */
+.action-bar {
+  position: fixed; bottom: 0; left: 0; right: var(--sidebar-w);
+  display: flex; flex-wrap: nowrap; gap: 8px; padding: 10px 20px;
+  background: white; border-top: 2px solid #e2e8f0;
+  box-shadow: 0 -2px 12px rgba(0,0,0,.08); z-index: 60;
+}
+@media(max-width:768px){
+  .action-bar { right: 0; flex-wrap: wrap; }
+}
+.act-btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; }
+.act-btn:active { transform: scale(.97); }
+.btn-clear { background: #f1f5f9; color: #475569; flex-shrink: 0; }
+.btn-clear:hover { background: #e2e8f0; }
+.btn-mark { background: #f3e8ff; color: #6d28d9; border: 1px solid #ddd6fe; flex-shrink: 0; }
+.btn-mark.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+.btn-prev { background: #e0e7ff; color: #3730a3; flex-shrink: 0; }
+.btn-snext { background: linear-gradient(135deg, #1b3f7a, #2563eb); color: white; flex: 1; justify-content: center; }
+.btn-snext:hover { opacity: .92; }
+
+
+
+/* ===================== RIGHT SIDEBAR ===================== */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0; background: white;
+  border-left: 2px solid #e2e8f0; display: flex; flex-direction: column;
+  position: fixed; top: calc(var(--header-h) + var(--nav-h)); right: 0;
+  bottom: 0; overflow: hidden; z-index: 80;
+}
+.sb-profile {
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  color: white; padding: 14px 16px;
+}
+.sb-profile .sp-name { font-size: 13px; font-weight: 700; }
+.sb-profile .sp-id { font-size: 11px; opacity: .65; margin-top: 2px; }
+.sb-timer-wrap { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; }
+.sb-timer-inner { background: #0d1b35; border-radius: 10px; padding: 10px; text-align: center; }
+.sb-timer-inner .stl { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.sb-timer-inner .stv { font-size: 28px; font-weight: 900; color: white; font-variant-numeric: tabular-nums; letter-spacing: 3px; }
+.sb-timer-inner.warn .stv { color: #fbbf24; }
+.sb-timer-inner.crit { animation: crit-pulse 1s infinite; }
+.sb-timer-inner.crit .stv { color: #ff4444; }
+.sb-phase { font-size: 11px; color: #64748b; text-align: center; margin-top: 6px; }
+
+.sb-legend { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; }
+.sb-legend-title { font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #374151; }
+.leg-dot { width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: white; }
+.ld-green { background: #16a34a; }
+.ld-red { background: #dc2626; }
+.ld-purple { background: #7c3aed; }
+.ld-cyan { background: #0891b2; }
+.ld-gray { background: #9ca3af; }
+
+.sb-stats { padding: 8px 14px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 6px; flex-wrap: wrap; }
+.sstat { flex: 1; min-width: 55px; border-radius: 8px; padding: 6px 4px; text-align: center; }
+.sstat .sv { font-size: 16px; font-weight: 800; }
+.sstat .sl { font-size: 9px; margin-top: 1px; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+.ss-ans { background: #dcfce7; } .ss-ans .sv { color: #166534; } .ss-ans .sl { color: #166534; }
+.ss-not { background: #fee2e2; } .ss-not .sv { color: #991b1b; } .ss-not .sl { color: #991b1b; }
+.ss-mrk { background: #ede9fe; } .ss-mrk .sv { color: #5b21b6; } .ss-mrk .sl { color: #5b21b6; }
+.ss-unv { background: #f1f5f9; } .ss-unv .sv { color: #475569; } .ss-unv .sl { color: #475569; }
+
+.sb-palette-area {
+  flex: 1; overflow-y: auto; padding: 10px 14px 10px;
+}
+.palette-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.pb {
+  width: 36px; height: 36px; border-radius: 7px; border: none;
+  font-size: 11px; font-weight: 700; cursor: pointer; color: white;
+  transition: transform .1s, box-shadow .1s; flex-shrink: 0;
+}
+.pb:hover { transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.pb.not-visited { background: #9ca3af; }
+.pb.not-answered { background: #dc2626; }
+.pb.answered { background: #16a34a; }
+.pb.marked { background: #7c3aed; }
+.pb.marked-answered { background: #0891b2; }
+.pb.current { box-shadow: 0 0 0 3px #f59e0b, 0 0 0 5px rgba(245,158,11,.3); transform: scale(1.12); z-index: 1; }
+
+.sb-actions { padding: 10px 14px; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
+.sb-submit { width: 100%; padding: 12px; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+.sb-submit:hover { opacity: .9; }
+
+/* ===================== MODALS ===================== */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.show { display: flex; }
+.modal-card { background: white; border-radius: 18px; width: 100%; max-width: 460px; overflow: hidden; }
+.modal-header { padding: 20px 24px 16px; border-bottom: 1px solid #f1f5f9; }
+.modal-header h2 { font-size: 18px; font-weight: 800; color: #0d1b35; }
+.modal-header p { font-size: 13px; color: #64748b; margin-top: 4px; }
+.modal-body { padding: 16px 24px; }
+.conf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.cg-item { border-radius: 10px; padding: 14px; text-align: center; }
+.cg-item .cgv { font-size: 24px; font-weight: 800; }
+.cg-item .cgl { font-size: 11px; margin-top: 2px; font-weight: 600; }
+.cg-ans { background: #dcfce7; } .cg-ans .cgv,.cg-ans .cgl { color: #166534; }
+.cg-unans { background: #fee2e2; } .cg-unans .cgv,.cg-unans .cgl { color: #991b1b; }
+.cg-mrk { background: #ede9fe; } .cg-mrk .cgv,.cg-mrk .cgl { color: #5b21b6; }
+.cg-tot { background: #f0f4ff; } .cg-tot .cgv,.cg-tot .cgl { color: #1b3f7a; }
+.conf-warn { background: #fffbeb; border: 1px solid #fbbf24; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #92400e; margin-bottom: 14px; }
+.modal-footer { padding: 14px 24px 20px; display: flex; gap: 10px; }
+.mf-cancel { flex: 1; padding: 12px; background: #f1f5f9; color: #475569; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.mf-submit { flex: 2; padding: 12px; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+/* Lock overlay */
+.lock-icon { font-size: 52px; text-align: center; margin-bottom: 12px; }
+.lock-modal .modal-header { text-align: center; border: none; }
+.lock-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #1b3f7a, #2563eb); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
+
+/* ===================== RESULTS ===================== */
+
+/* ===================== SURVEY ===================== */
+#surveyScreen {
+  display: none; position: fixed; inset: 0; background: linear-gradient(135deg, #0d1b35 0%, #1b3f7a 60%, #0a2550 100%);
+  overflow-y: auto; z-index: 700; padding: 24px 16px 40px;
+  align-items: flex-start; justify-content: center;
+}
+#surveyScreen.show { display: flex; }
+.survey-wrap { width: 100%; max-width: 560px; margin: 0 auto; }
+.survey-top { text-align: center; margin-bottom: 28px; }
+.survey-top .s-badge { display: inline-block; background: var(--amber); color: #0d1b35; font-size: 11px; font-weight: 800; padding: 5px 16px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+.survey-top h2 { font-size: 24px; font-weight: 800; color: white; margin-bottom: 8px; }
+.survey-top p { font-size: 14px; color: rgba(255,255,255,.65); line-height: 1.6; }
+.survey-card { background: white; border-radius: 16px; padding: 22px 24px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,.2); }
+.sq-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; margin-bottom: 6px; }
+.sq-title { font-size: 15px; font-weight: 700; color: #0d1b35; margin-bottom: 16px; line-height: 1.4; }
+/* Star rating */
+.star-row { display: flex; gap: 8px; align-items: center; }
+.star-btn { font-size: 32px; cursor: pointer; transition: transform .15s, filter .15s; filter: grayscale(1) opacity(.4); background: none; border: none; padding: 0; line-height: 1; }
+.star-btn:hover, .star-btn.active { filter: grayscale(0) opacity(1); transform: scale(1.15); }
+.star-label-row { display: flex; justify-content: space-between; margin-top: 6px; }
+.star-label-row span { font-size: 11px; color: #94a3b8; }
+/* Radio options */
+.radio-opts { display: flex; flex-direction: column; gap: 8px; }
+.radio-opt { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all .15s; }
+.radio-opt:hover { border-color: #93c5fd; background: #eff6ff; }
+.radio-opt.chosen { border-color: #1b3f7a; background: #eff6ff; }
+.radio-opt input[type=radio] { display: none; }
+.radio-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #cbd5e1; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.radio-opt.chosen .radio-dot { border-color: #1b3f7a; background: #1b3f7a; }
+.radio-opt.chosen .radio-dot::after { content:''; width: 7px; height: 7px; border-radius: 50%; background: white; }
+.radio-opt-text { font-size: 14px; color: #374151; font-weight: 500; }
+/* Submit survey btn */
+.survey-submit-btn {
+  width: 100%; padding: 15px; background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #0d1b35; border: none; border-radius: 12px; font-size: 16px; font-weight: 800;
+  cursor: pointer; transition: opacity .2s, transform .1s; margin-top: 6px;
+  letter-spacing: .3px;
+}
+.survey-submit-btn:hover { opacity: .92; }
+.survey-submit-btn:active { transform: scale(.98); }
+.survey-skip { display: block; text-align: center; margin-top: 12px; color: rgba(255,255,255,.45); font-size: 13px; cursor: pointer; text-decoration: underline; }
+.survey-skip:hover { color: rgba(255,255,255,.7); }
+/* Credit footer */
+.credit-footer { text-align: center; margin-top: 32px; padding-bottom: 12px; }
+.credit-inner {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
+  border-radius: 14px; padding: 14px 32px;
+}
+.credit-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,.4); font-weight: 600; }
+.credit-name {
+  font-size: 22px; font-weight: 900; letter-spacing: .5px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* Results credit footer */
+.results-credit {
+  text-align: center; padding: 32px 0 12px;
+}
+.results-credit-inner {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+  background: #0d1b35; border-radius: 14px; padding: 14px 32px;
+}
+.results-credit .rl { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #475569; font-weight: 600; }
+.results-credit .rn {
+  font-size: 20px; font-weight: 900; letter-spacing: .5px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+
+#results {
+  display: none; position: fixed; inset: 0; background: var(--light);
+  overflow-y: auto; z-index: 600; padding: 20px;
+}
+#results.show { display: block; }
+.res-header {
+  background: linear-gradient(135deg, #0d1b35, #1b3f7a);
+  color: white; border-radius: 16px; padding: 28px; margin-bottom: 16px; text-align: center;
+}
+.res-header h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+.res-score-big { font-size: 56px; font-weight: 900; margin: 12px 0 4px; }
+.res-score-sub { font-size: 16px; opacity: .75; }
+.res-grade { display: inline-block; background: var(--amber); color: #0d1b35; font-size: 14px; font-weight: 800; padding: 6px 18px; border-radius: 20px; margin-top: 10px; }
+.res-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+@media(min-width:600px){ .res-grid { grid-template-columns: repeat(6,1fr); } }
+.rg-card { background: white; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+.rg-card .rv { font-size: 22px; font-weight: 800; }
+.rg-card .rl { font-size: 11px; color: #64748b; margin-top: 3px; }
+.rg-correct .rv { color: #16a34a; }
+.rg-wrong .rv { color: #dc2626; }
+.rg-skip .rv { color: #f59e0b; }
+
+.res-section { margin-bottom: 14px; }
+.res-sec-title { font-size: 15px; font-weight: 800; color: #0d1b35; margin-bottom: 10px; padding-left: 14px; border-left: 4px solid var(--blue); }
+.aq { background: white; border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; border-left: 4px solid #e2e8f0; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+.aq.correct { border-left-color: #16a34a; }
+.aq.wrong { border-left-color: #dc2626; }
+.aq.skip { border-left-color: #f59e0b; }
+.aq-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap; }
+.aq-qnum { background: #f0f4ff; color: #1b3f7a; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.aq-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.aq-badge.correct { background: #dcfce7; color: #166534; }
+.aq-badge.wrong { background: #fee2e2; color: #991b1b; }
+.aq-badge.skip { background: #fffbeb; color: #92400e; }
+.aq-qtext { font-size: 13px; color: #374151; line-height: 1.6; margin-bottom: 8px; }
+.aq-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.aq-chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 8px; }
+.chip-yours { background: #fee2e2; color: #991b1b; }
+.chip-yours.correct { background: #dcfce7; color: #166534; }
+.chip-right { background: #dcfce7; color: #166534; }
+.aq-hint { font-size: 12px; color: #64748b; background: #f8faff; border-left: 3px solid #93c5fd; border-radius: 0 6px 6px 0; padding: 7px 10px; }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display: none; }
+  .q-nav-bar { right: 0; }
+  .q-panel { padding-bottom: 80px; }
+  /* Mobile floating timer */
+  .mobile-timer { display: flex !important; }
+}
+.mobile-timer { display: none; }
+
+
+
+/* Show mobile sidebar toggle */
+.mob-sb-toggle {
+  display: none; position: fixed; bottom: 80px; right: 16px; z-index: 400;
+  width: 52px; height: 52px; border-radius: 50%; background: var(--navy);
+  color: white; border: none; font-size: 20px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,.4); align-items: center; justify-content: center;
+}
+@media(max-width:768px){
+  .mob-sb-toggle { display: flex; }
+}
+.sidebar-mobile-open {
+  display: flex !important; position: fixed !important; z-index: 350 !important;
+  top: calc(var(--header-h) + var(--nav-h)) !important; right: 0 !important;
+  bottom: 0 !important; width: 280px !important; max-width: 90vw !important;
+}
+.mob-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 299; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: #f1f5f9; } ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 3px; }
+
+/* Landscape phone */
+@media(max-height: 480px) and (orientation: landscape) {
+  :root { --header-h: 48px; --nav-h: 36px; }
+  .tval { font-size: 17px !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======= LOGIN ======= -->
+<div id="loginScreen">
+  <div class="lc">
+    <div class="lc-top">
+      <div class="emblem">🎓</div>
+      <h1>MHT-CET 2025</h1>
+      <p>Computer Based Test — PCM Group</p>
+      <div class="lc-credit">
+        <div class="lc-credit-inner">
+          <span class="lc-cl">A concept by</span>
+          <span class="lc-cn">Vedant Bhat</span>
+        </div>
+      </div>
+    </div>
+    <div class="lc-body">
+      <div class="lc-row">
+        <div class="lc-stat"><div class="v">150</div><div class="l">Questions</div></div>
+        <div class="lc-stat"><div class="v">200</div><div class="l">Marks</div></div>
+        <div class="lc-stat"><div class="v">180</div><div class="l">Minutes</div></div>
+      </div>
+      <div class="fg">
+        <label>Candidate ID</label>
+        <input type="text" id="userId" value="MHT2025CET001" disabled>
+      </div>
+      <div class="hint">
+        🔒 <strong>Password Hint:</strong> Enter your <strong>Date of Birth</strong> as the password (e.g., <em>15081999</em> for 15 Aug 1999). Any entry is accepted for this practice test.
+      </div>
+      <div class="fg">
+        <label>Password (Date of Birth)</label>
+        <input type="password" id="password" placeholder="e.g. 15081999" autocomplete="off">
+      </div>
+      <button class="lbtn" onclick="doLogin()">START EXAMINATION →</button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======= TOP HEADER ======= -->
+<div id="hdr">
+  <div class="hdr-logo">
+    <div>
+      <div class="logo-badge">MHT-CET 2025</div>
+      <div class="logo-title">Computer Based Test</div>
+    </div>
+  </div>
+  <div class="hdr-candidate">
+    <div class="cname">MHT2025CET001</div>
+    <div class="cid" id="hdrSubject">Physics &amp; Chemistry — Section 1</div>
+  </div>
+  <div class="hdr-right">
+    <div class="timer-box" id="hdrTimerBox">
+      <div class="tlabel">Time Left</div>
+      <div class="tval" id="hdrTimerVal">90:00</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= SUBJECT NAV ======= -->
+<div id="subjectNav">
+  <div class="snav-tab active" id="tab-physics" onclick="switchSection('physics')">
+    <span class="stab-name">⚛ Physics</span>
+    <span class="stab-meta">50 Q · 50 Marks</span>
+  </div>
+  <div class="snav-divider"></div>
+  <div class="snav-tab" id="tab-chemistry" onclick="switchSection('chemistry')">
+    <span class="stab-name">🧪 Chemistry</span>
+    <span class="stab-meta">50 Q · 50 Marks</span>
+  </div>
+  <div class="snav-divider"></div>
+  <div class="snav-tab locked" id="tab-maths" onclick="switchSection('maths')">
+    <span class="stab-name">∑ Mathematics</span>
+    <span class="stab-meta">50 Q · 100 Marks</span>
+  </div>
+</div>
+
+<!-- ======= EXAM WRAP ======= -->
+<div id="examWrap">
+  <div class="exam-grid">
+
+    <!-- LEFT: QUESTION PANEL -->
+    <div class="q-panel">
+      <div class="qp-topbar">
+        <div class="qp-info">
+          <span class="qp-num" id="qpNum">Q. 1</span>
+          <span class="qp-sect" id="qpSect">Physics</span>
+        </div>
+        <div class="qp-marks">
+          <span class="marks-chip marks-pos" id="qpMarks">+1 Mark</span>
+        </div>
+      </div>
+      <div class="question-box" id="questionBox">
+        <!-- Question rendered here -->
+      </div>
+    </div>
+
+    <!-- RIGHT: SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sb-profile">
+        <div class="sp-name">MHT2025CET001</div>
+        <div class="sp-id">PCM Group — 2025</div>
+      </div>
+      <div class="sb-timer-wrap">
+        <div class="sb-timer-inner" id="sbTimerInner">
+          <div class="stl" id="sbTimerLabel">Section 1 — Time Left</div>
+          <div class="stv" id="sbTimerVal">90:00</div>
+        </div>
+        <div class="sb-phase" id="sbPhase">Physics &amp; Chemistry</div>
+      </div>
+      <div class="sb-legend">
+        <div class="sb-legend-title">Question Status</div>
+        <div class="legend-grid">
+          <div class="leg-item"><div class="leg-dot ld-green">✓</div> Answered</div>
+          <div class="leg-item"><div class="leg-dot ld-red">✗</div> Not Answered</div>
+          <div class="leg-item"><div class="leg-dot ld-purple">⚑</div> Marked</div>
+          <div class="leg-item"><div class="leg-dot ld-cyan">⚑</div> Marked+Ans</div>
+          <div class="leg-item"><div class="leg-dot ld-gray">–</div> Not Visited</div>
+        </div>
+      </div>
+      <div class="sb-stats" id="sbStats"></div>
+      <div class="sb-palette-area">
+        <div class="palette-grid" id="palette"></div>
+      </div>
+      <div class="sb-actions">
+        <button class="sb-submit" onclick="showConfirm()">📤 Submit Exam</button>
+      </div>
+    </div>
+
+  </div><!-- exam-grid -->
+
+
+</div>
+
+<!-- Mobile sidebar toggle -->
+<button class="mob-sb-toggle" id="mobSbBtn" onclick="toggleMobSidebar()" style="display:none">📋</button>
+<div class="mob-overlay" id="mobOverlay" onclick="closeMobSidebar()"></div>
+
+<!-- ======= LOCK MODAL ======= -->
+<div class="modal-overlay" id="lockModal">
+  <div class="modal-card lock-modal">
+    <div class="modal-header">
+      <div class="lock-icon">🔒</div>
+      <h2>Section 1 Time Over</h2>
+      <p>Physics &amp; Chemistry has been auto-submitted. You will now proceed to <strong>Mathematics</strong> for 90 minutes. You <strong>cannot</strong> return to Section 1.</p>
+    </div>
+    <div class="modal-body">
+      <button class="lock-btn" onclick="goToMaths()">Proceed to Mathematics →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======= CONFIRM SUBMIT ======= -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>⚠️ Submit Examination?</h2>
+      <p>Review your attempt summary carefully before submitting.</p>
+    </div>
+    <div class="modal-body">
+      <div class="conf-grid" id="confGrid"></div>
+      <div class="conf-warn">⚠️ Once submitted, you <strong>cannot</strong> return to modify answers. This action is irreversible.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="mf-cancel" onclick="hideConfirm()">← Go Back</button>
+      <button class="mf-submit" onclick="submitExam()">✓ Submit Now</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ======= SURVEY SCREEN ======= -->
+<div id="surveyScreen">
+  <div class="survey-wrap">
+    <div class="survey-top">
+      <div class="s-badge">📋 Quick Feedback</div>
+      <h2>How was your experience?</h2>
+      <p>Help us improve this practice test. Takes less than 30 seconds.</p>
+    </div>
+
+    <!-- Q1: Overall rating (stars) -->
+    <div class="survey-card">
+      <div class="sq-label">Question 1 of 4</div>
+      <div class="sq-title">How would you rate this CBT practice test overall?</div>
+      <div class="star-row" id="stars1">
+        <button class="star-btn" onclick="rateStar(1,1)">⭐</button>
+        <button class="star-btn" onclick="rateStar(1,2)">⭐</button>
+        <button class="star-btn" onclick="rateStar(1,3)">⭐</button>
+        <button class="star-btn" onclick="rateStar(1,4)">⭐</button>
+        <button class="star-btn" onclick="rateStar(1,5)">⭐</button>
+      </div>
+      <div class="star-label-row"><span>Poor</span><span>Excellent</span></div>
+    </div>
+
+    <!-- Q2: Difficulty (stars) -->
+    <div class="survey-card">
+      <div class="sq-label">Question 2 of 4</div>
+      <div class="sq-title">How difficult did you find the questions?</div>
+      <div class="star-row" id="stars2">
+        <button class="star-btn" onclick="rateStar(2,1)">⭐</button>
+        <button class="star-btn" onclick="rateStar(2,2)">⭐</button>
+        <button class="star-btn" onclick="rateStar(2,3)">⭐</button>
+        <button class="star-btn" onclick="rateStar(2,4)">⭐</button>
+        <button class="star-btn" onclick="rateStar(2,5)">⭐</button>
+      </div>
+      <div class="star-label-row"><span>Too Easy</span><span>Very Hard</span></div>
+    </div>
+
+    <!-- Q3: UI Experience (radio) -->
+    <div class="survey-card">
+      <div class="sq-label">Question 3 of 4</div>
+      <div class="sq-title">How would you describe the UI and interface experience?</div>
+      <div class="radio-opts" id="radio3">
+        <div class="radio-opt" onclick="pickRadio(3,this)"><div class="radio-dot"></div><div class="radio-opt-text">🤩 Excellent — clean, smooth and easy to use</div></div>
+        <div class="radio-opt" onclick="pickRadio(3,this)"><div class="radio-dot"></div><div class="radio-opt-text">👍 Good — mostly worked well</div></div>
+        <div class="radio-opt" onclick="pickRadio(3,this)"><div class="radio-dot"></div><div class="radio-opt-text">😐 Average — some things felt off</div></div>
+        <div class="radio-opt" onclick="pickRadio(3,this)"><div class="radio-dot"></div><div class="radio-opt-text">😕 Needs improvement — a lot of issues</div></div>
+      </div>
+    </div>
+
+    <!-- Q4: Would recommend (radio) -->
+    <div class="survey-card">
+      <div class="sq-label">Question 4 of 4</div>
+      <div class="sq-title">Would you recommend this practice test to a fellow MHT-CET aspirant?</div>
+      <div class="radio-opts" id="radio4">
+        <div class="radio-opt" onclick="pickRadio(4,this)"><div class="radio-dot"></div><div class="radio-opt-text">✅ Yes, definitely!</div></div>
+        <div class="radio-opt" onclick="pickRadio(4,this)"><div class="radio-dot"></div><div class="radio-opt-text">🤔 Maybe, needs some improvement</div></div>
+        <div class="radio-opt" onclick="pickRadio(4,this)"><div class="radio-dot"></div><div class="radio-opt-text">❌ No, I wouldn't</div></div>
+      </div>
+    </div>
+
+    <button class="survey-submit-btn" onclick="submitSurvey()">View My Results →</button>
+
+
+    <div class="credit-footer">
+      <div class="credit-inner">
+        <span class="credit-label">A concept by</span>
+        <span class="credit-name">Vedant Bhat</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= RESULTS ======= -->
+<div id="results"></div>
+
+<script>
+// ============================================================
+// ALL 150 QUESTIONS
+// ============================================================
+const questions = [
+// ---- PHYSICS (1-50) ----
+{id:1,section:'physics',marks:1,text:`What is the effect of humidity on sound waves when humidity increases?`,options:['Speed of sound waves is more','Speed of sound waves is less','Speed of sound waves remains same','Speed of sound waves becomes zero'],correct:0,hint:`v = √(γRT/M); humidity ↓ avg. molecular weight → speed ↑`},
+{id:2,section:'physics',marks:1,text:`If α, β and γ are coefficients of linear, area and volume expansion respectively, then:`,options:['γ = 3α','α = 3γ','β = 3α','γ = 3β'],correct:0,hint:`Derive from (L+ΔL)³, neglecting higher-order terms: γ = 3α`},
+{id:3,section:'physics',marks:1,text:`A liquid is filled up to a height of 20 cm in a cylindrical vessel. The speed of liquid coming out of a small hole at the bottom is (g = 10 m s⁻²):`,options:['1.2 m s⁻¹','1 m s⁻¹','2 m s⁻¹','3.2 m s⁻¹'],correct:2,hint:`v = √(2gh) = √(2×10×0.2) = 2 m s⁻¹ (Torricelli's theorem)`},
+{id:4,section:'physics',marks:1,text:`For a perfect gas, two pressures P₁ and P₂ are shown in a V–T graph. The graph shows:`,options:['P₁ > P₂','P₁ < P₂','P₁ = P₂','Insufficient data'],correct:0,hint:`Slope of V–T graph = nR/P; steeper slope ⇒ lower P, so P₂ < P₁`},
+{id:5,section:'physics',marks:1,text:`A body of mass 2 kg moving with speed 4 m/s makes an elastic collision with another body at rest and continues with one-fourth of its initial speed. The speed of the two-body centre of mass is:`,options:['2.5 m/s','5 m/s','7.5 m/s','10 m/s'],correct:0,hint:`V_cm = (m₁u₁)/(m₁+m₂); solving gives V_cm = 2.5 m/s`},
+{id:6,section:'physics',marks:1,text:`According to the law of equipartition of energy, the molar specific heat of a diatomic gas at constant volume, where the molecule has one additional vibrational mode, is:`,options:['(9/2)R','(5/2)R','(3/2)R','(7/2)R'],correct:3,hint:`f = 5 + 2(1 vib. mode) = 7; Cᵥ = (f/2)R = (7/2)R`},
+{id:7,section:'physics',marks:1,text:`A metallic rod of linear density 0.45 kg m⁻¹ lies horizontally on a smooth inclined plane at 45° with horizontal. Minimum current to keep it stationary when B = 0.15 T acts vertically upward (g = 10 m/s²):`,options:['30 A','15 A','10 A','3 A'],correct:0,hint:`mg sin 45° = BIL cos 45°; I = (m/L)(g/B) = 0.45×10/0.15 = 30 A`},
+{id:8,section:'physics',marks:1,text:`A sphere of radius R has charge density ρ = Cr². At distance R/2 from centre, the electric field magnitude is:`,options:['CR³/(20ε₀)','CR³/(10ε₀)','CR³/(5ε₀)','None of these'],correct:3,hint:`Using Gauss's law: E = CR³/(40ε₀); none of the given options match`},
+{id:9,section:'physics',marks:1,text:`Two point charges −q and +q are placed at distance L apart. At distance R (R ≫ L), the electric field intensity varies as:`,options:['1/R³','1/R⁴','1/R⁶','1/R²'],correct:0,hint:`Dipole field: E ∝ 1/R³ for R ≫ L`},
+{id:10,section:'physics',marks:1,text:`Work done in increasing size of a soap film from 10 cm × 6 cm to 10 cm × 11 cm is 3 × 10⁻⁴ J. Surface tension is:`,options:['11 × 10⁻² N/m','6 × 10⁻² N/m','3 × 10⁻² N/m','1.5 × 10⁻² N/m'],correct:2,hint:`ΔA = 2×10×(11−6) cm² = 100 cm²; S = W/(2ΔA) = 3×10⁻² N/m`},
+{id:11,section:'physics',marks:1,text:`A sample of gas expands from V₁ to V₂. Work done is greatest when expansion is:`,options:['Isothermal','Isobaric','Adiabatic','Equal in all cases'],correct:1,hint:`Isobaric expansion gives maximum area under P–V curve`},
+{id:12,section:'physics',marks:1,text:`The figure shows currents in a part of an electric circuit. The current i is:`,options:['1.7 amp','3.7 amp','1.3 amp','1 amp'],correct:0,hint:`Apply Kirchhoff's junction rule at successive nodes: i = 1.7 A`},
+{id:13,section:'physics',marks:1,text:`Two discs of M.I. I₁, I₂ and angular speeds ω₁, ω₂ rotate about same axis and are brought together. Combined rotational K.E. is:`,options:['(I₁ω₁ + I₂ω₂)² / [2(I₁ + I₂)]','(I₁ + I₂)(ω₁ + ω₂)² / 2','Same as option (a)','None of these'],correct:0,hint:`ω = (I₁ω₁+I₂ω₂)/(I₁+I₂); KE = ½(I₁+I₂)ω² = (I₁ω₁+I₂ω₂)²/[2(I₁+I₂)]`},
+{id:14,section:'physics',marks:1,text:`If a current is passed in a spring, it:`,options:['Gets compressed','Gets expanded','Oscillates','Remains unchanged'],correct:0,hint:`Adjacent turns carry current in same direction → attract each other → spring compresses`},
+{id:15,section:'physics',marks:1,text:`A long solenoid carrying current produces field B. If current is doubled and turns per cm halved, new field =`,options:['B','2B','4B','B/2'],correct:0,hint:`B = μ₀nI; new B = μ₀(n/2)(2I) = μ₀nI = B`},
+{id:16,section:'physics',marks:1,text:`Hailstones strike a frozen lake at 30° with vertical and rebound at 60° with vertical. Coefficient of restitution is:`,options:['1/√3','1/3','√3','3'],correct:1,hint:`e = (v cos 60°)/(u cos 30°); using v sin 60° = u sin 30° gives e = 1/3`},
+{id:17,section:'physics',marks:1,text:`Two processes A and B for a gas are shown on a P–V diagram (A is above B, same endpoints). Then:`,options:['ΔQ_A < ΔQ_B, ΔU_A < ΔU_B','ΔQ_A > ΔQ_B, ΔU_A > ΔU_B','ΔQ_A > ΔQ_B, ΔU_A = ΔU_B','ΔQ_A = ΔQ_B, ΔU_A = ΔU_B'],correct:2,hint:`Same endpoints ⇒ ΔU same; W_A > W_B ⇒ ΔQ_A > ΔQ_B`},
+{id:18,section:'physics',marks:1,text:`Two identical coils each of self-inductance L are connected in series with 100% coupling. Total self-inductance is:`,options:['L','2L','3L','4L'],correct:3,hint:`L_eq = L + L + 2M; M = L (100% coupling); L_eq = 4L`},
+{id:19,section:'physics',marks:1,text:`In a moving coil galvanometer, deflection θ is related to current i by:`,options:['i ∝ tan θ','i ∝ θ','i ∝ θ²','i ∝ √θ'],correct:1,hint:`Restoring torque = Cθ = NiAB ⇒ i ∝ θ`},
+{id:20,section:'physics',marks:1,text:`Metals magnetised by orientation of atomic magnetic moments in an external field are called:`,options:['Diamagnetic','Paramagnetic','Ferromagnetic','Antimagnetic'],correct:1,hint:`Paramagnetic materials have permanent atomic dipoles that align with external field`},
+{id:21,section:'physics',marks:1,text:`A step-up transformer operates on 230 V, supplies 2 A. Primary to secondary turn ratio is 1:25. Current in primary is:`,options:['25 A','50 A','15 A','12.5 A'],correct:1,hint:`I_p/I_s = N_s/N_p; I_p = 2 × 25 = 50 A`},
+{id:22,section:'physics',marks:1,text:`Wheatstone bridge (100 Ω, 10 Ω, 60 Ω, 5 Ω), galvanometer 15 Ω across BD, 10 V across AC. Current through galvanometer is:`,options:['2.44 μA','4.87 μA','2.44 mA','4.87 mA'],correct:3,hint:`Node equations: V_B ≈ 0.86 V, V_D ≈ 0.79 V; I_G = 0.07/15 ≈ 4.87 mA`},
+{id:23,section:'physics',marks:1,text:`Net impedance of circuit with L = 50/π mH, C = (10³/π) μF, R = 10 Ω at 50 Hz is:`,options:['10√2 Ω','15 Ω','5√5 Ω','25 Ω'],correct:2,hint:`X_L = 5 Ω, X_C = 10 Ω; Z = √((10)² + (10−5)²) = √125 = 5√5 Ω`},
+{id:24,section:'physics',marks:1,text:`Two concentric circular loops of radii R₁ and R₂ (R₁ ≫ R₂). Mutual inductance M is proportional to:`,options:['R₂²/R₁','R₁/R₂','R₂/R₁','R₁²/R₂'],correct:0,hint:`M = μ₀πR₂²/(2R₁); M ∝ R₂²/R₁`},
+{id:25,section:'physics',marks:1,text:`In an LCR series circuit, current leads voltage by 45°. The value of C is:`,options:['1/[πf(2πfL − R)]','1/[2πf(2πfL − R)]','1/[πf(2πfL + R)]','1/[2πf(2πfL + R)]'],correct:3,hint:`tan 45° = (X_C − X_L)/R ⇒ 1/ωC = R + ωL; C = 1/[ω(R + ωL)]`},
+{id:26,section:'physics',marks:1,text:`A thin prism of glass (μ_g = 3/2) dipped in water (μ_w = 4/3). Minimum deviation in terms of prism angle A:`,options:['A/5','A/8','A/2','A/3'],correct:1,hint:`δ_m = (μ_g/μ_w − 1)A = (9/8 − 1)A = A/8`},
+{id:27,section:'physics',marks:1,text:`A liquid does not wet the solid surface if angle of contact is:`,options:['Zero','Equal to 45°','Equal to 60°','Greater than 90°'],correct:3,hint:`Contact angle > 90° means non-wetting (e.g., mercury on glass)`},
+{id:28,section:'physics',marks:1,text:`In double slit experiment, monochromatic source is shifted to S′ at angle φ above SQ. Central bright fringe will be:`,options:["At O' (above O)","At O (unchanged)","At O'' (below O)","At P"],correct:2,hint:`Central fringe shifts opposite to source shift, to O''`},
+{id:29,section:'physics',marks:1,text:`If radius of ²⁵⁶X nucleus is 8 fermi, radius of ⁴He nucleus is:`,options:['16 fermi','2 fermi','32 fermi','4 fermi'],correct:1,hint:`R ∝ A^(1/3); R₂ = 8 × (4/256)^(1/3) = 8 × (1/4) = 2 fermi`},
+{id:30,section:'physics',marks:1,text:`Four identical solid spheres (mass m, radius a) at corners of a square of side b. Moment of inertia about one side of the square is:`,options:['(4/5)ma²','(8/5)ma² + mb²','(8/5)ma² + 2mb²','(4/5)ma² + 2mb²'],correct:2,hint:`Two spheres on axis: (2/5)ma² each; two at distance b: (2/5)ma² + mb² each. Total = (8/5)ma² + 2mb²`},
+{id:31,section:'physics',marks:1,text:`Ratio of number density of X-ray photons (λ = 1 nm) to visible light photons (λ = 500 nm), for same power 200 W:`,options:['1/500','250','1/250','500'],correct:0,hint:`n ∝ λ (same power); n₁/n₂ = λ₁/λ₂ = 1/500`},
+{id:32,section:'physics',marks:1,text:`Parallel plate capacitor: air capacitance 6 μF, with dielectric becomes 30 μF. Permittivity of medium (ε₀ = 8.85 × 10⁻¹² C² N⁻¹ m⁻²):`,options:['1.77 × 10⁻¹² C² N⁻¹ m⁻²','0.44 × 10⁻¹⁰ C² N⁻¹ m⁻²','5.00 C² N⁻¹ m⁻²','0.44 × 10⁻¹³ C² N⁻¹ m⁻²'],correct:1,hint:`K = 30/6 = 5; ε = Kε₀ = 5×8.85×10⁻¹² = 4.4×10⁻¹¹ = 0.44×10⁻¹⁰`},
+{id:33,section:'physics',marks:1,text:`Sodium and copper have work functions 2.3 eV and 4.5 eV. Ratio of threshold wavelengths (Na:Cu) is nearest to:`,options:['1:2','4:1','2:1','1:4'],correct:2,hint:`λ₀ ∝ 1/W₀; ratio = 4.5/2.3 ≈ 2:1`},
+{id:34,section:'physics',marks:1,text:`When number of nucleons in nuclei increases, binding energy per nucleon:`,options:['Increases continuously','Decreases continuously','Remains constant','First increases then decreases'],correct:3,hint:`BE/nucleon curve peaks around Fe-56, then decreases for heavier nuclei`},
+{id:35,section:'physics',marks:1,text:`Three capacitors 2 μF, 3 μF and 6 μF in series. Equivalent capacitance is:`,options:['1/2 μF','1 μF','2 μF','11 μF'],correct:1,hint:`1/C = 1/2 + 1/3 + 1/6 = 1; C = 1 μF`},
+{id:36,section:'physics',marks:1,text:`Energy levels of H-atom shown. Transition for shortest wavelength emission is:`,options:['C','D','B','A'],correct:1,hint:`Shortest λ ⇒ largest ΔE; transition D gives maximum energy`},
+{id:37,section:'physics',marks:1,text:`A logic gate is identified from waveforms: output Y = 1 whenever any input is 1. The gate is:`,options:['AND gate','OR gate','NOR gate','NAND gate'],correct:1,hint:`Output is 1 when either input is 1 → OR gate`},
+{id:38,section:'physics',marks:1,text:`Ratio of fundamental frequencies of open pipe to closed pipe of same length:`,options:['1:2','2:1','1:3','3:1'],correct:1,hint:`f_open/f_closed = (v/2l)/(v/4l) = 2:1`},
+{id:39,section:'physics',marks:1,text:`Consider: (i) Cₚ/Cᵥ for diatomic > monoatomic. (ii) Cₚ/Cᵥ for helium > hydrogen. Which is/are correct?`,options:['(i) only','(ii) only','(i) and (ii)','None of these'],correct:1,hint:`γ_mono (5/3) > γ_diatomic (7/5); statement (i) is wrong. He is monoatomic, H₂ is diatomic, so (ii) is correct`},
+{id:40,section:'physics',marks:1,text:`In unbiased p-n junction, electrons diffuse from n-region to p-region because:`,options:['Holes in p-region attract them','Potential difference','Electron concentration in n-region is more','None of these'],correct:2,hint:`Diffusion occurs due to concentration gradient`},
+{id:41,section:'physics',marks:1,text:`Particle travels 4× as fast as electron; de Broglie wavelength ratio (particle:electron) = 2:1. Mass of particle is:`,options:['16 times mass of e⁻','8 times mass of e⁻','1/16 times mass of e⁻','1/8 times mass of e⁻'],correct:3,hint:`λ = h/mv; λ_p/λ_e = 2 ⇒ m_p × 4v_e × 2 = m_e × v_e; m_p = m_e/8`},
+{id:42,section:'physics',marks:1,text:`In Young's double slit experiment, first minima is directly in front of S₁. Slit separation d in terms of λ is:`,options:['λ/[2(√5 − 2)]','λ/(√5 − 2)','λ/[2(5 − √2)]','λ/(5 − √2)'],correct:0,hint:`Path difference = λ/2; geometry gives d = λ/[2(√5 − 2)]`},
+{id:43,section:'physics',marks:1,text:`Simple pendulum in SHM: amplitude a, period T. Speed at displacement x = a/2 is:`,options:['aπ√3/T','a²π²√3/T²','a/T','aπ/T'],correct:0,hint:`v = ω√(a² − x²) = (2π/T)·(a√3/2) = aπ√3/T`},
+{id:44,section:'physics',marks:1,text:`Astronomical telescope: magnifying power 10, eyepiece focal length 20 cm. Focal length of objective is:`,options:['1/200 cm','1/2 cm','200 cm','2 cm'],correct:2,hint:`M = f₀/fₑ; f₀ = 10 × 20 = 200 cm`},
+{id:45,section:'physics',marks:1,text:`Torque about origin when force 3ĵ N acts on particle at position vector 2k̂ m is:`,options:['6ĵ Nm','−6î Nm','6k̂ Nm','6î Nm'],correct:1,hint:`τ = r⃗ × F⃗ = 2k̂ × 3ĵ = 6(k̂ × ĵ) = −6î Nm`},
+{id:46,section:'physics',marks:1,text:`Planet of mass m orbits sun of mass M in elliptical orbit (max distance r₁, min distance r₂). Time period is proportional to:`,options:['r₁^(2/5)','[(r₁+r₂)/2]^(3/2)','[(r₁−r₂)/2]^(3/2)','r^(3/2)'],correct:1,hint:`Kepler's 3rd law: T² ∝ a³ where a = (r₁+r₂)/2 (semi-major axis)`},
+{id:47,section:'physics',marks:1,text:`Planet has mass 2M_E and same density as Earth. Weight of object (W on Earth) on this planet is:`,options:['2W','W','2^(1/3) W','√2 W'],correct:2,hint:`Same density, 2M: R_P = 2^(1/3)R_E; g_P = 2^(1/3)g_E ⇒ W_P = 2^(1/3)W`},
+{id:48,section:'physics',marks:1,text:`Bucket on 1.6 m string whirled in vertical circle. Minimum speed at top so water doesn't spill:`,options:['4 m/sec','6.25 m/sec','16 m/sec','None of these'],correct:0,hint:`v = √(gr) = √(10×1.6) = 4 m/s`},
+{id:49,section:'physics',marks:1,text:`Minimum velocity (m s⁻¹) to traverse a flat curve of radius 150 m, μ = 0.6, to avoid skidding:`,options:['60','30','15','25'],correct:1,hint:`v = √(μrg) = √(0.6×150×9.8) ≈ 30 m/s`},
+{id:50,section:'physics',marks:1,text:`Mean free path of a gas molecule is:`,options:['Inversely proportional to number of molecules per unit volume','Inversely proportional to diameter of molecule','Directly proportional to √T','Directly proportional to molecular mass'],correct:0,hint:`λ = 1/(√2 π d² n); inversely proportional to n`},
+
+// ---- CHEMISTRY (51-100) ----
+{id:51,section:'chemistry',marks:1,text:`Identify the species having one π-bond and maximum number of canonical forms:`,options:['SO₃','O₂','SO₂','CO'],correct:0,hint:`SO₃ has 3 equivalent resonance structures with π-bond delocalized over 3 S–O bonds`},
+{id:52,section:'chemistry',marks:1,text:`Shortest wavelength of H-atom in Lyman series is λ. Longest wavelength in Balmer series of He⁺ is:`,options:['5λ/9','9λ/5','36λ/5','5λ'],correct:2,hint:`Lyman limit λ = 1/R; Balmer longest in He⁺ (n=3→2): λ' = 9/(5R·4)... = 36λ/5`},
+{id:53,section:'chemistry',marks:1,text:`Number of atoms is largest in which sample?`,options:['4.0 g of hydrogen','71.0 g of chlorine','127.0 g of iodine','48.0 g of oxygen'],correct:0,hint:`H₂: 4/2 = 2 mol × 2N_A = 4N_A; Cl₂: 2N_A; I₂: ~N_A; O₂: 3N_A. H is largest`},
+{id:54,section:'chemistry',marks:1,text:`Van der Waals equation reduces to ideal gas equation P = nRT/V when:`,options:['T is high and P is low','T is low and P is high','Both T and P are very high','Both T and P are very low'],correct:0,hint:`High T reduces intermolecular forces effect; low P means large volume so excluded volume negligible`},
+{id:55,section:'chemistry',marks:1,text:`Copper crystallises in FCC with unit cell length 361 pm. Radius of copper atom is:`,options:['157 pm','128 pm','108 pm','181 pm'],correct:1,hint:`FCC: r = a/(2√2) = 361/(2√2) ≈ 128 pm`},
+{id:56,section:'chemistry',marks:1,text:`For an ideal solution of components A and B, which is true?`,options:['ΔH_mixing < 0','ΔH_mixing > 0','A–B interaction stronger than A–A and B–B','A–B interaction identical to A–A and B–B interactions'],correct:3,hint:`Ideal solution: ΔH_mix = 0; A–B interactions = A–A and B–B interactions`},
+{id:57,section:'chemistry',marks:1,text:`Correct order of limiting molar conductivity for cations in water at 298 K:`,options:['H⁺ > Na⁺ > K⁺ > Ca²⁺ > Mg²⁺','H⁺ > Ca²⁺ > Mg²⁺ > K⁺ > Na⁺','Mg²⁺ > H⁺ > Ca²⁺ > K⁺ > Na⁺','H⁺ > K⁺ > Ca²⁺ > Mg²⁺ > Na⁺'],correct:3,hint:`H⁺ (proton hopping) >> K⁺ > Ca²⁺ > Mg²⁺ > Na⁺`},
+{id:58,section:'chemistry',marks:1,text:`The statement that is NOT true about ozone is:`,options:['CFCs release Cl radicals which react with O₃ to give chlorine dioxide radicals','In atmosphere, it is depleted by CFCs','In stratosphere, it forms protective shield against UV','It will oxidise PbS to PbSO₄'],correct:0,hint:`CFCs release Cl• which reacts with O₃ → ClO•, not chlorine dioxide (ClO₂) radicals`},
+{id:59,section:'chemistry',marks:1,text:`Density of 'x' M NaOH solution is 1.12 g mL⁻¹, molality is 3 m. Molar mass of NaOH = 40 g/mol. x = ?`,options:['3.5','3.0','3.8','2.8'],correct:2,hint:`m = (x×1000)/(1120−40x) = 3; solving: x ≈ 3.8`},
+{id:60,section:'chemistry',marks:1,text:`Identify correct trend (Ti: 22, Cr: 24, Mo: 42):`,options:['Δₒ [Cr(H₂O)₆]²⁺ > [Mo(H₂O)₆]²⁺ and [Ti(H₂O)₆]³⁺ > [Ti(H₂O)₆]²⁺','Δₒ [Cr(H₂O)₆]²⁺ > [Mo(H₂O)₆]²⁺ and [Ti(H₂O)₆]³⁺ < [Ti(H₂O)₆]²⁺','Δₒ [Cr(H₂O)₆]²⁺ < [Mo(H₂O)₆]²⁺ and [Ti(H₂O)₆]³⁺ > [Ti(H₂O)₆]²⁺','Δₒ [Cr(H₂O)₆]²⁺ < [Mo(H₂O)₆]²⁺ and [Ti(H₂O)₆]³⁺ < [Ti(H₂O)₆]²⁺'],correct:2,hint:`4d > 3d: Mo > Cr. Higher oxidation state → larger Δₒ: Ti³⁺ > Ti²⁺`},
+{id:61,section:'chemistry',marks:1,text:`Halogenation of which compound yields m-substituted product w.r.t. methyl group as major product?`,options:['Toluene with –CHO (benzaldehyde)','Toluene with –NO₂ (nitrotoluene)','Toluene with –OH (cresol)','Toluene with –CH₃ (xylene)'],correct:0,hint:`–CHO is meta-directing (EWG); gives meta-halogenation relative to CHO`},
+{id:62,section:'chemistry',marks:1,text:`Element crystallises in FCC with cell edge a. Distance between centres of two nearest octahedral voids is:`,options:['a/√2','a','√2a','a/2'],correct:0,hint:`Octahedral voids at edge centres; distance between nearest ones = a/√2`},
+{id:63,section:'chemistry',marks:1,text:`Correct order of stability of carbocations: A (triphenylmethyl), B (diphenylmethyl), C (cycloheptatrienyl), D (secondary alkyl):`,options:['A > B > C > D','B > C > A > D','C > B > A > D','C > A > B > D'],correct:3,hint:`Tropylium C (aromatic 6π) is most stable; then A > B > D`},
+{id:64,section:'chemistry',marks:1,text:`Correct order of bond orders of C₂²⁻, N₂²⁻ and O₂²⁻:`,options:['C₂²⁻ < N₂²⁻ < O₂²⁻','O₂²⁻ < N₂²⁻ < C₂²⁻','C₂²⁻ < O₂²⁻ < N₂²⁻','N₂²⁻ < C₂²⁻ < O₂²⁻'],correct:1,hint:`C₂²⁻: BO=3; N₂²⁻: BO=2; O₂²⁻: BO=1. So O₂²⁻ < N₂²⁻ < C₂²⁻`},
+{id:65,section:'chemistry',marks:1,text:`Oxidation number of potassium in K₂O, K₂O₂ and KO₂ respectively is:`,options:['+2, +1 and +½','+1, +1 and +1','+1, +4 and +2','+2, +2 and +1'],correct:1,hint:`K is always +1. Oxygen states differ: O²⁻, O₂²⁻ (peroxide), O₂⁻ (superoxide)`},
+{id:66,section:'chemistry',marks:1,text:`Sodium metal on dissolution in liquid ammonia gives deep blue solution due to formation of:`,options:['Sodium-ammonia complex','Sodamide','Sodium ion-ammonia complex','Ammoniated electrons'],correct:3,hint:`Na → Na⁺ + e⁻; electrons become solvated (ammoniated) → deep blue`},
+{id:67,section:'chemistry',marks:1,text:`The EMF of cell Tl│Tl⁺(0.001M)║Cu²⁺(0.01M)│Cu is 0.83 V. It could be increased by:`,options:['Increasing [Tl⁺]','Increasing both [Tl⁺] and [Cu²⁺]','Decreasing both [Tl⁺] and [Cu²⁺]','Increasing [Cu²⁺]'],correct:3,hint:`Nernst: E increases when [Cu²⁺] increases (anode species) or [Tl⁺] decreases`},
+{id:68,section:'chemistry',marks:1,text:`Reaction at cathode in cells commonly used in clocks (alkaline/dry cell) involves:`,options:['Reduction of Mn from +4 to +3','Oxidation of Mn from +3 to +4','Reduction of Mn from +7 to +2','Oxidation of Mn from +2 to +4'],correct:0,hint:`MnO₂ + H₂O + e⁻ → MnO(OH) + OH⁻; Mn reduces +4 → +3`},
+{id:69,section:'chemistry',marks:1,text:`Which complex is homoleptic?`,options:['[Ni(CN)₄]²⁻','[Ni(NH₃)₂Cl₂]','[Fe(NH₃)₄Cl₂]⁺','[Co(NH₃)₄Cl₂]⁺'],correct:0,hint:`Homoleptic = all ligands same; [Ni(CN)₄]²⁻ has only CN⁻ ligands`},
+{id:70,section:'chemistry',marks:1,text:`The complex that can show optical activity is:`,options:['trans-[Cr(Cl₂)(ox)₂]³⁻','trans-[Fe(NH₃)₂(CN)₄]⁻','cis-[Fe(NH₃)₂(CN)₄]⁻','cis-[Cr(ox)₂(NH₃)₂]⁻'],correct:3,hint:`cis-[Cr(ox)₂(NH₃)₂]⁻ is chiral (non-superimposable on mirror image) → optically active`},
+{id:71,section:'chemistry',marks:1,text:`Ni(NO₃)₂ is electrolysed using 0.1 F of electricity. Moles of Ni deposited at cathode:`,options:['0.05','0.20','0.15','0.1'],correct:0,hint:`Ni²⁺ + 2e⁻ → Ni; moles Ni = 0.1/2 = 0.05 mol`},
+{id:72,section:'chemistry',marks:1,text:`First order decomposition: time to reach [A₀]/4 is t₁ and [A₀]/8 is t₂. Ratio t₁/t₂ is:`,options:['4/3','3/2','3/4','2/3'],correct:3,hint:`t₁ = 2t½ = 2ln2/k; t₂ = 3t½ = 3ln2/k; t₁/t₂ = 2/3`},
+{id:73,section:'chemistry',marks:1,text:`Strongest reducing agent among group 15 hydrides:`,options:['SbH₃','NH₃','BiH₃','PH₃'],correct:2,hint:`Reducing power of hydrides increases down group 15; BiH₃ is strongest`},
+{id:74,section:'chemistry',marks:1,text:`t₁/₄ (time for concentration to drop to 3/4 of initial) for first order reaction with rate constant k:`,options:['0.75/k','0.69/k','0.29/k','0.12/k'],correct:2,hint:`t = (1/k)ln(C₀/C) = (1/k)ln(4/3) ≈ 0.29/k`},
+{id:75,section:'chemistry',marks:1,text:`Most reactive in electrophilic addition among the following:`,options:['I₂','ICl','Cl₂','Br₂'],correct:1,hint:`ICl is most polarized (I⁺Cl⁻) due to electronegativity difference → best electrophile`},
+{id:76,section:'chemistry',marks:1,text:`Major product of reaction of iodo-chloro-bromo benzene with AgCN:`,options:['Product retaining Cl and I','Isocyanide (NC) product','Product retaining CN and Br','CN replacing I via ionic mechanism'],correct:3,hint:`AgCN gives CN⁻; replaces I (most reactive C–X bond) via nucleophilic aromatic substitution`},
+{id:77,section:'chemistry',marks:1,text:`Major product of reaction of PhO–C(CH₃)₃ with HI:`,options:['Iodobenzene + (CH₃)₃Cl','Iodobenzene + (CH₃)₃COH','Phenol + (CH₃)₃COH','Phenol + (CH₃)₃CI'],correct:3,hint:`HI cleaves ArO–C bond; I⁻ attacks (CH₃)₃C⁺ → (CH₃)₃CI; PhO⁻ + H⁺ → Phenol`},
+{id:78,section:'chemistry',marks:1,text:`Reagent/reaction to convert alkene to aldehyde:`,options:['PCC oxidation','Ozonolysis','BH₃ then H₂O₂/OH⁻ then PCC','HBr then oxidation'],correct:1,hint:`Ozonolysis of alkene (with reductive workup Zn/H₂O) gives aldehyde/ketone directly`},
+{id:79,section:'chemistry',marks:1,text:`Which salt solution coagulates Fe(OH)₃ colloid (positive sol) fastest?`,options:['10 mL of 0.2 mol dm⁻³ AlCl₃','10 mL of 0.1 mol dm⁻³ Na₂SO₄','10 mL of 0.1 mol dm⁻³ Ca₃(PO₄)₂','10 mL of 0.1 mol dm⁻³ NaCl'],correct:2,hint:`Fe(OH)₃ is positive sol; PO₄³⁻ (trivalent anion) most effective by Hardy-Schulze rule`},
+{id:80,section:'chemistry',marks:1,text:`Enthalpy change for adsorption and micelle formation respectively:`,options:['ΔH_ads < 0 and ΔH_mic > 0','ΔH_ads < 0 and ΔH_mic < 0','ΔH_ads > 0 and ΔH_mic < 0','ΔH_ads > 0 and ΔH_mic > 0'],correct:0,hint:`Adsorption is exothermic (ΔH < 0); micelle formation is endothermic (ΔH > 0), entropy-driven`},
+{id:81,section:'chemistry',marks:1,text:`Sugar moiety in DNA and RNA molecules respectively:`,options:['β-D-2-deoxyribose, β-D-deoxyribose','β-D-2-deoxyribose, β-D-ribose','β-D-ribose, β-D-2-deoxyribose','Both are β-D-2-deoxyribose'],correct:1,hint:`DNA: β-D-2-deoxyribose (no OH at C-2); RNA: β-D-ribose (OH at C-2)`},
+{id:82,section:'chemistry',marks:1,text:`Which is NOT a copolymer?`,options:['Buna-S','Neoprene','PHBV','Buna-N'],correct:1,hint:`Neoprene is a homopolymer of chloroprene; Buna-S, PHBV, Buna-N are copolymers`},
+{id:83,section:'chemistry',marks:1,text:`Calamine and Malachite are ores of:`,options:['Nickel and Aluminium','Zinc and Copper','Copper and Iron','Aluminium and Zinc'],correct:1,hint:`Calamine = ZnCO₃ (Zinc); Malachite = Cu₂(OH)₂CO₃ (Copper)`},
+{id:84,section:'chemistry',marks:1,text:`Collector used during concentration of sulphide ores by froth flotation:`,options:['Pine oils','Xanthates','Fatty acids','Cresols'],correct:1,hint:`Xanthates are collectors (selective wetting agents) for sulphide ores`},
+{id:85,section:'chemistry',marks:1,text:`Vulcanisation of rubber is carried out by heating a mixture of:`,options:['Isoprene and styrene','Neoprene and sulphur','Isoprene and sulphur','Natural rubber and sulphur'],correct:3,hint:`Vulcanisation = cross-linking natural rubber (polyisoprene) with sulphur`},
+{id:86,section:'chemistry',marks:1,text:`Reaction used for preparation of soap from fat:`,options:['Reduction reaction','Alkaline hydrolysis reaction','Addition reaction','Oxidation reaction'],correct:1,hint:`Saponification = alkaline hydrolysis of ester (fat) with NaOH → soap (RCOONa) + glycerol`},
+{id:87,section:'chemistry',marks:1,text:`Electronic configuration with highest magnetic moment:`,options:['[Ar] 3d⁷','[Ar] 3d⁸','[Ar] 3d³','[Ar] 3d⁵'],correct:3,hint:`[Ar] 3d⁵: 5 unpaired electrons → μ = √35 BM (maximum)`},
+{id:88,section:'chemistry',marks:1,text:`Lanthanoid most likely to deviate from +3 oxidation state (Ce=58, La=57, Lu=71, Gd=64):`,options:['Ce (At. No. 58)','La (At. No. 57)','Lu (At. No. 71)','Gd (At. No. 64)'],correct:0,hint:`Ce readily shows +4 state (achieving stable Xe-like configuration)`},
+{id:89,section:'chemistry',marks:1,text:`Increasing order of SN1 reactivity: (I) CH₃CH(Cl)CH₂CH₃, (II) CH₃CH₂CH₂Cl, (III) p-H₃CO–C₆H₄–CH₂Cl:`,options:['(III) < (II) < (I)','(II) < (I) < (III)','(I) < (III) < (II)','(II) < (III) < (I)'],correct:1,hint:`SN1 ∝ carbocation stability: II (1°) < I (2°) < III (benzyl + OCH₃, most stable)`},
+{id:90,section:'chemistry',marks:1,text:`Difference in reaction of phenol with Br₂ in CHCl₃ vs. Br₂ in H₂O is due to:`,options:['Hyperconjugation','Polarity of solvent','Free radical formation','Electrophilicity of Br₂'],correct:1,hint:`In H₂O, Br₂ ionizes → Br⁺ (strong electrophile) → tribromo; in CHCl₃, Br₂ molecular → monobromo`},
+{id:91,section:'chemistry',marks:1,text:`Major product of elimination of 1-bromo-1-methylcyclohexane with OH⁻/C₂H₅OH:`,options:['Methylenecyclohexane','Bromocyclohexane','1-methylcyclohexene','Cyclohexane'],correct:2,hint:`E2 follows Zaitsev's rule; more substituted 1-methylcyclohexene is major product`},
+{id:92,section:'chemistry',marks:1,text:`Increasing order of nitration of: (A) aniline, (B) chlorobenzene, (C) anisole, (D) toluene:`,options:['(A) < (B) < (D) < (C)','(A) < (B) < (C) < (D)','(B) < (A) < (C) < (D)','(B) < (D) < (C) < (A)'],correct:3,hint:`NH₂ strongest activator > OCH₃ > CH₃ > Cl (weak deactivator): B < D < C < A`},
+{id:93,section:'chemistry',marks:1,text:`Element X: BCC, cell edge 200 pm, density 5 g cm⁻³. Number of atoms in 300 g (N_A = 6.0 × 10²³ mol⁻¹):`,options:['5N_A','6N_A','15N_A','25N_A'],correct:0,hint:`BCC: Z=2; M = ρ·N_A·a³/Z = 60 g/mol; moles in 300g = 5; atoms = 5N_A`},
+{id:94,section:'chemistry',marks:1,text:`2 mol each of ethylene glycol and glucose dissolved in 500 g water. Boiling point (K_b = 0.52 K kg mol⁻¹):`,options:['379.2 K','377.3 K','375.3 K','374.2 K'],correct:1,hint:`Total molality = 4/0.5 = 8 m; ΔT_b = 0.52×8 = 4.16 K; T_b = 373.15 + 4.16 ≈ 377.3 K`},
+{id:95,section:'chemistry',marks:1,text:`Intramolecular aldol condensation product of pentanedial (glutaraldehyde):`,options:['Cyclopentanone derivative','Bicyclic ketone','Cyclohexenone','Cyclopentenecarbaldehyde'],correct:0,hint:`Glutaraldehyde undergoes intramolecular aldol → 2-hydroxycyclopentanone-type derivative`},
+{id:96,section:'chemistry',marks:1,text:`Major product when ethylbenzene reacts with (i) alkaline KMnO₄, (ii) H₃O⁺:`,options:['Benzoic acid','Benzaldehyde','Phenylacetic acid','Acetophenone'],correct:0,hint:`Hot alkaline KMnO₄ oxidizes alkyl side chains to COOH; ethylbenzene → benzoic acid`},
+{id:97,section:'chemistry',marks:1,text:`1 molal aqueous solution with highest freezing point:`,options:['[Co(H₂O)₆]Cl₃','[Co(H₂O)₅Cl]Cl₂·H₂O','[Co(H₂O)₄Cl₂]Cl·2H₂O','[Co(H₂O)₃Cl₃]·3H₂O'],correct:3,hint:`Fewer ions in solution → less ΔT_f depression → higher FP; last complex gives only 1 particle`},
+{id:98,section:'chemistry',marks:1,text:`Correct order of basic strength of methyl-substituted amines in aqueous medium:`,options:['Me₂NH > MeNH₂ > Me₃N > NH₃','Me₂NH > Me₃N > MeNH₂ > NH₃','NH₃ > Me₃N > MeNH₂ > Me₂NH','Me₃N > Me₂NH > MeNH₂ > NH₃'],correct:0,hint:`In aqueous medium, solvation + inductive effects: Me₂NH > MeNH₂ > Me₃N > NH₃`},
+{id:99,section:'chemistry',marks:1,text:`Example of hypnotic drug:`,options:['Seldane','Amytal','Aspartame','Probanthine'],correct:1,hint:`Amytal (amobarbital) is a barbiturate sedative-hypnotic; Seldane is antihistamine`},
+{id:100,section:'chemistry',marks:1,text:`Correct structure of L-Glucose (using Fischer projection):`,options:['HO on left at C2,C3,C4; OH right at C5','OH on right at all chiral centres','Mixed configuration','Mirror of D-glucose with OH at C5 on right'],correct:0,hint:`L-glucose is mirror image of D-glucose; in Fischer, OH at C5 is on LEFT for L-form`},
+
+// ---- MATHEMATICS (101-150) ----
+{id:101,section:'maths',marks:2,text:`In △ABC, BC = 7, AC = 8, AB = α ∈ ℕ, cos A = 2/3. If 49 cos(3C) + 42 = m/n where gcd(m,n) = 1, then m + n =`,options:['38','39','37','36'],correct:1,hint:`Use cosine rule to find cos C = 2/7; then cos 3C = 4cos³C − 3cosC; m + n = 39`},
+{id:102,section:'maths',marks:2,text:`x(x+2)(12−k) = 2 has equal roots. Distance of point (k, k/2) from line 3x + 4y + 5 = 0 is:`,options:['15','5√3','15√5','12'],correct:0,hint:`Equal roots condition gives k; then distance = |3k + 4(k/2) + 5|/5 = 15`},
+{id:103,section:'maths',marks:2,text:`Circle C of radius 2 in 2nd quadrant touches both axes. Circle with centre (2,5) intersects C at exactly 2 points. If radius r ∈ (α, β), then 3β − 2α =`,options:['15','225','14','196'],correct:0,hint:`C: centre (−2,2); distance = 5; for 2 intersections: |r−2|<5 and r+2>5; 3β−2α=15`},
+{id:104,section:'maths',marks:2,text:`Mean and S.D. of 2, 3, 3, 4, 5, 7, a, b are 4 and √2. Mean deviation about mode is:`,options:['1','3/4','2','1/2'],correct:0,hint:`a = b = 4; mode = 4 (appears 3 times); M.D. = Σ|xᵢ − 4|/8 = 1`},
+{id:105,section:'maths',marks:2,text:`Probability of forming 12-person committee from 4 engineers, 2 doctors, 10 professors with ≥ 3 engineers and ≥ 1 doctor:`,options:['129/182','103/182','17/26','19/26'],correct:0,hint:`Total valid combinations = 1290; total ¹⁶C₁₂ = 1820; P = 1290/1820 = 129/182`},
+{id:106,section:'maths',marks:2,text:`Number of ways a bowler can take 4 wickets in a 6-ball over:`,options:['6','15','20','30'],correct:1,hint:`⁶C₄ = 15 (choosing which 4 of 6 balls take wickets)`},
+{id:107,section:'maths',marks:2,text:`\\[ \\lim_{x \\to 0} \\frac{x}{\\sqrt{1+x} - \\sqrt{1-x}} \\]`,options:['1','2','−1','−2'],correct:0,hint:`Rationalize by multiplying [√(1+x)+√(1−x)]; limit = x(√(1+x)+√(1−x))/(2x) = 1`},
+{id:108,section:'maths',marks:2,text:`Domain of \\( f(x) = \\dfrac{1}{\\sqrt{9-x^2}} \\) is:`,options:['−3 ≤ x ≤ 3','−3 < x < 3','−9 ≤ x ≤ 9','−9 < x < 9'],correct:1,hint:`Need 9 − x² > 0 ⇒ x² < 9 ⇒ x ∈ (−3, 3) — strict inequalities`},
+{id:109,section:'maths',marks:2,text:`Amplitude (argument) of \\( \\sin\\!\\left(\\frac{\\pi}{5}\\right) + i\\!\\left(1 - \\cos\\!\\left(\\frac{\\pi}{5}\\right)\\right) \\) is:`,options:['π/5','2π/5','π/10','π/15'],correct:2,hint:`Use half-angle identities; convert to polar form; Arg = π/10`},
+{id:110,section:'maths',marks:2,text:`If \\( f(x) = \\dfrac{\\sqrt{4+x}-2}{x},\\ x \\neq 0 \\) is continuous at x = 0, then f(0) =`,options:['1/2','1/4','2','3/2'],correct:1,hint:`Rationalize: lim = 1/(√4+2) = 1/4`},
+{id:111,section:'maths',marks:2,text:`\\( A = \\begin{pmatrix}\\cos^2\\theta & \\sin\\theta\\cos\\theta\\\\ \\cos\\theta\\sin\\theta & \\sin^2\\theta\\end{pmatrix} \\), B similar with φ. AB = O if:`,options:['θ = nφ','θ + φ = nπ','θ = φ + (2n+1)π/2','θ = φ + nπ/2'],correct:2,hint:`AB = O ⇒ cos(θ−φ) = 0 ⇒ θ − φ = (2n+1)π/2`},
+{id:112,section:'maths',marks:2,text:`If A is a square matrix of order 3, then |Adj A| =`,options:['|A|²','|A|³','|A|','1/|A|'],correct:0,hint:`|Adj A| = |A|^(n-1); for n=3: |Adj A| = |A|²`},
+{id:113,section:'maths',marks:2,text:`For \\( A = \\begin{pmatrix}3 & 1\\\\-1 & 2\\end{pmatrix} \\), then 14A⁻¹ is:`,options:['14[2,−1; 1,3]','[4,−2; 2,6]','2[2,−1; 1,−3]','2[−3,−1; 1,−2]'],correct:1,hint:`|A| = 7; A⁻¹ = (1/7)[2,−1;1,3]; 14A⁻¹ = 2[2,−1;1,3] = [4,−2;2,6]`},
+{id:114,section:'maths',marks:2,text:`\\[ \\int \\frac{\\sin^2 x - \\cos^2 x}{\\sin^2 x \\cdot \\cos^2 x}\\,dx \\]`,options:['tan x + cot x + C','cosec x + sec x + C','tan x + sec x + C','tan x + cosec x + C'],correct:0,hint:`= ∫sec²x dx − ∫csc²x dx = tan x − (−cot x) + C = tan x + cot x + C`},
+{id:115,section:'maths',marks:2,text:`\\[ \\int \\frac{e^x(1+x)}{\\cos^2(xe^x)}\\,dx \\]`,options:['−cot(eˣ) + C','tan(xeˣ) + C','tan(eˣ) + C','cot(eˣ) + C'],correct:1,hint:`Let t = xeˣ, dt = eˣ(1+x)dx; ∫sec²t dt = tan t + C = tan(xeˣ) + C`},
+{id:116,section:'maths',marks:2,text:`\\[ \\int_{1/4}^{1/2} \\frac{dx}{\\sqrt{x - x^2}} \\]`,options:['π/6','π/3','π/4','0'],correct:0,hint:`Complete square: x−x² = 1/4−(x−1/2)²; = arcsin(2x−1)|₁/₄^{1/2} = π/6`},
+{id:117,section:'maths',marks:2,text:`\\[ \\int_{-\\pi/4}^{\\pi/4} \\frac{x + \\pi/4}{2 - \\cos 2x}\\,dx \\]`,options:['π²/(6√3)','π²/6','π²/(12√3)','π²/(3√3)'],correct:0,hint:`Odd part of integrand vanishes; even part = (π/4)∫1/(2−cos2x)dx = π²/(6√3)`},
+{id:118,section:'maths',marks:2,text:`Two straight lines with direction cosines: l + m − n = 0, 3l² + m² + cnl = 0 are parallel. Positive value of c is:`,options:['6','4','3','2'],correct:0,hint:`Substitute n = l+m; equal roots condition (discriminant = 0) → positive c = 6`},
+{id:119,section:'maths',marks:2,text:`Lines l₁: (x−2)/3 = (y+1)/(−2), z = 2 and l₂: (x−1)/1 = (2y+3)/α = (z+5)/2 are perpendicular. Angle between l₂ and l₃: (1−x)/3 = (2y−1)/(−4) = z/4 is:`,options:['cos⁻¹(29/4)','sec⁻¹(29/4)','cos⁻¹(2/29)','cos⁻¹(2/√29)'],correct:1,hint:`l₁ ⊥ l₂ gives α = 3; cos θ between l₂ and l₃ = 4/29; angle = sec⁻¹(29/4)`},
+{id:120,section:'maths',marks:2,text:`Plane x − 3y + 5z = d passes through (1, 2, 4). Length of intercepts on X, Y, Z axes:`,options:['15, −5, 3','1, −5, 3','−15, 5, −3','1, −6, 20'],correct:0,hint:`d = 1−6+20 = 15; plane x/15 + y/(−5) + z/3 = 1; intercepts: 15, −5, 3`},
+{id:121,section:'maths',marks:2,text:`Maximum value of P = x + 3y subject to 2x + y ≤ 20, x + 2y ≤ 20, x ≥ 0, y ≥ 0:`,options:['10','60','30','None of these'],correct:2,hint:`Corner (0,10) gives P = 30; (20/3, 20/3) gives P ≈ 26.7; maximum = 30`},
+{id:122,section:'maths',marks:2,text:`Corner points of feasible region of inequalities gives:`,options:['Optimal solution of LPP','Objective function','Constraints','Linear assumption'],correct:0,hint:`Fundamental theorem of LPP: optimal solution occurs at corner point of feasible region`},
+{id:123,section:'maths',marks:2,text:`If P(A) = 1/2, P(B) = 0, then P(A|B) is:`,options:['0','1/2','Not defined','1'],correct:2,hint:`P(A|B) = P(A∩B)/P(B); P(B) = 0 → division by zero → not defined`},
+{id:124,section:'maths',marks:2,text:`Under what condition does \\(\\left\\langle \\dfrac{1}{\\sqrt{2}},\\ \\dfrac{1}{2},\\ k\\right\\rangle\\) represent direction cosines?`,options:['k = 1/2','k = −1/2','k = ±1/2','k can be any value'],correct:2,hint:`l² + m² + n² = 1; 1/2 + 1/4 + k² = 1 ⇒ k = ±1/2`},
+{id:125,section:'maths',marks:2,text:`Lines x = ay + b, z = cy + d and x = a′y + b′, z = c′y + d′ are perpendicular if:`,options:['aa′ + bb′ + cc′ + 1 = 0','aa′ + bb′ + 1 = 0','bb′ + cc′ + 1 = 0','aa′ + cc′ + 1 = 0'],correct:3,hint:`Direction ratios: (a,1,c) and (a′,1,c′); dot product = 0: aa′ + 1 + cc′ = 0`},
+{id:126,section:'maths',marks:2,text:`X is binomial with mean 4 and variance 4/3. Then 54·P(X ≤ 2) =`,options:['73/27','146/27','146/81','126/81'],correct:1,hint:`np=4, npq=4/3 ⇒ q=1/3, p=2/3, n=6; 54·[P(0)+P(1)+P(2)] = 146/27`},
+{id:127,section:'maths',marks:2,text:`Mean and variance of binomial r.v. X are 4 and 2. P(X = 1) =`,options:['1/4','1/32','1/16','1/8'],correct:1,hint:`np=4, npq=2 ⇒ q=p=1/2, n=8; P(1) = ⁸C₁·(1/2)⁸ = 8/256 = 1/32`},
+{id:128,section:'maths',marks:2,text:`Four fair dice thrown independently 27 times. Expected number of times at least 2 dice show 3 or 5:`,options:['1','3','11','7'],correct:2,hint:`P(≥2 out of 4 show 3 or 5) = 11/27; E = 27 × 11/27 = 11`},
+{id:129,section:'maths',marks:2,text:`Area bounded by \\( y = \\dfrac{3}{2}\\sqrt{x} \\), line x = 1 and x-axis:`,options:['2','1','6','None'],correct:1,hint:`∫₀¹ (3/2)√x dx = (3/2)·[2x^{3/2}/3]₀¹ = (3/2)(2/3) = 1 sq. unit`},
+{id:130,section:'maths',marks:2,text:`Area bounded by |y − 1| = |x| and y = 0 (x-axis):`,options:['2','1','6','1/2'],correct:0,hint:`|y−1| = |x| gives 4 lines forming a rhombus-type region; with y=0 area = 2 sq. units`},
+{id:131,section:'maths',marks:2,text:`tan⁻¹x + tan⁻¹y = c. Corresponding differential equation:`,options:['dy/dx = (1+y²)/(1+x²)','dy/dx = (1+x²)/(1+y²)','(1+x²)dy + (1+y²)dx = 0','(1+x²)dx + (1+y²)dy = 0'],correct:2,hint:`Differentiate: dx/(1+x²) + dy/(1+y²) = 0 ⇒ (1+y²)dx + (1+x²)dy = 0`},
+{id:132,section:'maths',marks:2,text:`(x+2)·dy/dx = x² + 4x − 9, x ≠ −2, y(0) = 0. Then y(−4) =`,options:['0','2','1','−1'],correct:0,hint:`Integrate; apply y(0)=0 to find C; evaluate y(−4) = 0`},
+{id:133,section:'maths',marks:2,text:`If \\(\\vec{a}, \\vec{b}, \\vec{c}\\) are non-coplanar, then \\(\\left[\\vec{a}+\\vec{b}+\\vec{c},\\ \\vec{a}-\\vec{c},\\ \\vec{a}-\\vec{b}\\right] =\\)`,options:['0','2[a b c]','−3[a b c]','3[a b c]'],correct:2,hint:`Expand scalar triple product by multilinearity; result = −3[a⃗b⃗c⃗]`},
+{id:134,section:'maths',marks:2,text:`Vectors a⃗ = î+ĵ+mk̂, b⃗ = î+ĵ+(m+1)k̂, c⃗ = î−ĵ+mk̂ are coplanar if:`,options:['m = 1','m = 4','m = 3','No value of m (never coplanar)'],correct:3,hint:`[a⃗b⃗c⃗] = 0; determinant is always non-zero → vectors never coplanar`},
+{id:135,section:'maths',marks:2,text:`A, B, C are vertices of △ with position vectors a⃗, b⃗, c⃗. G is centroid. Then GA⃗ + GB⃗ + GC⃗ =`,options:['0⃗','a⃗+b⃗+c⃗','(a⃗+b⃗+c⃗)/3','(a⃗−b⃗−c⃗)/3'],correct:0,hint:`Standard result: sum of vectors from centroid to vertices = zero`},
+{id:136,section:'maths',marks:2,text:`If \\( x = b\\cos^{-1}\\!\\sqrt{\\tfrac{y}{b}} + \\sqrt{by-y^2} \\), then \\(\\dfrac{dy}{dx} =\\)`,options:['\\(-\\sqrt{b/y - 1}\\)','\\(\\sqrt{1 - b/y}\\)','\\(\\sqrt{by - y^2}\\)','0'],correct:1,hint:`Differentiate implicitly; simplify to get dy/dx = √(1 − b/y)`},
+{id:137,section:'maths',marks:2,text:`If \\( y = e^{x^x} \\), then \\(\\dfrac{dy}{dx} =\\)`,options:['y(1 + ln x)','y·xˣ(1 + ln x)','y·eˣ(1 + ln x)','None of these'],correct:1,hint:`ln y = xˣ; d/dx(xˣ) = xˣ(1+ln x); dy/dx = y·xˣ(1+ln x)`},
+{id:138,section:'maths',marks:2,text:`If f(1) = 1, f′(1) = 3, then derivative of f(f(f(x))) + (f(x))² at x = 1 is:`,options:['33','12','15','9'],correct:0,hint:`Chain rule: f′(f(f(1)))·f′(f(1))·f′(1) = 27; plus 2f(1)·f′(1) = 6; total = 33`},
+{id:139,section:'maths',marks:2,text:`Which function is differentiable at x = 0?`,options:['cos(|x|) + |x|','cos(|x|)','|x|·cos(x)','sin(|x|)'],correct:1,hint:`cos(|x|) = cos(x) for all x (even function); smooth at x = 0; differentiable`},
+{id:140,section:'maths',marks:2,text:`Let f(x) = |sin x|. Then:`,options:['f is everywhere differentiable','f is everywhere continuous but not differentiable at x = nπ','f is continuous but not differentiable at x = (2n+1)π/2','f is neither continuous nor differentiable'],correct:1,hint:`|sin x| is continuous everywhere; not differentiable at x = nπ (where sin x = 0)`},
+{id:141,section:'maths',marks:2,text:`Approximate value of √0.0037 is:`,options:['37/600','73/1200','71/1200','None'],correct:1,hint:`√0.0036 = 0.06; f(x+h) ≈ f(x) + hf′(x); Δ = 0.0001; result = 0.06 + 1/1200 = 73/1200`},
+{id:142,section:'maths',marks:2,text:`If f(x) = xˣ, then f(x) is decreasing in:`,options:['(0, e)','(0, 1/e)','(0, 1)','None of these'],correct:1,hint:`f′(x) = xˣ(1 + ln x) < 0 when x < 1/e; decreasing on (0, 1/e)`},
+{id:143,section:'maths',marks:2,text:`x = a(cos t + t sin t), y = a(sin t − t cos t). Then d²y/dx² =`,options:['sec³t','at·sec³t','sec³t/(at)','sec²t'],correct:2,hint:`dy/dx = tan t; d²y/dx² = sec²t·(dt/dx) = sec²t/(at·cos t) = sec³t/(at)`},
+{id:144,section:'maths',marks:2,text:`Maximum value of (ln x)/x is:`,options:['e','2e','1/e','2/e'],correct:2,hint:`f′(x) = (1−ln x)/x² = 0 ⇒ x = e; max value = (ln e)/e = 1/e`},
+{id:145,section:'maths',marks:2,text:`∼((∼p) ∧ q) is equal to:`,options:['p ∨ (∼q)','p ∨ q','p ∧ (∼q)','∼p ∧ ∼q'],correct:0,hint:`De Morgan's: ∼(∼p ∧ q) = ∼(∼p) ∨ ∼q = p ∨ (∼q)`},
+{id:146,section:'maths',marks:2,text:`p: price increases, q: demand falls. "If demand does not fall then price does not increase" symbolically is:`,options:['q → p','∼q → p','∼q → ∼p','∼q ↔ ∼p'],correct:2,hint:`"If ∼q then ∼p" = ∼q → ∼p (contrapositive of p → q)`},
+{id:147,section:'maths',marks:2,text:`Angle between lines represented by 2x² + 5xy + 3y² + 6x + 7y + 4 = 0:`,options:['tan⁻¹(2/5)','π/4','3π/4','tan⁻¹(±1/5)'],correct:3,hint:`a=2, b=3, h=5/2; tan θ = 2√(h²−ab)/(a+b) = 1/5; θ = tan⁻¹(±1/5)`},
+{id:148,section:'maths',marks:2,text:`If one line of 6x² − xy + 4cy² = 0 is given by 3x + 4y = 0, then c =`,options:['−3','−1','3','1'],correct:0,hint:`Substitute y = −3x/4 into equation and solve → c = −3`},
+{id:149,section:'maths',marks:2,text:`y = mx + 4 is tangent to both y² = 4x and x² = 2by. Then b =`,options:['−32','−64','−128','128'],correct:2,hint:`Tangent to y²=4x with intercept 4: m=1; tangent condition to x²=2by gives b = −128`},
+{id:150,section:'maths',marks:2,text:`\\[ \\int_0^{\\pi} \\frac{x\\sin x}{1+\\cos^2 x}\\,dx \\]`,options:['π²/4','π²/2','π²/6','π/4'],correct:0,hint:`Use f(π−x) property; result = π/2 × ∫₀^π sin x/(1+cos²x)dx = π²/4`}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+const secQs = {
+  physics: questions.filter(q=>q.section==='physics'),
+  chemistry: questions.filter(q=>q.section==='chemistry'),
+  maths: questions.filter(q=>q.section==='maths')
+};
+const OFFSET = {physics:0, chemistry:50, maths:100};
+
+let st = {
+  sec: 'physics',
+  qi: 0,
+  ans: {},
+  marked: {},
+  visited: {},
+  locked: {physics:false, chemistry:false, maths:true},
+  phase: 1,
+  t1: 90*60, t2: 90*60,
+  tick: null,
+  done: false,
+  mobSb: false
+};
+
+function curList(){ return secQs[st.sec]; }
+function curQ(){ return curList()[st.qi]; }
+
+// ============================================================
+// LOGIN
+// ============================================================
+function doLogin(){
+  const pw = document.getElementById('password').value;
+  if(!pw||pw.length<4){ alert('Please enter your Date of Birth as password.'); return; }
+  document.getElementById('loginScreen').style.display='none';
+  ['hdr','subjectNav','examWrap'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.display='flex';
+    if(id==='examWrap') el.style.display='block';
+  });
+  // Show mobile sidebar button only on small screens
+  if(window.innerWidth<=768) document.getElementById('mobSbBtn').style.display='flex';
+  st.visited[curQ().id]=true;
+  render();
+  renderPalette();
+  startTimer();
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer(){
+  updateTimer();
+  st.tick=setInterval(()=>{
+    if(st.phase===1){ st.t1--; if(st.t1<=0){ clearInterval(st.tick); lockPhase1(); return; } }
+    else { st.t2--; if(st.t2<=0){ clearInterval(st.tick); submitExam(true); return; } }
+    updateTimer();
+  },1000);
+}
+
+function updateTimer(){
+  const left = st.phase===1 ? st.t1 : st.t2;
+  const m=String(Math.floor(left/60)).padStart(2,'0');
+  const s=String(left%60).padStart(2,'0');
+  const val=`${m}:${s}`;
+  document.getElementById('hdrTimerVal').textContent=val;
+  document.getElementById('sbTimerVal').textContent=val;
+  const cls = left<300?'crit':left<600?'warn':'';
+  ['hdrTimerBox','sbTimerInner'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.remove('warn','crit');
+    if(cls) el.classList.add(cls);
+  });
+}
+
+function lockPhase1(){
+  st.locked.physics=true; st.locked.chemistry=true;
+  st.phase=2;
+  document.getElementById('lockModal').classList.add('show');
+}
+
+function goToMaths(){
+  document.getElementById('lockModal').classList.remove('show');
+  st.locked.maths=false;
+  ['tab-physics','tab-chemistry'].forEach(id=>document.getElementById(id).classList.add('locked'));
+  document.getElementById('tab-maths').classList.remove('locked');
+  document.getElementById('hdrSubject').textContent='Mathematics — Section 2';
+  document.getElementById('sbTimerLabel').textContent='Section 2 — Time Left';
+  document.getElementById('sbPhase').textContent='Mathematics';
+  switchSection('maths');
+  startTimer();
+}
+
+// ============================================================
+// SECTION SWITCH
+// ============================================================
+function switchSection(sec){
+  if(st.locked[sec]) return;
+  st.sec=sec; st.qi=0;
+  const names={physics:'Physics',chemistry:'Chemistry',maths:'Mathematics'};
+  ['physics','chemistry','maths'].forEach(s=>{
+    document.getElementById(`tab-${s}`).classList.toggle('active',s===sec);
+  });
+  document.getElementById('hdrSubject').textContent=`${names[sec]} — Section ${sec==='maths'?2:1}`;
+  document.getElementById('sbPhase').textContent=names[sec];
+  st.visited[curQ().id]=true;
+  render();
+  renderPalette();
+  if(window.MathJax) MathJax.typesetPromise([document.getElementById('questionBox')]).catch(()=>{});
+}
+
+// ============================================================
+// RENDER QUESTION
+// ============================================================
+const LETTERS=['A','B','C','D'];
+function render(){
+  const q=curQ();
+  st.visited[q.id]=true;
+  const off=OFFSET[st.sec];
+  const qList=curList();
+  const secLabel={physics:'Physics',chemistry:'Chemistry',maths:'Mathematics'}[st.sec];
+
+  // topbar
+  document.getElementById('qpNum').textContent=`Q. ${off+st.qi+1}`;
+  document.getElementById('qpSect').textContent=`${secLabel}  ·  ${st.qi+1} of ${qList.length}`;
+  document.getElementById('qpMarks').textContent=`+${q.marks} Mark${q.marks>1?'s':''}`;
+
+  // question body
+  const isMarked=st.marked[q.id];
+  let optHtml=q.options.map((opt,i)=>{
+    const sel=st.ans[q.id]===i;
+    return `<button class="opt${sel?' selected':''}" onclick="selectOpt(${i})">
+      <div class="opt-radio"></div>
+      <div class="opt-letter">${LETTERS[i]}</div>
+      <div class="opt-text">${opt}</div>
+    </button>`;
+  }).join('');
+
+  document.getElementById('questionBox').innerHTML=`
+    <div class="q-text">${q.text}</div>
+    <div class="options-list">${optHtml}</div>
+    <div class="action-bar">
+      <button class="act-btn btn-clear" onclick="clearOpt()">🗑 Clear Response</button>
+      <button class="act-btn btn-mark${isMarked?' active':''}" onclick="toggleMark()">
+        ${isMarked?'★ Marked for Review':'☆ Mark for Review'}
+      </button>
+      <button class="act-btn btn-prev" onclick="navigate(-1)">← Previous</button>
+      <button class="act-btn btn-snext" onclick="saveAndNext()">Save &amp; Next →</button>
+    </div>`;
+
+  if(window.MathJax) MathJax.typesetPromise([document.getElementById('questionBox')]).catch(()=>{});
+  updatePaletteBtns();
+  updateStats();
+}
+
+function selectOpt(i){
+  const q=curQ(); st.ans[q.id]=i; render();
+}
+function clearOpt(){
+  const q=curQ(); delete st.ans[q.id]; render();
+}
+function toggleMark(){
+  const q=curQ(); st.marked[q.id]=!st.marked[q.id]; render();
+}
+function saveAndNext(){ navigate(1); }
+function navigate(dir){
+  const list=curList(), ni=st.qi+dir;
+  if(ni>=0&&ni<list.length){
+    st.qi=ni;
+    st.visited[curQ().id]=true;
+    render();
+    updatePaletteBtns();
+  }
+}
+
+// ============================================================
+// PALETTE
+// ============================================================
+function getPbClass(q,i){
+  const ans=st.ans[q.id]!==undefined;
+  const mrk=st.marked[q.id];
+  const vis=st.visited[q.id];
+  let cls='not-visited';
+  if(ans&&mrk) cls='marked-answered';
+  else if(mrk) cls='marked';
+  else if(ans) cls='answered';
+  else if(vis) cls='not-answered';
+  if(i===st.qi) cls+=' current';
+  return cls;
+}
+function renderPalette(){
+  const list=curList(), off=OFFSET[st.sec];
+  document.getElementById('palette').innerHTML=list.map((q,i)=>
+    `<button class="pb ${getPbClass(q,i)}" onclick="jumpTo(${i})">${off+i+1}</button>`
+  ).join('');
+  updateStats();
+}
+function updatePaletteBtns(){
+  const list=curList();
+  const btns=document.querySelectorAll('.pb');
+  list.forEach((q,i)=>{ if(btns[i]) btns[i].className=`pb ${getPbClass(q,i)}`; });
+}
+function updateStats(){
+  const list=curList();
+  let ans=0,not=0,mrk=0,unv=0;
+  list.forEach(q=>{
+    if(st.ans[q.id]!==undefined) ans++;
+    else if(st.visited[q.id]) not++;
+    if(st.marked[q.id]) mrk++;
+    if(!st.visited[q.id]) unv++;
+  });
+  document.getElementById('sbStats').innerHTML=`
+    <div class="sstat ss-ans"><div class="sv">${ans}</div><div class="sl">Answered</div></div>
+    <div class="sstat ss-not"><div class="sv">${not}</div><div class="sl">Not Ans.</div></div>
+    <div class="sstat ss-mrk"><div class="sv">${mrk}</div><div class="sl">Marked</div></div>
+    <div class="sstat ss-unv"><div class="sv">${unv}</div><div class="sl">Not Visited</div></div>`;
+}
+function jumpTo(i){
+  st.qi=i;
+  st.visited[curQ().id]=true;
+  render();
+  updatePaletteBtns();
+  closeMobSidebar();
+}
+
+// Mobile sidebar
+function toggleMobSidebar(){
+  st.mobSb=!st.mobSb;
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('mobOverlay');
+  const btn=document.getElementById('mobSbBtn');
+  if(st.mobSb){
+    sb.classList.add('sidebar-mobile-open');
+    ov.style.display='block';
+    btn.textContent='✕';
+  } else {
+    sb.classList.remove('sidebar-mobile-open');
+    ov.style.display='none';
+    btn.textContent='📋';
+  }
+}
+function closeMobSidebar(){
+  st.mobSb=false;
+  document.getElementById('sidebar').classList.remove('sidebar-mobile-open');
+  document.getElementById('mobOverlay').style.display='none';
+  document.getElementById('mobSbBtn').textContent='📋';
+}
+
+// ============================================================
+// CONFIRM + SUBMIT
+// ============================================================
+function showConfirm(){
+  let ans=0,unans=0,mrk=0;
+  questions.forEach(q=>{
+    if(st.ans[q.id]!==undefined) ans++; else unans++;
+    if(st.marked[q.id]) mrk++;
+  });
+  document.getElementById('confGrid').innerHTML=`
+    <div class="cg-item cg-ans"><div class="cgv">${ans}</div><div class="cgl">Answered</div></div>
+    <div class="cg-item cg-unans"><div class="cgv">${unans}</div><div class="cgl">Not Answered</div></div>
+    <div class="cg-item cg-mrk"><div class="cgv">${mrk}</div><div class="cgl">Marked for Review</div></div>
+    <div class="cg-item cg-tot"><div class="cgv">150</div><div class="cgl">Total Questions</div></div>`;
+  document.getElementById('confirmModal').classList.add('show');
+}
+function hideConfirm(){
+  document.getElementById('confirmModal').classList.remove('show');
+}
+function submitExam(auto=false){
+  clearInterval(st.tick);
+  st.done=true;
+  document.getElementById('confirmModal').classList.remove('show');
+  document.getElementById('surveyScreen').classList.add('show');
+}
+
+
+// ============================================================
+// SURVEY
+// ============================================================
+const surveyData = { stars1: 0, stars2: 0, radio3: '', radio4: '' };
+
+function rateStar(q, val){
+  surveyData['stars'+q] = val;
+  const row = document.getElementById('stars'+q);
+  const btns = row.querySelectorAll('.star-btn');
+  btns.forEach((b,i) => b.classList.toggle('active', i < val));
+}
+
+function pickRadio(q, el){
+  surveyData['radio'+q] = el.querySelector('.radio-opt-text').textContent;
+  const container = document.getElementById('radio'+q);
+  container.querySelectorAll('.radio-opt').forEach(opt => opt.classList.remove('chosen'));
+  el.classList.add('chosen');
+}
+
+function submitSurvey(){
+  document.getElementById('surveyScreen').classList.remove('show');
+  showResults();
+}
+
+// ============================================================
+// RESULTS
+// ============================================================
+function showResults(){
+  const res=document.getElementById('results');
+  res.classList.add('show');
+
+  let total=0,cor=0,wrong=0,skip=0,ps=0,cs=0,ms=0;
+  questions.forEach(q=>{
+    const ua=st.ans[q.id];
+    if(ua===undefined){ skip++; }
+    else if(ua===q.correct){ cor++; total+=q.marks;
+      if(q.section==='physics') ps+=q.marks;
+      else if(q.section==='chemistry') cs+=q.marks;
+      else ms+=q.marks;
+    } else wrong++;
+  });
+
+  const pct=Math.round((total/200)*100);
+  const grade = pct>=80?'🌟 Excellent!':pct>=65?'👍 Very Good':pct>=50?'📘 Good':pct>=35?'📝 Average':'📚 Needs Improvement';
+
+  let html=`
+    <div style="max-width:860px;margin:0 auto">
+    <div class="res-header">
+      <h1>📊 MHT-CET 2025 — Result Analysis</h1>
+      <div class="res-score-big">${total}<span style="font-size:26px;opacity:.6">/200</span></div>
+      <div class="res-score-sub">${pct}% — ${cor} Correct · ${wrong} Wrong · ${skip} Skipped</div>
+      <div class="res-grade">${grade}</div>
+    </div>
+    <div class="res-grid">
+      <div class="rg-card rg-correct"><div class="rv">${cor}</div><div class="rl">Correct</div></div>
+      <div class="rg-card rg-wrong"><div class="rv">${wrong}</div><div class="rl">Wrong</div></div>
+      <div class="rg-card rg-skip"><div class="rv">${skip}</div><div class="rl">Skipped</div></div>
+      <div class="rg-card"><div class="rv" style="color:#1b3f7a">${ps}/50</div><div class="rl">Physics</div></div>
+      <div class="rg-card"><div class="rv" style="color:#065f46">${cs}/50</div><div class="rl">Chemistry</div></div>
+      <div class="rg-card"><div class="rv" style="color:#7c2d12">${ms}/100</div><div class="rl">Maths</div></div>
+    </div>`;
+
+  [{key:'physics',name:'⚛ Physics',col:'#1b3f7a'},{key:'chemistry',name:'🧪 Chemistry',col:'#065f46'},{key:'maths',name:'∑ Mathematics',col:'#7c2d12'}]
+  .forEach(sec=>{
+    html+=`<div class="res-section"><div class="res-sec-title" style="border-color:${sec.col}">${sec.name}</div>`;
+    questions.filter(q=>q.section===sec.key).forEach(q=>{
+      const ua=st.ans[q.id];
+      const isSkip=ua===undefined, isCorr=ua===q.correct;
+      const cls=isSkip?'skip':isCorr?'correct':'wrong';
+      const badge=isSkip?'Not Attempted':isCorr?`✓ Correct (+${q.marks})`:`✗ Wrong (0)`;
+      html+=`<div class="aq ${cls}">
+        <div class="aq-top">
+          <span class="aq-qnum">Q.${q.id}</span>
+          <span class="aq-badge ${cls}">${badge}</span>
+        </div>
+        <div class="aq-qtext">${q.text.replace(/\\\[[\s\S]*?\\\]/g,'[Math]').replace(/\\\([\s\S]*?\\\)/g,'[math]').replace(/<[^>]*>/g,'').substring(0,180)}${q.text.length>180?'…':''}</div>
+        <div class="aq-chips">`;
+      if(!isSkip){
+        html+=`<span class="aq-chip chip-yours${isCorr?' correct':''}">${isCorr?'✓':'✗'} Your answer: (${LETTERS[ua]}) ${q.options[ua].substring(0,45)}</span>`;
+      }
+      if(!isCorr){
+        html+=`<span class="aq-chip chip-right">✓ Correct: (${LETTERS[q.correct]}) ${q.options[q.correct].substring(0,45)}</span>`;
+      }
+      html+=`</div><div class="aq-hint">💡 ${q.hint}</div></div>`;
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  html+=`<div class="results-credit"><div class="results-credit-inner"><span class="rl">A concept by</span><span class="rn">Vedant Bhat</span></div></div>`;
+  res.innerHTML=html;
+}
+</script>
+</body>
+</html>

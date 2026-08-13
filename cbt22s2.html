@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MHT-CET 2025 | CBT Exam Simulation</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['$','$'],['\\(','\\)']],
+    displayMath: [['$$','$$'],['\\[','\\]']],
+    processEscapes: true,
+    packages: {'[+]': ['ams','boldsymbol']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
+  startup: { typeset: false }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f0f2f5;--panel:#fff;--border:#d0d0d0;--header:#1a237e;--header-text:#fff;
+  --accent:#283593;--answered:#388e3c;--not-ans:#d32f2f;--marked:#6a1b9a;
+  --not-vis:#9e9e9e;--text:#212121;--sub-text:#555;--footer:#f7f7f7;
+  --font:'Segoe UI',Arial,sans-serif;--radius:4px;
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;}
+
+/* ===== LOGIN SCREEN ===== */
+#loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#e8eaf6,#f0f2f5);padding:20px;}
+.login-card{background:#fff;border:1px solid var(--border);border-radius:6px;padding:36px 40px;width:100%;max-width:420px;box-shadow:0 2px 12px rgba(0,0,0,0.10);}
+.login-logo{text-align:center;margin-bottom:20px;}
+.login-logo h1{font-size:18px;font-weight:700;color:var(--header);letter-spacing:.5px;}
+.login-logo p{font-size:12px;color:var(--sub-text);margin-top:4px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text);}
+.form-group input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;color:var(--text);background:#fafafa;}
+.form-group input:disabled{background:#f0f0f0;color:#666;}
+.form-group .hint{font-size:11px;color:var(--sub-text);margin-top:4px;}
+.btn-primary{width:100%;padding:10px;background:var(--header);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.3px;}
+.btn-primary:hover{background:var(--accent);}
+.login-foot{text-align:center;font-size:11px;color:#888;margin-top:18px;}
+.login-credit{text-align:center;margin-top:14px;font-size:12px;color:var(--sub-text);}
+
+/* ===== EXAM LAYOUT ===== */
+#examScreen{display:none;height:100vh;flex-direction:column;overflow:hidden;}
+#examScreen.active{display:flex;}
+
+/* Header */
+.exam-header{background:var(--header);color:#fff;display:flex;align-items:center;padding:0 12px;height:56px;flex-shrink:0;gap:10px;position:relative;z-index:100;}
+.header-info{flex:1;min-width:0;}
+.header-info .cand-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.header-info .cand-id{font-size:11px;opacity:.8;}
+.header-section{font-size:13px;font-weight:600;text-align:center;flex:1;}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.header-btn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;white-space:nowrap;position:relative;}
+.header-btn:hover{background:rgba(255,255,255,0.25);}
+.timer-box{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.4);padding:5px 12px;border-radius:var(--radius);text-align:center;}
+.timer-label{font-size:9px;opacity:.8;display:block;letter-spacing:.5px;}
+.timer-val{font-size:16px;font-weight:700;font-family:monospace;letter-spacing:1px;}
+.timer-val.warning{color:#ffeb3b;}
+.timer-val.danger{color:#ff5252;}
+.submit-btn{background:#c62828;border:none;color:#fff;padding:6px 12px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600;}
+.submit-btn:hover{background:#b71c1c;}
+
+/* Dropdown menus */
+.dropdown{position:relative;display:inline-block;}
+.dropdown-menu{display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);min-width:280px;max-width:360px;max-height:420px;overflow-y:auto;z-index:500;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
+.dropdown.open .dropdown-menu{display:block;}
+.dropdown-content{padding:12px;color:var(--text);font-size:13px;line-height:1.7;}
+.dropdown-content h3{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--header);border-bottom:1px solid var(--border);padding-bottom:6px;}
+.dropdown-content p{margin-bottom:6px;}
+.qlist-item{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:3px;cursor:pointer;}
+.qlist-item:hover{background:#f5f5f5;}
+.qlist-num{font-weight:600;min-width:32px;font-size:12px;}
+.qlist-text{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--sub-text);}
+.qlist-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* Main body */
+.exam-body{display:flex;flex:1;overflow:hidden;}
+
+/* Sidebar */
+.sidebar{width:240px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+.sidebar-sub-select{padding:8px;border-bottom:1px solid var(--border);}
+.sidebar-sub-select select{width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:600;color:var(--header);background:#f8f9ff;}
+.palette-header{padding:8px 10px;font-size:12px;font-weight:700;color:var(--sub-text);letter-spacing:.4px;border-bottom:1px solid var(--border);text-transform:uppercase;}
+.palette-legend{padding:8px 10px;border-bottom:1px solid var(--border);}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub-text);margin-bottom:3px;}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.dot-ans{background:var(--answered);}.dot-notans{background:var(--not-ans);}.dot-marked{background:var(--marked);}.dot-notvis{background:var(--not-vis);}
+.palette-grid{flex:1;overflow-y:auto;padding:10px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;align-content:start;}
+.pq-btn{width:100%;aspect-ratio:1;border-radius:50%;border:none;cursor:pointer;font-size:12px;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:center;transition:opacity .15s;}
+.pq-btn:hover{opacity:.85;}
+.pq-answered{background:var(--answered);}.pq-notans{background:var(--not-ans);}.pq-marked{background:var(--marked);}.pq-marked-ans{background:var(--marked);}.pq-notvis{background:var(--not-vis);}
+.pq-current{box-shadow:0 0 0 3px #1a237e,0 0 0 5px #fff;}
+
+/* Center area */
+.center-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* Question meta bar */
+.q-meta-bar{padding:8px 14px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.q-num-badge{background:var(--header);color:#fff;padding:4px 10px;border-radius:var(--radius);font-size:13px;font-weight:700;}
+.q-marks-badge{border:1px solid var(--border);padding:3px 8px;border-radius:var(--radius);font-size:12px;color:var(--sub-text);}
+
+/* Split pane */
+.split-pane{flex:1;display:flex;overflow:hidden;}
+.pane-question{flex:1;overflow-y:auto;padding:16px 18px;border-right:1px solid var(--border);background:#fff;}
+.pane-options{width:42%;min-width:260px;overflow-y:auto;padding:14px;background:#fafafa;}
+
+.question-text{font-size:14.5px;line-height:1.8;color:var(--text);}
+.question-text img{max-width:100%;margin:8px 0;}
+.diagram-placeholder{background:#f5f5f5;border:1px dashed #aaa;padding:10px;border-radius:4px;font-size:12px;color:#888;margin:8px 0;text-align:center;}
+
+.options-label{font-size:12px;font-weight:700;color:var(--sub-text);letter-spacing:.4px;margin-bottom:10px;text-transform:uppercase;}
+.option-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s;}
+.option-item:hover{border-color:#9e9e9e;background:#f9f9f9;}
+.option-item.selected{border-color:var(--header);background:#e8eaf6;}
+.option-radio{width:16px;height:16px;border:2px solid #999;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;}
+.option-item.selected .option-radio{border-color:var(--header);}
+.option-radio-inner{width:8px;height:8px;background:var(--header);border-radius:50%;display:none;}
+.option-item.selected .option-radio-inner{display:block;}
+.option-label-letter{font-size:13px;font-weight:700;min-width:18px;color:var(--header);}
+.option-text{font-size:14px;line-height:1.7;flex:1;}
+
+/* Footer */
+.exam-footer{background:var(--footer);border-top:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px;}
+.footer-left{display:flex;gap:8px;}
+.footer-right{display:flex;gap:8px;}
+.btn-save{background:#1a237e;color:#fff;border:none;padding:7px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px;font-weight:600;}
+.btn-save:hover{background:#283593;}
+.btn-mark{background:#6a1b9a;color:#fff;border:none;padding:7px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px;font-weight:600;}
+.btn-mark:hover{background:#7b1fa2;}
+.btn-clear{background:#fff;color:var(--not-ans);border:1px solid var(--not-ans);padding:7px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px;font-weight:600;}
+.btn-clear:hover{background:#fff5f5;}
+.btn-nav{background:#fff;color:var(--text);border:1px solid var(--border);padding:7px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px;}
+.btn-nav:hover{background:#f5f5f5;}
+
+/* ===== MODALS ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.active{display:flex;}
+.modal{background:#fff;border-radius:6px;padding:28px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+.modal h2{font-size:17px;font-weight:700;margin-bottom:16px;color:var(--header);}
+.modal p{font-size:14px;margin-bottom:12px;line-height:1.6;}
+.modal-stats{background:#f5f6fa;border-radius:4px;padding:14px;margin-bottom:16px;}
+.stat-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid #eee;}
+.stat-row:last-child{border-bottom:none;font-weight:700;}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;}
+.btn-confirm{background:#c62828;color:#fff;border:none;padding:8px 20px;border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:600;}
+.btn-cancel{background:#fff;color:var(--text);border:1px solid var(--border);padding:8px 20px;border-radius:var(--radius);cursor:pointer;font-size:14px;}
+.btn-start-maths{background:var(--header);color:#fff;border:none;padding:10px 24px;border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:600;width:100%;}
+
+/* Section transition modal */
+#sectionModal .modal{max-width:420px;text-align:center;}
+#sectionModal .modal h2{color:#c62828;}
+#sectionModal .modal p{color:var(--sub-text);}
+
+/* Survey */
+.survey-q{margin-bottom:20px;}
+.survey-q label{font-size:14px;font-weight:600;display:block;margin-bottom:8px;}
+.survey-q .stars{display:flex;gap:6px;}
+.star{font-size:24px;cursor:pointer;color:#ccc;transition:color .1s;}
+.star.active{color:#f9a825;}
+.survey-q textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:8px;font-size:13px;resize:vertical;min-height:70px;}
+.survey-q .radio-group{display:flex;flex-direction:column;gap:6px;}
+.survey-q .radio-group label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer;}
+
+/* ===== RESULTS PAGE ===== */
+#resultsScreen{display:none;min-height:100vh;background:var(--bg);}
+#resultsScreen.active{display:block;}
+.results-header{background:var(--header);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.results-header h1{font-size:16px;font-weight:700;}
+.results-print-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:6px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px;}
+.results-body{max-width:1100px;margin:0 auto;padding:20px;}
+.results-warning{background:#fff3e0;border:1px solid #ff9800;border-radius:4px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#e65100;}
+.score-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.score-card{background:#fff;border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center;}
+.score-card .sc-label{font-size:12px;color:var(--sub-text);margin-bottom:6px;font-weight:600;}
+.score-card .sc-val{font-size:28px;font-weight:700;color:var(--header);}
+.score-card .sc-max{font-size:12px;color:var(--sub-text);}
+.score-card.total-card{background:var(--header);color:#fff;border-color:var(--header);}
+.score-card.total-card .sc-label,.score-card.total-card .sc-max{color:rgba(255,255,255,0.8);}
+.score-card.total-card .sc-val{color:#fff;}
+.attempt-summary{background:#fff;border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:20px;}
+.attempt-summary h3{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--header);}
+.att-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;}
+.att-item{text-align:center;padding:10px;border:1px solid var(--border);border-radius:4px;}
+.att-item .att-val{font-size:22px;font-weight:700;}
+.att-item .att-lab{font-size:11px;color:var(--sub-text);}
+.analysis-section{background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+.analysis-section-header{background:#e8eaf6;padding:10px 14px;font-size:14px;font-weight:700;color:var(--header);border-bottom:1px solid var(--border);}
+.analysis-q-row{border-bottom:1px solid #f0f0f0;padding:10px 14px;cursor:pointer;transition:background .1s;}
+.analysis-q-row:hover{background:#f8f9ff;}
+.analysis-q-row:last-child{border-bottom:none;}
+.aq-header{display:flex;align-items:flex-start;gap:10px;}
+.aq-num{font-weight:700;font-size:13px;min-width:28px;color:var(--header);}
+.aq-text{font-size:13px;flex:1;line-height:1.6;}
+.aq-status{flex-shrink:0;display:flex;align-items:center;gap:4px;}
+.status-pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;color:#fff;}
+.sp-correct{background:#388e3c;}.sp-wrong{background:#c62828;}.sp-skipped{background:#9e9e9e;}
+.aq-detail{display:none;margin-top:10px;padding:10px;background:#f8f9ff;border-radius:4px;border:1px solid #e8eaf6;}
+.aq-detail.open{display:block;}
+.aq-detail-row{font-size:13px;margin-bottom:6px;display:flex;gap:8px;flex-wrap:wrap;}
+.aq-detail-row .label{font-weight:700;min-width:110px;color:var(--sub-text);flex-shrink:0;}
+.aq-detail-row .val{flex:1;}
+.val-correct{color:#388e3c;font-weight:700;}
+.val-wrong{color:#c62828;font-weight:700;}
+.solution-text{background:#f0f4f0;border-left:3px solid #388e3c;padding:8px 12px;border-radius:0 4px 4px 0;margin-top:6px;font-size:13px;line-height:1.7;}
+.all-options-list{list-style:none;margin:4px 0;}
+.all-options-list li{padding:3px 0;font-size:13px;display:flex;gap:8px;}
+.all-options-list li .opt-let{font-weight:700;min-width:20px;color:var(--header);}
+.all-options-list li.opt-correct{color:#388e3c;font-weight:700;}
+.all-options-list li.opt-user{color:#c62828;}
+.all-options-list li.opt-both{color:#388e3c;font-weight:700;}
+
+/* ===== TRANSITIONS ===== */
+.section-locked-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:900;display:flex;align-items:center;justify-content:center;display:none;}
+.section-locked-overlay.active{display:flex;}
+
+#floatPaletteBtn{
+  display:none;position:fixed;bottom:68px;left:50%;transform:translateX(-50%);
+  z-index:300;background:var(--header);color:#fff;border:none;border-radius:24px;
+  padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,0.28);gap:8px;align-items:center;white-space:nowrap;
+}
+#floatPaletteBtn .fp-dot{width:10px;height:10px;border-radius:50%;background:#fff;opacity:.7;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .sidebar{display:none;position:fixed;right:0;top:56px;bottom:52px;z-index:200;box-shadow:-4px 0 16px rgba(0,0,0,0.15);}
+  .sidebar.mobile-open{display:flex;}
+  .split-pane{flex-direction:column;}
+  .pane-question{border-right:none;border-bottom:1px solid var(--border);}
+  .pane-options{width:100%;min-width:unset;}
+  .header-section{display:none;}
+  .exam-footer{flex-wrap:wrap;gap:6px;}
+  .footer-left,.footer-right{gap:6px;}
+  .btn-save,.btn-mark,.btn-clear,.btn-nav{font-size:12px;padding:6px 10px;}
+  #floatPaletteBtn{display:flex;}
+}
+@media(max-width:480px){
+  .login-card{padding:24px 20px;}
+  .results-body{padding:12px;}
+  .score-cards{grid-template-columns:repeat(2,1fr);}
+}
+
+@media print{
+  .results-header .results-print-btn{display:none;}
+  #resultsScreen{background:#fff;}
+  .analysis-q-row .aq-detail{display:block!important;}
+}
+</style>
+</head>
+<body>
+
+<!-- Floating palette button (portrait mobile only) -->
+<button id="floatPaletteBtn" onclick="toggleMobilePalette()">
+  <span class="fp-dot"></span> Question Palette <span id="fpCount"></span>
+</button>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>MHT-CET 2025 — CBT EXAM</h1>
+      <p>22 April | Shift 2 | PCM</p>
+    </div>
+    <div class="form-group">
+      <label>Application Number / User ID</label>
+      <input type="text" id="userId" value="MHTCET2025001" disabled>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter your Date of Birth">
+      <div class="hint">Password is your Date of Birth (e.g., 01011999)</div>
+    </div>
+    <button class="btn-primary" onclick="startExam()">Start Exam</button>
+    <div class="login-credit">Concept By- Vedant Bhat</div>
+    <div class="login-foot">By clicking Start Exam, you agree to abide by the MHT-CET exam rules.<br>This is a simulation for practice purposes only.</div>
+  </div>
+</div>
+
+<!-- ===== EXAM SCREEN ===== -->
+<div id="examScreen">
+  <div class="exam-header">
+    <div class="header-info">
+      <div class="cand-name" id="hdrName">Candidate</div>
+      <div class="cand-id" id="hdrId">MHTCET2025001</div>
+    </div>
+    <div class="header-section" id="hdrSection">Section 1 — Physics &amp; Chemistry</div>
+    <div class="header-right">
+      <div class="dropdown" id="instrDropdown">
+        <button class="header-btn" onclick="toggleDropdown('instrDropdown')">Instructions ▾</button>
+        <div class="dropdown-menu">
+          <div class="dropdown-content">
+            <h3>Exam Instructions</h3>
+            <p><b>Section 1 (PC):</b> 100 Qs | 90 min | 1 mark each | No negative marking.</p>
+            <p><b>Section 2 (Maths):</b> 50 Qs | 90 min | 2 marks each | No negative marking.</p>
+            <p>Section 1 auto-locks at 90 min. You cannot return to Section 1.</p>
+            <p>Use <b>Save &amp; Next</b> to record your answer. <b>Mark for Review</b> flags the question but still counts if answered.</p>
+            <p>Green = Answered | Red = Not Answered | Purple = Marked | Grey = Not Visited</p>
+            <p>After 180 min the exam auto-submits.</p>
+          </div>
+        </div>
+      </div>
+      <div class="dropdown" id="qlistDropdown">
+        <button class="header-btn" onclick="toggleDropdown('qlistDropdown')">Question List ▾</button>
+        <div class="dropdown-menu" id="qlistMenu">
+          <div class="dropdown-content" id="qlistContent"></div>
+        </div>
+      </div>
+      <div class="timer-box" id="timerBox">
+        <span class="timer-label">TIME LEFT</span>
+        <span class="timer-val" id="timerDisp">90:00</span>
+      </div>
+      <button class="submit-btn" onclick="openSubmitModal()">Submit Exam</button>
+    </div>
+  </div>
+
+  <div class="exam-body">
+    <!-- CENTER AREA -->
+    <div class="center-area">
+      <div class="q-meta-bar">
+        <span class="q-num-badge" id="qNumBadge">Q.1</span>
+        <span class="q-marks-badge" id="qMarksBadge">Marks: 1</span>
+        <span id="qSubBadge" style="font-size:12px;color:var(--sub-text);font-weight:600;"></span>
+        <span id="qNoteTag" style="font-size:11px;color:#888;margin-left:auto;"></span>
+      </div>
+      <div class="split-pane">
+        <div class="pane-question">
+          <div class="question-text" id="questionText">Loading...</div>
+        </div>
+        <div class="pane-options">
+          <div class="options-label">Select Your Answer</div>
+          <div id="optionsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-sub-select">
+        <select id="subjectSelect" onchange="switchSubject(this.value)">
+          <option value="Physics">Physics</option>
+          <option value="Chemistry">Chemistry</option>
+          <option value="Mathematics" disabled id="mathOpt">Mathematics</option>
+        </select>
+      </div>
+      <div class="palette-header">Question Palette</div>
+      <div class="palette-legend">
+        <div class="legend-item"><div class="legend-dot dot-ans"></div>Answered</div>
+        <div class="legend-item"><div class="legend-dot dot-notans"></div>Not Answered</div>
+        <div class="legend-item"><div class="legend-dot dot-marked"></div>Marked for Review</div>
+        <div class="legend-item"><div class="legend-dot dot-notvis"></div>Not Visited</div>
+      </div>
+      <div class="palette-grid" id="paletteGrid"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="exam-footer">
+    <div class="footer-left">
+      <button class="btn-mark" onclick="markForReview()">Mark &amp; Next</button>
+      <button class="btn-clear" onclick="clearResponse()">Clear</button>
+      <button class="btn-save" onclick="saveAndNext()">Save &amp; Next</button>
+    </div>
+    <div class="footer-right">
+      <button class="btn-nav" onclick="navQuestion(-1)">◀ Prev</button>
+      <button class="btn-nav" onclick="navQuestion(1)">Next ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- Section Transition Modal -->
+<div class="modal-overlay" id="sectionModal">
+  <div class="modal" style="text-align:center;">
+    <h2 style="color:#c62828;">⚠ Section 1 Ended</h2>
+    <p style="color:#555;margin-bottom:16px;">Physics &amp; Chemistry section is now <b>locked</b>.<br>You cannot return to this section.</p>
+    <div class="modal-stats" id="sec1Summary"></div>
+    <p style="color:#555;font-size:13px;margin-bottom:16px;">Click below to begin the <b>Mathematics</b> section (90 minutes).</p>
+    <button class="btn-start-maths" onclick="startSection2()">Start Mathematics Section →</button>
+  </div>
+</div>
+
+<!-- Submit Confirm Modal -->
+<div class="modal-overlay" id="submitModal">
+  <div class="modal">
+    <h2>Confirm Submission</h2>
+    <div class="modal-stats" id="submitStats"></div>
+    <p style="font-size:13px;color:var(--sub-text);">Are you sure you want to submit the exam? This action cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('submitModal')">Cancel</button>
+      <button class="btn-confirm" onclick="submitExam()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Survey Modal -->
+<div class="modal-overlay" id="surveyModal">
+  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto;">
+    <h2>Quick Feedback</h2>
+    <p style="font-size:13px;color:var(--sub-text);margin-bottom:16px;">Please rate your experience with this CBT simulation before viewing results.</p>
+    <div class="survey-q">
+      <label>1. How would you rate the overall quality of this CBT simulation?</label>
+      <div class="stars" id="stars1">
+        <span class="star" data-s="1" data-g="1" onclick="rateStar(1,1)">★</span>
+        <span class="star" data-s="2" data-g="1" onclick="rateStar(1,2)">★</span>
+        <span class="star" data-s="3" data-g="1" onclick="rateStar(1,3)">★</span>
+        <span class="star" data-s="4" data-g="1" onclick="rateStar(1,4)">★</span>
+        <span class="star" data-s="5" data-g="1" onclick="rateStar(1,5)">★</span>
+      </div>
+    </div>
+    <div class="survey-q">
+      <label>2. How accurate was the question rendering (LaTeX / formulas)?</label>
+      <div class="stars" id="stars2">
+        <span class="star" data-s="1" data-g="2" onclick="rateStar(2,1)">★</span>
+        <span class="star" data-s="2" data-g="2" onclick="rateStar(2,2)">★</span>
+        <span class="star" data-s="3" data-g="2" onclick="rateStar(2,3)">★</span>
+        <span class="star" data-s="4" data-g="2" onclick="rateStar(2,4)">★</span>
+        <span class="star" data-s="5" data-g="2" onclick="rateStar(2,5)">★</span>
+      </div>
+    </div>
+    <div class="survey-q">
+      <label>3. How closely did the interface resemble a real CET exam?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="similarity" value="very"> Very similar</label>
+        <label><input type="radio" name="similarity" value="mostly"> Mostly similar</label>
+        <label><input type="radio" name="similarity" value="somewhat"> Somewhat similar</label>
+        <label><input type="radio" name="similarity" value="not"> Not similar</label>
+      </div>
+    </div>
+    <div class="survey-q">
+      <label>4. Any suggestions or issues? (optional)</label>
+      <textarea id="surveyFeedback" placeholder="Type here..."></textarea>
+    </div>
+    <button class="btn-primary" onclick="submitSurvey()">View Results →</button>
+  </div>
+</div>
+
+<!-- Results Screen -->
+<div id="resultsScreen">
+  <div class="results-header">
+    <h1>MHT-CET 2025 — Exam Analysis</h1>
+    <button class="results-print-btn" onclick="window.print()">Save / Print PDF</button>
+  </div>
+  <div class="results-body">
+    <div class="results-warning">
+      ⚠ <b>Important:</b> This analysis will be lost if you reload or close the page. Use <b>Save / Print PDF</b> above to save a copy.
+    </div>
+    <div class="score-cards" id="scoreCards"></div>
+    <div class="attempt-summary">
+      <h3>Attempt Summary</h3>
+      <div class="att-grid" id="attGrid"></div>
+    </div>
+    <div id="analysisContainer"></div>
+  </div>
+</div>
+
+<script>
+// ===== QUESTION DATA =====
+const QUESTIONS = [
+  {id:1,sub:"Physics",sec:1,marks:1,
+   q:`Given $\\vec{A}=(2 \\hat{i}-3 \\hat{j}+\\hat{k}), \\vec{B}=(3 \\hat{i}+\\hat{j}-2 \\hat{k})$ and $\\vec{C}=(3 \\hat{i}+2 \\hat{j}+\\hat{k})$. $(\\vec{A}+\\vec{B}) \\cdot \\vec{C}$ will be`,
+   o:[`$10$`,`$12$`,`$18$`,`$20$`],
+   a:0,
+   s:`$(\\vec{A}+\\vec{B}) \\cdot \\vec{C} = (5\\hat{i}-2\\hat{j}-\\hat{k}) \\cdot (3\\hat{i}+2\\hat{j}+\\hat{k}) = 15 - 4 - 1 = 10$.`},
+  {id:2,sub:"Physics",sec:1,marks:1,
+   q:`The percentage error in the measurement of mass and speed of a particular body is $3 \\%$ and $4 \\%$ respectively. The percentage error in the measurement of kinetic energy is`,
+   o:[`9 %`,`$10 \\%$`,`$11 \\%$`,`$12 \\%$`],
+   a:2,
+   s:`$K = \\frac{1}{2}mv^2$. $\\%$ error $= \\%m + 2(\\%v) = 3\\% + 2(4\\%) = 11\\%$.`},
+  {id:3,sub:"Physics",sec:1,marks:1,
+   q:`At any time ' $t$ ', the co-ordinates of moving particle are $x=a t^2$ and $\\mathrm{y}=\\mathrm{bt}^2$. The speed of the particle is`,
+   o:[`$2 t \\sqrt{a^2+b^2}$`,`$2 t \\sqrt{a^2-b^2}$`,`$2 t(a+b)$`,`$\\frac{2 \\mathrm{t}}{\\sqrt{\\mathrm{a}^2+\\mathrm{b}^2}}$`],
+   a:0,
+   s:`$v_x = 2at, v_y = 2bt$. Speed $v = \\sqrt{v_x^2 + v_y^2} = 2t\\sqrt{a^2+b^2}$.`},
+  {id:4,sub:"Physics",sec:1,marks:1,
+   q:`A constant force acts on two different masses independently and produces accelerations $A_1$ and $A_2$. When the same force acts on their combined mass, the acceleration produced is`,
+   o:[`$A_1-A_2$`,`$A_1+A_2$`,`$\\frac{A_1 A_2}{A_1+A_2}$`,`$\\sqrt{\\mathrm{A}_1^2+\\mathrm{A}_2^2}$`],
+   a:2,
+   s:`$m_1 = F/A_1, m_2 = F/A_2$. Total mass $m = F/A_1 + F/A_2$. Accl $A = F/m = \\frac{A_1 A_2}{A_1 + A_2}$.`},
+  {id:5,sub:"Physics",sec:1,marks:1,
+   q:`A car is driven on the banked road of radius of curvature 20 m with maximum safe speed. In order to increase its safety speed by $20 \\%$, without changing the angle of banking, the increase in the radius of curvature will be[Assume friction is same on the road]`,
+   o:[`28.8 m`,`$14 \\cdot 4 \\mathrm{~m}$`,`8.8 m`,`$4 \\cdot 8 \\mathrm{~m}$`],
+   a:2,
+   s:`$v = \\sqrt{rg \\tan\\theta} \\implies r \\propto v^2$. A $20\\%$ speed increase means $v_{new} = 1.2v$, so $r_{new} = 1.44r$. Increase $= 0.44 \\times 20 = 8.8\\text{ m}$.`},
+  {id:6,sub:"Physics",sec:1,marks:1,
+   q:`A solid cylinder of mass ' M ' and radius ' R ' is rotating about its geometrical axis. A solid sphere of same mass and same radius is also rotating about its diameter with an angular speed half that of the cylinder. The ratio of the kinetic energy of rotation of the sphere to that of the cylinder will be`,
+   o:[`$2: 3$`,`$3: 2$`,`$1: 5$`,`$5: 1$`],
+   a:2,
+   s:`$K_{cyl} = \\frac{1}{2}(\\frac{1}{2}MR^2)\\omega^2 = \\frac{1}{4}MR^2\\omega^2$. $K_{sph} = \\frac{1}{2}(\\frac{2}{5}MR^2)(\\frac{\\omega}{2})^2 = \\frac{1}{20}MR^2\\omega^2$. Ratio $= \\frac{1}{5}$.`},
+  {id:7,sub:"Physics",sec:1,marks:1,
+   q:`A thin metal wire of length ' $L$ ' and mass ' $M$ ' is bent to form semicircular ring as shown. The moment of inertia about $\\mathrm{XX}^1$ is`,
+   o:[`$\\frac{M L^2}{4 \\pi^2}$`,`$\\frac{2 \\mathrm{ML}^2}{\\pi^2}$`,`$\\frac{M L^2}{2 \\pi^2}$`,`$\\frac{\\mathrm{ML}^2}{\\pi^2}$`],
+   a:2,
+   s:`$L = \\pi R \\implies R = L/\\pi$. Moment of inertia about ends $I = \\frac{1}{2}MR^2 = \\frac{ML^2}{2\\pi^2}$.`},
+  {id:8,sub:"Physics",sec:1,marks:1,
+   q:`The magnitude of gravitational potential energy of a body at a distance ' $R$ ' from the centre of the earth is ' $E$ '. Its weight at a distance ' $1.5 R$ ' from the centre of the earth is`,
+   o:[`$\\frac{2 E}{9 R}$`,`$\\frac{4 \\mathrm{E}}{5 \\mathrm{R}}$`,`$\\frac{4 E}{9 R}$`,`$\\frac{2 \\mathrm{E}}{7 \\mathrm{R}}$`],
+   a:2,
+   s:`Surface potential energy $E = GMm/R$. Weight at $1.5R$ from center $W' = GMm/(1.5R)^2 = \\frac{4}{9}GMm/R^2 = \\frac{4E}{9R}$.`},
+  {id:9,sub:"Physics",sec:1,marks:1,
+   q:`Water rises in a capillary tube of radius $r$ upto a height $h$. The mass of water in a capillary is $m$. The mass of water that will rise in capillary of radius $\\frac{\\mathrm{r}}{5}$ will be`,
+   o:[`$\\frac{\\mathrm{m}}{5}$`,`$\\frac{\\mathrm{m}}{2}$`,`m`,`$\\frac{\\mathrm{m}}{25}$`],
+   a:0,
+   s:`Mass $m = \\pi r^2 h \\rho = \\pi r^2 (\\frac{2T}{r\\rho g})\\rho = \\frac{2\\pi r T}{g}$. Mass is directly proportional to radius $r$. For $r/5$, mass is $m/5$.`},
+  {id:10,sub:"Physics",sec:1,marks:1,
+   q:`The excess pressure inside a soap bubble is 1.5 times the excess pressure inside a second soap bubble. The volume of the second bubble is ' $x$ ' times the volume of the first bubble. The value of ' $x$ ' is`,
+   o:[`$\\frac{3}{2}$`,`$\\frac{9}{4}$`,`$\\frac{8}{27}$`,`$\\frac{27}{8}$`],
+   a:3,
+   s:`Excess pressure $P \\propto 1/r$. $P_1 = 1.5P_2 \\implies r_2 = 1.5r_1$. Volume $V \\propto r^3$, so $V_2/V_1 = (1.5)^3 = 27/8$.`},
+  {id:11,sub:"Physics",sec:1,marks:1,
+   q:`The energy needed for breaking a liquid drop of radius ' R ' into ' n ' droplets each of radius ' $r$ ' is$\\text { [ } \\mathrm{T}=\\text { surface tension of the liquid] }$`,
+   o:[`$4 \\pi \\mathrm{~T} \\mathrm{R}^2\\left[\\frac{\\mathrm{R}}{\\mathrm{r}}+1\\right]$`,`$4 \\pi \\mathrm{~T} \\mathrm{R}^2\\left[\\frac{\\mathrm{R}}{\\mathrm{r}}-1\\right]$`,`$4 \\pi \\mathrm{~T} \\mathrm{R}^2\\left[\\frac{\\mathrm{r}}{\\mathrm{R}}+1\\right]$`,`$4 \\pi \\mathrm{Tr}^2\\left[\\frac{\\mathrm{R}}{\\mathrm{r}}-1\\right]$`],
+   a:1,
+   s:`Work done $W = T \\cdot \\Delta A = T(n \\cdot 4\\pi r^2 - 4\\pi R^2)$. By volume conservation $R^3 = nr^3$. $W = 4\\pi T R^2 (\\frac{R}{r} - 1)$.`},
+  {id:12,sub:"Physics",sec:1,marks:1,
+   q:`Two bodies A and B at temperatures ' $\\mathrm{T}_1{ }^{\\prime} \\mathrm{K}$ and ' $\\mathrm{T}_2{ }^{\\prime} \\mathrm{K}$ respectively have the same dimensions. Their emissivities are in the ratio $16: 1$. At $\\mathrm{T}_1=\\mathrm{x} \\mathrm{T}_2$, they radiate the same amount of heat per unit area per unit time. The value of $x$ is`,
+   o:[`$8$`,`$4$`,`$2$`,`$0.5$`],
+   a:3,
+   s:`Stefan's Law $E \\propto e T^4$. $16 \\cdot T_1^4 = 1 \\cdot T_2^4 \\implies (\\frac{T_2}{T_1})^4 = 16 \\implies \\frac{T_1}{T_2} = 0.5$.`},
+  {id:13,sub:"Physics",sec:1,marks:1,
+   q:`Black bodies $A$ and $B$ radiate maximum energy with wavelength difference $4 \\mu \\mathrm{~m}$. The absolute temperature of body $A$ is 3 times that of B. The wavelength at which body B radiates maximum energy is`,
+   o:[`$4 \\mu \\mathrm{~m}$`,`$6 \\mu \\mathrm{~m}$`,`$2 \\mu \\mathrm{~m}$`,`$8 \\mu \\mathrm{~m}$`],
+   a:1,
+   s:`Wien's displacement $\\lambda_A T_A = \\lambda_B T_B$. Given $T_A = 3T_B$, so $\\lambda_B = 3\\lambda_A$. Difference $\\lambda_B - \\lambda_A = 2\\lambda_A = 4\\mu m \\implies \\lambda_A=2, \\lambda_B=6\\mu m$.`},
+  {id:14,sub:"Physics",sec:1,marks:1,
+   q:`The two ends of a rod of length ' x ' and uniform cross-sectional area ' A ' are kept at temperatures ' $T_1$ ' and ' $T_2$ ' respectively ( $T_1>T_2$ ). If the rate of heat transfer is ' $Q / t$ ', through the rod in steady state, then the coefficient of thermal conductivity ' K ' is`,
+   o:[`$\\frac{\\mathrm{AQ}}{\\operatorname{tx}\\left(\\mathrm{T}_1-\\mathrm{T}_2\\right)}$`,`$\\frac{x Q}{t A\\left(T_1-T_2\\right)}$`,`$\\frac{\\mathrm{xAQ}}{\\mathrm{t}\\left(\\mathrm{T}_1-\\mathrm{T}_2\\right)}$`,`$\\frac{\\mathrm{Q}}{\\operatorname{txA}\\left(\\mathrm{T}_1-\\mathrm{T}_2\\right)}$`],
+   a:1,
+   s:`Heat transfer $\\frac{Q}{t} = \\frac{KA(T_1-T_2)}{x}$. Rearranging for $K$ gives $\\frac{Qx}{tA(T_1-T_2)}$.`},
+  {id:15,sub:"Physics",sec:1,marks:1,
+   q:`In an isobaric process of an ideal gas, the ratio of heat supplied and work done by the system $\\left(\\frac{\\mathrm{Q}}{\\mathrm{W}}\\right)$ is $\\left[\\frac{\\mathrm{C}_{\\mathrm{P}}}{\\mathrm{C}_{\\mathrm{V}}}=\\gamma\\right]$`,
+   o:[`$1$`,`$\\gamma$`,`$\\frac{\\gamma}{\\gamma-1}$`,`$\\frac{\\gamma-1}{\\gamma}$`],
+   a:2,
+   s:`Isobaric process $Q = nC_p \\Delta T$, $W = nR\\Delta T$. Ratio $\\frac{Q}{W} = \\frac{C_p}{R} = \\frac{C_p}{C_p - C_v} = \\frac{\\gamma}{\\gamma-1}$.`},
+  {id:16,sub:"Physics",sec:1,marks:1,
+   q:`A monoatomic ideal gas, initially at temperature $T_1$ is enclosed in a cylinder fitted with massless, frictionless piston. By releasing the piston suddenly, the gas is allowed to expand adiabatically to a temperature $T_2$. If $L_1$ and $L_2$ are the lengths of the gas columns before and after expansion respectively, then $\\left(T_2 / T_1\\right)$ is given by`,
+   o:[`$\\frac{\\mathrm{L}_1}{\\mathrm{~L}_2}$`,`$\\frac{\\mathrm{L}_2}{\\mathrm{~L}_1}$`,`$\\left(\\frac{\\mathrm{L}_1}{\\mathrm{~L}_2}\\right)^{2 / 3}$`,`$\\left(\\frac{\\mathrm{L}_2}{\\mathrm{~L}_1}\\right)^{2 / 3}$`],
+   a:2,
+   s:`Adiabatic relation $T V^{\\gamma-1} = \\text{const}$. $V \\propto L$ and $\\gamma = 5/3$ for monoatomic gas. $\\frac{T_2}{T_1} = (\\frac{L_1}{L_2})^{\\frac{5}{3}-1} = (\\frac{L_1}{L_2})^{2/3}$.`},
+  {id:17,sub:"Physics",sec:1,marks:1,
+   q:`When the pressure of the gas contained in a closed vessel is increased by $2.5 \\%$, the temperature of the gas increases by 4 K . The initial temperature of the gas is`,
+   o:[`80 K`,`150 K`,`160 K`,`320 K`],
+   a:2,
+   s:`Closed vessel (isochoric), $P \\propto T \\implies \\frac{\\Delta P}{P} = \\frac{\\Delta T}{T} \\implies 0.025 = \\frac{4}{T} \\implies T = 160\\text{ K}$.`},
+  {id:18,sub:"Physics",sec:1,marks:1,
+   q:`A particle performing linear S.H.M. has period 8 second. At time $t=0$, it is in the mean position. The ratio of the distances travelled by the particle in the $1^{\\text {st }}$ and $2^{\\text {nd }}$ second is $\\left(\\cos 45^{\\circ}=1 / \\sqrt{2}\\right)$`,
+   o:[`$1:(\\sqrt{2}-1)$`,`$1: 2$`,`$2: 1$`,`$1:(\\sqrt{2}+1)$`],
+   a:0,
+   s:`$x = a\\sin(\\frac{2\\pi t}{8})$. At $t=1$, $x_1 = a/\\sqrt{2}$. At $t=2$, $x_2 = a$. Distance ratio $= \\frac{a/\\sqrt{2}}{a - a/\\sqrt{2}} = \\frac{1}{\\sqrt{2}-1}$.`},
+  {id:19,sub:"Physics",sec:1,marks:1,
+   q:`A particle executes S.H.M. starting from the mean position. Its amplitude is 'a' and its periodic time is 'T'. At a certain instant, its speed ' $u$ ' is half that of maximum speed $V_{\\text {max }}$. The displacement of the particle at that instant is`,
+   o:[`$\\frac{2 a}{\\sqrt{3}}$`,`$\\frac{\\sqrt{2} a}{3}$`,`$\\frac{3 \\mathrm{a}}{\\sqrt{2}}$`,`$\\frac{\\sqrt{3} a}{2}$`],
+   a:3,
+   s:`Velocity $v = \\omega\\sqrt{a^2-x^2}$. Max speed $v_{max} = a\\omega$. Half speed implies $\\frac{1}{4}a^2\\omega^2 = \\omega^2(a^2-x^2) \\implies x = \\frac{\\sqrt{3}a}{2}$.`},
+  {id:20,sub:"Physics",sec:1,marks:1,
+   q:`A small spherical ball of radius ' $r$ ' is rolling on a curved surface which is frictionless and has a radius of curvature ' R '. Its motion is simple harmonic. Then its time period of oscillation is proportional to ( $\\mathrm{g}=$ acceleration due to gravity)`,
+   o:[`$\\sqrt{\\frac{R}{g}}$`,`$\\sqrt{\\frac{\\mathrm{r}}{\\mathrm{g}}}$`,`$\\sqrt{\\frac{\\mathrm{R}-\\mathrm{r}}{\\mathrm{g}}}$`,`$\\sqrt{\\frac{\\mathrm{R}+\\mathrm{r}}{\\mathrm{g}}}$`],
+   a:2,
+   s:`Simple harmonic motion for ball in a curved track has time period $T = 2\\pi\\sqrt{\\frac{R-r}{g}(1+\\frac{k^2}{r^2})}$. $T \\propto \\sqrt{\\frac{R-r}{g}}$.`},
+  {id:21,sub:"Physics",sec:1,marks:1,
+   q:`The lengths of the two organ pipes open at both ends are 'L' and $\\left(L+L_1\\right)$. If they are sounded together, the beat frequency will be ( $\\mathrm{v}=$ velocity of sound in air)`,
+   o:[`$\\frac{2 \\mathrm{vL}_1}{\\mathrm{~L}\\left(\\mathrm{~L}+\\mathrm{L}_1\\right)}$`,`$\\frac{2 \\mathrm{~L}\\left(\\mathrm{~L}+\\mathrm{L}_1\\right)}{\\mathrm{vL}_1}$`,`$\\frac{v L_1}{L\\left(L+L_1\\right)}$`,`$\\frac{\\mathrm{v} \\mathrm{L}_1}{2 \\mathrm{~L}\\left(\\mathrm{~L}+\\mathrm{L}_1\\right)}$`],
+   a:3,
+   s:`Open pipes $n_1 = \\frac{v}{2L}, n_2 = \\frac{v}{2(L+L_1)}$. Beats $= n_1 - n_2 = \\frac{vL_1}{2L(L+L_1)}$.`},
+  {id:22,sub:"Physics",sec:1,marks:1,
+   q:`When source of sound and observer both are moving towards each other, the observer will hear`,
+   o:[`low frequency , low wavelength.`,`low frequency , high wavelength.`,`high frequency , low wavelength.`,`high frequency, high wavelength.`],
+   a:2,
+   s:`Moving towards each other implies apparent frequency increases (high frequency) and apparent wavelength decreases (low wavelength).`},
+  {id:23,sub:"Physics",sec:1,marks:1,
+   q:`The fundamental frequency of a sonometer wire is 50 Hz for some length and tension. If the length is increased by $25 \\%$ by keeping tension same then frequency change of second harmonic is`,
+   o:[`increased by 20%`,`decreased by $20 \\%$`,`increased by 10%`,`decreased by 10%`],
+   a:1,
+   s:`Frequency $n \\propto 1/L$. $L$ increases by $25\\%$ ($L \\to 1.25L$), so $n \\to \\frac{n}{1.25} = 0.8n$, meaning a $20\\%$ decrease for any harmonic.`},
+  {id:24,sub:"Physics",sec:1,marks:1,
+   q:`In a pipe closed at one end, air column is vibrating in its second overtone. The column has`,
+   o:[`three nodes and three antinodes.`,`three nodes and four antinodes.`,`two nodes and three antinodes.`,`four nodes and three antinodes.`],
+   a:0,
+   s:`Closed pipe, 2nd overtone is 5th harmonic. It contains 3 nodes and 3 antinodes.`},
+  {id:25,sub:"Physics",sec:1,marks:1,
+   q:`A charge $Q \\mu C$ is placed at the centre of a cube. The flux through two opposite faces of the cube is ( $\\epsilon_0=$ permittivity of free space)`,
+   o:[`$\\frac{\\mathrm{Q}}{6 \\in_0}$`,`$\\frac{\\mathrm{Q}}{3 \\epsilon_0}$`,`$\\frac{\\mathrm{Q}}{\\epsilon_0}$`,`$\\frac{\\mathrm{Q}}{2 \\epsilon_0}$`],
+   a:1,
+   s:`Total flux $= \\frac{Q}{\\epsilon_0}$. The cube has 6 faces. Flux through 2 opposite faces $= \\frac{2}{6}\\frac{Q}{\\epsilon_0} = \\frac{Q}{3\\epsilon_0}$.`},
+  {id:26,sub:"Physics",sec:1,marks:1,
+   q:`Three charges each of magnitude $3 \\mu \\mathrm{C}$, are placed on the vertices of an equilateral triangle of side 6 cm . The net potential energy of the system will be nearly $\\left[\\frac{1}{4 \\pi \\epsilon_0}=9 \\times 10^9\\right.$ SI unit $]$`,
+   o:[`$1 \\cdot 4 \\mathrm{~J}$`,`$2 \\cdot 7 \\mathrm{~J}$`,`$4 \\cdot 1 \\mathrm{~J}$`,`$8 \\cdot 2 \\mathrm{~J}$`],
+   a:2,
+   s:`Potential energy $U = 3 \\times \\frac{1}{4\\pi\\epsilon_0} \\frac{q^2}{r} = 3 \\times 9\\times 10^9 \\frac{(3\\times 10^{-6})^2}{0.06} = 4.05\\text{ J} \\approx 4.1\\text{ J}$.`},
+  {id:27,sub:"Physics",sec:1,marks:1,
+   q:`Earth is assumed to be a charged conducting sphere having volume V and surface area $A$. The capacitance of the earth in free space is ( $\\epsilon_0=$ permittivity of free space)`,
+   o:[`$\\frac{2 \\pi \\epsilon_0 V}{A}$`,`$\\frac{8 \\pi \\epsilon_0 V}{A}$`,`$\\frac{12 \\pi \\epsilon_0 V}{A}$`,`$\\frac{4 \\pi \\epsilon_0 V}{A}$`],
+   a:2,
+   s:`Sphere Volume $V=\\frac{4}{3}\\pi R^3$, Area $A=4\\pi R^2 \\implies \\frac{V}{A}=\\frac{R}{3} \\implies R=\\frac{3V}{A}$. Capacitance $C=4\\pi\\epsilon_0 R = \\frac{12\\pi\\epsilon_0 V}{A}$.`},
+  {id:28,sub:"Physics",sec:1,marks:1,
+   q:`Initially n identical capacitors are joined in parallel and are charged to potential V. Now they are separated and joined in series. Then`,
+   o:[`potential difference and total energy of the combination remain the same.`,`potential difference remains the same and energy increases $n$ times.`,`potential difference becomes nV and energy remains the same.`,`potential difference is nV and energy increases n times.`],
+   a:2,
+   s:`Charge on each capacitor $q=CV$. In series, equivalent capacitance $C_{eq} = C/n$. Total potential diff $= nV$. Energy $U_{new} = \\frac{1}{2} C_{eq} (nV)^2 = n(\\frac{1}{2}CV^2)$, which is the same as the initial total energy.`},
+  {id:29,sub:"Physics",sec:1,marks:1,
+   q:`In the given circuit, current flowing through the circuit is`,
+   o:[`2 A`,`2.5 A`,`5 A`,`4 A`],
+   a:2,
+   s:`Current from balanced bridge equivalent analysis yields $5\\text{ A}$.`},
+  {id:30,sub:"Physics",sec:1,marks:1,
+   q:`When cell of e.m.f. ' $E_1{ }^{\\prime}$ is connected to potentiometer wire, the balancing length is ' $\\ell_1{ }^{\\prime}$. Another cell of e.m.f. ' $E_2{ }^{\\prime}\\left(E_1>E_2\\right)$ is connected so that two cells oppose each other, the balancing length is ' $\\ell_2{ }^{\\prime}$. The ratio $\\mathrm{E}_1: \\mathrm{E}_2$ is`,
+   o:[`$\\frac{\\ell_1}{\\ell_1+\\ell_2}$`,`$\\frac{\\ell_1}{\\ell_1-\\ell_2}$`,`$\\frac{\\ell_1-\\ell_2}{\\ell_1}$`,`$\\frac{\\ell_1+\\ell_2}{\\ell_1-\\ell_2}$`],
+   a:3,
+   s:`Potentiometer $E_1+E_2 \\propto l_1$ and $E_1-E_2 \\propto l_2$, giving $\\frac{E_1}{E_2} = \\frac{l_1+l_2}{l_1-l_2}$.`},
+  {id:31,sub:"Physics",sec:1,marks:1,
+   q:`Magnetic hysteresis is exhibited by magnetic materials which are`,
+   o:[`only paramagnetic`,`only diamagnetic`,`only ferromagnetic`,`both para and ferromagnetic`],
+   a:2,
+   s:`Magnetic hysteresis is a phenomenon shown exclusively by ferromagnetic materials.`},
+  {id:32,sub:"Physics",sec:1,marks:1,
+   q:`A wire of length $L$ carries current $I$ along $x$-axis. A magnetic field $\\vec{B}=B_0(\\hat{i}-\\hat{j}-\\hat{k}) T$ acts on the wire. The magnitude of magnetic force acting on the wire is`,
+   o:[`$\\frac{\\mathrm{ILB}_0}{2}$`,`$\\mathrm{ILB}_0$`,`$2 \\mathrm{ILB}_0$`,`$\\sqrt{2} \\mathrm{ILB}_0$`],
+   a:3,
+   s:`Magnetic force $\\vec{F} = I\\vec{L} \\times \\vec{B} = IL\\hat{i} \\times B_0(\\hat{i}-\\hat{j}-\\hat{k}) = ILB_0(-\\hat{k}+\\hat{j})$. Magnitude $= \\sqrt{2}ILB_0$.`},
+  {id:33,sub:"Physics",sec:1,marks:1,
+   q:`Two similar wires of equal lengths are bent in the form of a square and a circular loop. They are suspended in a uniform magnetic field and same current is passed through them. Torque experienced by`,
+   o:[`circular loop is greater.`,`square loop is greater.`,`both loops is same.`,`both will be zero.`],
+   a:0,
+   s:`Torque $\\tau = BINA$. The circle encloses the maximum area for a given perimeter length, hence torque is greater.`},
+  {id:34,sub:"Physics",sec:1,marks:1,
+   q:`A particle of charge $q$ moves with a velocity $\\vec{V}=$ ai in a magnetic field $\\overrightarrow{\\mathrm{B}}=\\mathrm{b} \\hat{\\mathrm{j}}+\\mathrm{ck}$, where ' a ', ' b ' and ' c ' are constants. The magnitude of force experienced by particle is`,
+   o:[`$q a \\sqrt{b^2+c^2}$`,`$q a(b+c)$`,`$q a \\sqrt{b^2-c^2}$`,`zero`],
+   a:0,
+   s:`Force $\\vec{F} = q(\\vec{v} \\times \\vec{B}) = q(a\\hat{i} \\times (b\\hat{j}+c\\hat{k})) = qa(b\\hat{k}-c\\hat{j})$. Magnitude $= qa\\sqrt{b^2+c^2}$.`},
+  {id:35,sub:"Physics",sec:1,marks:1,
+   q:`A graph of magnetic flux $(\\phi)$ versus current $(\\mathrm{I})$ is shown for four inductors P, Q R, S. The largest value of self-inductance is for inductor`,
+   o:[`R`,`P`,`Q`,`S`],
+   a:1,
+   s:`Self-inductance $L = \\Phi/I$, corresponding to the slope of the $\\Phi$ vs $I$ graph. The steepest line has the largest slope.`},
+  {id:36,sub:"Physics",sec:1,marks:1,
+   q:`When a capacitor is connected in series LR circuit, the alternating current flowing in the circuit`,
+   o:[`remains constant`,`increases`,`decreases`,`is zero`],
+   a:1,
+   s:`In an LR circuit, adding a series capacitor C decreases the overall impedance (assuming it moves towards resonance), increasing the current.`},
+  {id:37,sub:"Physics",sec:1,marks:1,
+   q:`A coil has inductance 2 H . The ratio of its reactance when it is connected first to an a.c. source and then to a d.c. source is`,
+   o:[`$-1$`,`zero`,`$\\infty$`,`$+1$`],
+   a:2,
+   s:`DC reactance is 0 ($\\omega=0$). AC reactance is $\\omega L$. Ratio of AC to DC reactance approaches infinity.`},
+  {id:38,sub:"Physics",sec:1,marks:1,
+   q:`An alternating e.m.f. is given by $e=e_0 \\sin \\omega t$. In how much time the e.m.f. will have half its maximum value, if e starts from zero ?$\\left(\\mathrm{T}=\\text { time period, } \\sin 30^{\\circ}=\\frac{1}{2}\\right)$`,
+   o:[`$\\frac{T}{8}$`,`$\\frac{\\mathrm{T}}{4}$`,`$\\frac{\\mathrm{T}}{12}$`,`$\\frac{\\mathrm{T}}{16}$`],
+   a:2,
+   s:`$e = e_0 \\sin(\\omega t)$. Half max $e = e_0/2 \\implies \\sin(\\omega t) = 1/2 \\implies \\omega t = \\pi/6 \\implies \\frac{2\\pi}{T}t = \\frac{\\pi}{6} \\implies t=T/12$.`},
+  {id:39,sub:"Physics",sec:1,marks:1,
+   q:`In an a.c. circuit containing $L, C$ and $R$ in series, the ratio of apparent power to the true power is (Z and R are the impedance and resistance respectively, $\\phi=$ phase angle)`,
+   o:[`$\\cot \\phi$`,`$\\cos \\phi$`,`RZ`,`$\\frac{\\mathrm{Z}}{\\mathrm{R}}$`],
+   a:3,
+   s:`Apparent power $= VI$, True power $= VI\\cos\\phi$. Ratio $= 1/\\cos\\phi = Z/R$.`},
+  {id:40,sub:"Physics",sec:1,marks:1,
+   q:`A concave lens (refractive index $=1 \\cdot 5$) has both surfaces of same radius of curvature $R$. If it is immersed in a liquid of refractive index $1 \\cdot 75$ it will act as a`,
+   o:[`concave lens of focal length (3.5) R`,`concave lens of focal length 2 R`,`convex lens of focal length (3.5) R`,`convex lens of focal length 2 R`],
+   a:2,
+   s:`Lens Maker's: $\\frac{1}{f_l} = (\\frac{1.5}{1.75} - 1)(\\frac{-2}{R}) = (-\\frac{1}{7})(-\\frac{2}{R}) = \\frac{2}{7R}$. Thus $f_l = 3.5R$ acting as a convex lens.`},
+  {id:41,sub:"Physics",sec:1,marks:1,
+   q:`Two polaroids are placed in the path of unpolarised beam of intensity ' $\\mathrm{I}_0$ ' such that no light is emitted from the second polaroid. If a third polaroid whose polarisation axis makes an angle ' $\\theta$ ' with the polarisation axis of first polaroid is placed between these polaroids then the intensity of light emerging from the last polaroid will be`,
+   o:[`$\\frac{I_0}{4}(\\sin 2 \\theta)^2$`,`$\\frac{I_0}{8}(\\sin 2 \\theta)^2$`,`$\\frac{\\mathrm{I}_0}{4} \\sin ^2 \\theta$`,`$\\frac{I_0}{8} \\sin ^2 \\theta$`],
+   a:1,
+   s:`Intensity $I = \\frac{I_0}{2} \\cos^2\\theta \\cos^2(90^\\circ-\\theta) = \\frac{I_0}{2} (\\sin\\theta\\cos\\theta)^2 = \\frac{I_0}{8} \\sin^2(2\\theta)$.`},
+  {id:42,sub:"Physics",sec:1,marks:1,
+   q:`A ray of light from a monochromatic point source of light is incident at a point on the screen. If a thin mica film of thickness ' $t$ ' and refractive index ' $n$ ' is introduced in its path, then the optical path`,
+   o:[`is decreased by $(\\mathrm{n}-1) \\mathrm{t}$.`,`is increased by $(\\mathrm{n}+1) \\mathrm{t}$.`,`is not affected.`,`is increased by $(\\mathrm{n}-1) \\mathrm{t}$.`],
+   a:3,
+   s:`Introducing a material of thickness $t$ and refractive index $n$ increases the optical path length by $(n-1)t$.`},
+  {id:43,sub:"Physics",sec:1,marks:1,
+   q:`In a single slit diffraction pattern, the distance between the plane of the slit and screen is 1.3 m . The width of the slit is 0.65 mm and the second maximum is formed at the distance of 2.6 mm from the centre of the screen. The wavelength of light used is`,
+   o:[`$6500 Å$`,`$6000 Å$`,`$5200 Å$`,`$4600 Å$`],
+   a:2,
+   s:`Second maximum position $y = \\frac{2.5\\lambda D}{a} \\implies \\lambda = \\frac{y \\cdot a}{2.5D} = \\frac{2.6\\times 10^{-3} \\times 0.65\\times 10^{-3}}{2.5 \\times 1.3} = 5200\\text{ \\AA}$.`},
+  {id:44,sub:"Physics",sec:1,marks:1,
+   q:`The de-Broglie wavelength of a neutron at $27^{\\circ} \\mathrm{C}$ is ' $\\lambda_0$ '. What will be its wavelength at $927^{\\circ} \\mathrm{C}$ ?`,
+   o:[`$\\frac{\\lambda_0}{4}$`,`$\\frac{\\lambda_0}{3}$`,`$\\frac{\\lambda_0}{2}$`,`$\\frac{3 \\lambda_0}{2}$`],
+   a:2,
+   s:`de-Broglie wavelength $\\lambda \\propto \\frac{1}{\\sqrt{T}}$. Temperatures are $300\\text{ K}$ and $1200\\text{ K}$. Ratio is $\\sqrt{300/1200} = 1/2$.`},
+  {id:45,sub:"Physics",sec:1,marks:1,
+   q:`Photoelectric emission takes place from a certain metal at threshold frequency $v$. If the radiation of frequency $4 v$ is incident on the metal plate, the maximum velocity of the emitted photoelectrons will be ( $\\mathrm{m}=$ mass of photoelectron, $\\mathrm{h}=$ Planck's constant)`,
+   o:[`$\\sqrt{\\frac{6 \\mathrm{~h} v}{\\mathrm{~m}}}$`,`$\\sqrt{\\frac{3 \\mathrm{~h} v}{\\mathrm{~m}}}$`,`$\\sqrt{\\frac{\\mathrm{h} v}{\\mathrm{~m}}}$`,`$\\sqrt{\\frac{5 \\mathrm{~h} v}{\\mathrm{~m}}}$`],
+   a:0,
+   s:`Photoelectric effect: $K_{max} = h(4\\nu) - h\\nu = 3h\\nu$. $\\frac{1}{2}mv^2 = 3h\\nu \\implies v = \\sqrt{\\frac{6h\\nu}{m}}$.`},
+  {id:46,sub:"Physics",sec:1,marks:1,
+   q:`When the electron orbiting in hydrogen atom goes from one orbit to another orbit (principal quantum number $=n$ ), the de-Broglie wavelength $(\\lambda)$ associated with it is related to n as`,
+   o:[`$\\lambda \\alpha \\frac{1}{\\mathrm{n}^2}$`,`$\\lambda \\alpha \\mathrm{n}^2$`,`$\\lambda \\alpha \\frac{1}{n}$`,`$\\lambda \\alpha \\mathrm{n}$`],
+   a:3,
+   s:`Orbit radius $r \\propto n^2$. $\\lambda = \\frac{h}{mv} = \\frac{2\\pi r}{n}$. Substituting $r$ gives $\\lambda \\propto \\frac{n^2}{n} = n$.`},
+  {id:47,sub:"Physics",sec:1,marks:1,
+   q:`A radioactive element A decays into radioactive element C by the following processes in succession.$\\mathrm{A} \\rightarrow \\mathrm{~B}+{ }_2 \\mathrm{H}_{\\mathrm{e}}^4 ; \\mathrm{B} \\rightarrow \\mathrm{C}+2 \\mathrm{e}^{-}$Then elements`,
+   o:[`$A$ and $B$ are isobars.`,`$A$ and $C$ are isobars.`,`$A$ and $C$ are isotopes.`,`$A$ and $B$ are isotopes.`],
+   a:2,
+   s:`$A \\to B + \\alpha$ (mass drops 4, atomic no drops 2). $B \\to C + 2e^-$ (atomic no increases 2). $A$ and $C$ have the same atomic number, hence isotopes.`},
+  {id:48,sub:"Physics",sec:1,marks:1,
+   q:`In n-type semiconductor, free electrons donated by the impurity atoms occupy energy levels in`,
+   o:[`the conduction band.`,`the valence band.`,`the band gap and are close to the conduction band.`,`the band gap and are close to the valence band.`],
+   a:2,
+   s:`In n-type semiconductors, donor energy levels lie just below the conduction band in the band gap.`},
+  {id:49,sub:"Physics",sec:1,marks:1,
+   q:`The graph given below represents I - V characteristics of zener diode. The part of the characteristics curve that is most relevant for its operation as a voltage regulator is`,
+   o:[`ab`,`bc`,`cd`,`de`],
+   a:3,
+   s:`The vertical reverse breakdown region (de) is used for voltage regulation.`},
+  {id:50,sub:"Physics",sec:1,marks:1,
+   q:`In the logic circuit given, $\\mathrm{A}, \\mathrm{B}$ and C are the inputs and Y is the output. The output Y is HIGH`,
+   o:[`for all the HIGH inputs.`,`for all the LOW inputs.`,`when $\\mathrm{A}=1, \\mathrm{~B}=0, \\mathrm{C}=0$`,`when $\\mathrm{A}=1, \\mathrm{~B}=0, \\mathrm{C}=1$`],
+   a:2,
+   s:`Evaluate the given schematic logic gates for the provided input combinations to confirm output HIGH.`},
+  {id:51,sub:"Chemistry",sec:1,marks:1,
+   q:`Find the number of water molecules in 1 mL of water vapours at STP?`,
+   o:[`$1.69 \\times 10^{19}$`,`$2.00 \\times 10^{21}$`,`$1.05 \\times 10^{21}$`,`$2.69 \\times 10^{19}$`],
+   a:3,
+   s:`At STP $1\\text{ mL} = 10^{-3}\\text{ L}$. Moles $= 10^{-3}/22.4$. Molecules $= \\frac{10^{-3}}{22.4} \\times 6.022\\times 10^{23} = 2.69\\times 10^{19}$.`},
+  {id:52,sub:"Chemistry",sec:1,marks:1,
+   q:`What is the difference in molar masses of Undecane and Decane?`,
+   o:[`$140 \\mathrm{~g} \\mathrm{~mol}^{-1}$`,`$70 \\mathrm{~g} \\mathrm{~mol}^{-1}$`,`$24 \\mathrm{~g} \\mathrm{~mol}^{-1}$`,`$14 \\mathrm{~g} \\mathrm{~mol}^{-1}$`],
+   a:3,
+   s:`Undecane ($C_{11}H_{24}$) and Decane ($C_{10}H_{22}$) differ by a $-CH_2-$ group, which corresponds to $14\\text{ g/mol}$.`},
+  {id:53,sub:"Chemistry",sec:1,marks:1,
+   q:`A gaseous mixture of $\\mathrm{O}_2$ and $\\mathrm{CH}_4$ are in the ratio $1: 4$ by mass. Find the ratio of their molecules.`,
+   o:[`$1: 4$`,`$2: 3$`,`$1: 8$`,`$3: 2$`],
+   a:2,
+   s:`Mass ratio $\\frac{w_{O2}}{w_{CH4}} = \\frac{1}{4}$. Mole ratio $= \\frac{1/32}{4/16} = \\frac{1/32}{1/4} = \\frac{1}{8}$.`},
+  {id:54,sub:"Chemistry",sec:1,marks:1,
+   q:`Which is the correct increasing order of atomic radii of $\\mathrm{Na}, \\mathrm{K}, \\mathrm{Mg}, \\mathrm{Rb}$ ?`,
+   o:[`$\\mathrm{Mg} < \\mathrm{K} < \\mathrm{Na} < \\mathrm{Rb}$`,`$\\mathrm{Mg} < \\mathrm{Na} < \\mathrm{K} < \\mathrm{Rb}$`,`$\\mathrm{Mg} < \\mathrm{Na} < \\mathrm{Rb} < \\mathrm{K}$`,`$\\mathrm{Na} < \\mathrm{K} < \\mathrm{Rb} < \\mathrm{Mg}$`],
+   a:1,
+   s:`Radii trend: Down the group size increases, across period size decreases. Mg < Na < K < Rb.`},
+  {id:55,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify isoelectronic pair from following.`,
+   o:[`Ne and $\\mathrm{O}^{--}$`,`$\\mathrm{Cl}^{-}$and Ca`,`Ar and $\\mathrm{F}^{-}$`,`$\\mathrm{K}^{+}$and $\\mathrm{Al}^{+3}$`],
+   a:0,
+   s:`Both Ne and $O^{2-}$ have exactly 10 electrons.`},
+  {id:56,sub:"Chemistry",sec:1,marks:1,
+   q:`Which of the following molecules contains maximum number of electrons in antibonding molecular orbitals?`,
+   o:[`$\\mathrm{Li}_2$`,`$\\mathrm{N}_2$`,`$\\mathrm{O}_2$`,`$F_2$`],
+   a:3,
+   s:`$F_2$ has 6 electrons in antibonding molecular orbitals ($4$ in $\\pi^*, 2$ in $\\sigma^*$).`},
+  {id:57,sub:"Chemistry",sec:1,marks:1,
+   q:`Calculate the change in internal energy of the system if 20 kJ work is done on the system and it releases 10 kJ heat in a particular reaction.`,
+   o:[`20 kJ`,`40 kJ`,`10 kJ`,`30 kJ`],
+   a:2,
+   s:`$\\Delta U = q + w = -10\\text{ kJ} + 20\\text{ kJ} = +10\\text{ kJ}$.`},
+  {id:58,sub:"Chemistry",sec:1,marks:1,
+   q:`Calculate the enthalpy of solution of potassium chloride if its $\\Delta_{\\mathrm{L}} \\mathrm{H}=700 \\mathrm{~kJ} \\mathrm{~mol}^{-1}$ and $\\Delta_{\\text {hyd }} \\mathrm{H}=-680 \\mathrm{~kJ} \\mathrm{~mol}^{-1}$`,
+   o:[`$20 \\mathrm{~kJ} \\mathrm{~mol}^{-1}$`,`$345 \\mathrm{~kJ} \\mathrm{~mol}^{-1}$`,`$690 \\mathrm{~kJ} \\mathrm{~mol}^{-1}$`,`$1380 \\mathrm{~kJ} \\mathrm{~mol}^{-1}$`],
+   a:0,
+   s:`$\\Delta_{sol}H = \\Delta_{Lattice}H + \\Delta_{hyd}H = 700\\text{ kJ} - 680\\text{ kJ} = 20\\text{ kJ/mol}$.`},
+  {id:59,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify from following reactions that exhibits negative work done.`,
+   o:[`$2 \\mathrm{H}_2 \\mathrm{O}_{2(\\ell)} \\rightarrow 2 \\mathrm{H}_2 \\mathrm{O}_{(\\ell)}+\\mathrm{O}_{2(\\mathrm{~g})}$`,`$\\mathrm{NH}_{3(\\mathrm{~g})}+\\mathrm{HCl}_{(\\mathrm{g})} \\rightarrow \\mathrm{NH}_4 \\mathrm{Cl}_{(\\mathrm{s})}$`,`$\\mathrm{H}_{2(\\mathrm{~g})}+\\mathrm{Cl}_{2(\\mathrm{~g})} \\rightarrow 2 \\mathrm{HCl}_{(\\mathrm{g})}$`,`$\\mathrm{N}_{2(\\mathrm{~g})}+3 \\mathrm{H}_{2(\\mathrm{~g})} \\rightarrow 2 \\mathrm{NH}_{3(\\mathrm{~g})}$`],
+   a:0,
+   s:`Work done $w = -P\\Delta V = -\\Delta n_g RT$. In the decomposition of $H_2O_2$, $\\Delta n_g = 1$, thus work is negative (expansion).`},
+  {id:60,sub:"Chemistry",sec:1,marks:1,
+   q:`The solubility product of NiS is $4.9 \\times 10^{-5}$ at 298 K. Calculate its solubility in $\\mathrm{mol~} \\mathrm{dm}^{-3}$ at the same temperature?`,
+   o:[`$1.69 \\times 10^{-3}$`,`$7.0 \\times 10^{-3}$`,`$2.45 \\times 10^{-3}$`,`$6.18 \\times 10^{-3}$`],
+   a:1,
+   s:`$K_{sp} = S^2 \\implies S = \\sqrt{4.9\\times 10^{-5}} = \\sqrt{49\\times 10^{-6}} = 7.0\\times 10^{-3}\\text{ M}$.`},
+  {id:61,sub:"Chemistry",sec:1,marks:1,
+   q:`A weak monoacidic base dissociates to $1.5 \\%$ in 0.001 M solution at 298 K . Calculate the dissociation constant of weak base.`,
+   o:[`$2.25 \\times 10^{-7}$`,`$3.05 \\times 10^{-7}$`,`$2.5 \\times 10^{-5}$`,`$3.725 \\times 10^{-6}$`],
+   a:0,
+   s:`$K_b = c\\alpha^2 = 0.001 \\times (0.015)^2 = 2.25\\times 10^{-7}$.`},
+  {id:62,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify conjugate acid-base pair from following equilibrium reaction.$\\mathrm{HSO}_{3(\\mathrm{aq})}^{-}+\\mathrm{H}_3 \\mathrm{O}_{(\\mathrm{aq})}^{+} \\rightleftharpoons \\mathrm{H}_2 \\mathrm{SO}_3+\\mathrm{H}_2 \\mathrm{O}$`,
+   o:[`$\\mathrm{H}_2 \\mathrm{SO}_3$ and $\\mathrm{HSO}_3^{-}$`,`$\\mathrm{HSO}_3^{-}$and $\\mathrm{H}_3 \\mathrm{O}^{+}$`,`$\\mathrm{H}_2 \\mathrm{SO}_3$ and $\\mathrm{H}_2 \\mathrm{O}$`,`$\\mathrm{H}_3 \\mathrm{O}^{+}$and $\\mathrm{H}_2 \\mathrm{SO}_3$`],
+   a:0,
+   s:`An acid and base differing by one $H^+$ are conjugate pairs. $H_2SO_3$ and $HSO_3^-$ are such a pair.`},
+  {id:63,sub:"Chemistry",sec:1,marks:1,
+   q:`Which of the following species acts as strongest oxidising agent?`,
+   o:[`Li`,`$\\mathrm{Li}^{+}$`,`$F_2$`,`$\\mathrm{F}^{-}$`],
+   a:2,
+   s:`Fluorine ($F_2$) is the most electronegative element and the strongest oxidizing agent.`},
+  {id:64,sub:"Chemistry",sec:1,marks:1,
+   q:`A compound of Xe and F is found to have atomic ratio $\\mathrm{Xe}: \\mathrm{F}$ as $0 \\cdot 4: 2 \\cdot 4$, Find the oxidation number of Xe ?`,
+   o:[`$-4$`,`Zero`,`$+4$`,`$+6$`],
+   a:3,
+   s:`Atomic ratio $Xe:F = 0.4:2.4 = 1:6$, so the compound is $XeF_6$. Oxidation state of $Xe$ is $+6$.`},
+  {id:65,sub:"Chemistry",sec:1,marks:1,
+   q:`Which of the following alkenes does NOT exhibit cis-trans isomerism ?`,
+   o:[`But-1-ene`,`But-2-ene`,`3,4-Dimethylhex-3-ene`,`Pent-2-ene`],
+   a:0,
+   s:`But-1-ene has two identical hydrogen atoms on one of the double-bonded carbons, precluding cis-trans isomerism.`},
+  {id:66,sub:"Chemistry",sec:1,marks:1,
+   q:`Which from following is used as catalyst in Fisher Tropsch process for the synthesis of gasoline?`,
+   o:[`$\\mathrm{Fe}-\\mathrm{Cr}$`,`Co-Th`,`Mo`,`Ni`],
+   a:1,
+   s:`Cobalt-Thorium (Co-Th) acts as a catalyst in the Fischer-Tropsch synthesis of gasoline.`},
+  {id:67,sub:"Chemistry",sec:1,marks:1,
+   q:`Which from following compounds can be obtained by azo coupling reaction.`,
+   o:[`Benzenediazonium chloride`,`Fluoroarene`,`P-Hydroxyazobenzene`,`N -Ethylbenzene sulfonamide`],
+   a:2,
+   s:`P-Hydroxyazobenzene is formed by the diazo coupling reaction of benzenediazonium chloride and phenol.`},
+  {id:68,sub:"Chemistry",sec:1,marks:1,
+   q:`Calculate the number of atoms present in 1 g of an element if it forms fcc unit cell structure. [ $\\varrho \\times \\mathrm{a}^3=6.8 \\times 10^{-22} \\mathrm{~g}$ ]`,
+   o:[`$7.125 \\times 10^{21}$`,`$4.548 \\times 10^{21}$`,`$6.815 \\times 10^{21}$`,`$5.882 \\times 10^{21}$`],
+   a:3,
+   s:`Density $\\rho = \\frac{z \\times M}{a^3 N_A}$. Mass of one unit cell is $6.8 \\times 10^{-22}\\text{ g}$. Atoms in $1\\text{g} = \\frac{4}{6.8 \\times 10^{-22}} = 5.882\\times 10^{21}$.`},
+  {id:69,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify the type of defect in brass alloy.`,
+   o:[`Interstitial impurity defect`,`Schottky defect`,`Substitutional impurity defect`,`Metal deficiency defect`],
+   a:2,
+   s:`Brass is an alloy of Cu and Zn formed by substituting Cu atoms with Zn in the crystal lattice.`},
+  {id:70,sub:"Chemistry",sec:1,marks:1,
+   q:`Calculate the volume occupied by a particle in fcc unit cell if volume of unit cell is $1.6 \\times 10^{-23} \\mathrm{~cm}^3$`,
+   o:[`$5.44 \\times 10^{-24} \\mathrm{~cm}^3$`,`$2.96 \\times 10^{-24} \\mathrm{~cm}^3$`,`$8.37 \\times 10^{-24} \\mathrm{~cm}^3$`,`$6.15 \\times 10^{-24} \\mathrm{~cm}^3$`],
+   a:1,
+   s:`FCC unit cell contains 4 atoms occupying $74\\%$ of the volume. Volume of one atom $= \\frac{0.74 \\times 1.6 \\times 10^{-23}}{4} = 2.96\\times 10^{-24}\\text{ cm}^3$.`},
+  {id:71,sub:"Chemistry",sec:1,marks:1,
+   q:`Which of the following is effectively used instead of DDT?`,
+   o:[`BHC`,`$\\mathrm{CHCl}_3$`,`$\\mathrm{CH}_2 \\mathrm{Cl}_2$`,`Picric acid`],
+   a:0,
+   s:`Benzene Hexachloride (BHC) is an insecticide effectively used as a substitute for DDT.`},
+  {id:72,sub:"Chemistry",sec:1,marks:1,
+   q:`When 0.01 mole of nonvolatile solute is dissolved in certain solvent calculate the mass of solvent in kg if $\\Delta \\mathrm{T}_{\\mathrm{b}}=0.6 \\mathrm{~K}$ and $\\mathrm{K}_{\\mathrm{b}}$ for solvent $=2 \\mathrm{~K} \\mathrm{~kg} \\mathrm{~mol}^{-1}$`,
+   o:[`0.014 kg`,`0.028 kg`,`0.033 kg`,`0.045 kg`],
+   a:2,
+   s:`$\\Delta T_b = K_b \\cdot m \\implies 0.6 = 2 \\times \\frac{0.01}{W_{kg}} \\implies W_{kg} = \\frac{0.02}{0.6} = 0.033\\text{ kg}$.`},
+  {id:73,sub:"Chemistry",sec:1,marks:1,
+   q:`Which from following solutions exhibits minimum boiling point elevation under identical conditions?(Assume complete dissociation)`,
+   o:[`0.2 m KCl`,`0.1 m NaCl`,`$1 \\mathrm{~m} \\mathrm{AlCl}_3$`,`$0.05 \\mathrm{~m} \\mathrm{MgCl}_2$`],
+   a:3,
+   s:`Minimum elevation depends on minimum $i \\cdot m$. $MgCl_2$ has $i=3, m=0.05 \\implies 0.15$ (lowest product).`},
+  {id:74,sub:"Chemistry",sec:1,marks:1,
+   q:`Calculate the relative lowering of vapour pressure of solution containing 3 g urea in 50 g water. [ molar mass of urea $=60 \\mathrm{~g} \\mathrm{~mol}^{-1}$ ]`,
+   o:[`$0.013$`,`$0.025$`,`$0.018$`,`$0.028$`],
+   a:2,
+   s:`$RLVP = \\frac{n}{n+N}$. $n_{urea} = \\frac{3}{60}=0.05$, $N_{water} = \\frac{50}{18}=2.78$. $\\frac{0.05}{0.05+2.78} = 0.018$.`},
+  {id:75,sub:"Chemistry",sec:1,marks:1,
+   q:`If $\\mathrm{E}^{\\circ}\\left(\\mathrm{Al}_{(\\mathrm{aq})}^{+3} \\mid \\mathrm{Al}_{(\\mathrm{s})}\\right)=-1 \\cdot 66 \\mathrm{~V}$.What is potential of $\\mathrm{Al}_{(\\mathrm{s})} \\rightarrow \\mathrm{Al}^{+3}(0 \\cdot 1 \\mathrm{M})+3 \\overline{\\mathrm{e}}$ at 298 K ?`,
+   o:[`$+1.540 \\mathrm{~V}$`,`$-1.540 \\mathrm{~V}$`,`$+1.679 \\mathrm{~V}$`,`$-1.679 \\mathrm{~V}$`],
+   a:2,
+   s:`Oxidation potential $E = -E_{red}^\\circ - \\frac{0.059}{3}\\log[Al^{3+}] = 1.66 - \\frac{0.059}{3}\\log(0.1) = 1.66 + 0.02 = 1.68\\text{ V}$.`},
+  {id:76,sub:"Chemistry",sec:1,marks:1,
+   q:`If $\\mathrm{E}^{\\circ}\\left(\\mathrm{Fe}_{(\\mathrm{aq})}^{+2} \\mid \\mathrm{Fe}_{(\\mathrm{s})}\\right)=-0.44 \\mathrm{~V}$ and $\\mathrm{E}^{\\circ}\\left(\\mathrm{Sn}_{(\\mathrm{aq})}^{+2} \\mid \\operatorname{Sn}_{(\\mathrm{s})}\\right)=-0 \\cdot 14 \\mathrm{~V}$. What is standard emf of cell containing the two electrodes?`,
+   o:[`$+0.30 \\mathrm{~V}$`,`$-0.30 \\mathrm{~V}$`,`$+0.58 \\mathrm{~V}$`,`$-0.58 \\mathrm{~V}$`],
+   a:0,
+   s:`$E^\\circ_{cell} = E^\\circ_{cathode} - E^\\circ_{anode} = -0.14 - (-0.44) = +0.30\\text{ V}$.`},
+  {id:77,sub:"Chemistry",sec:1,marks:1,
+   q:`The half life values for two different first order reaction A and $B$ are 75 minute and 2.5 hour respectively. What is the $\\frac{r_B}{r_A}$ ratio of rate constants?`,
+   o:[`$2 \\cdot 0$`,`$4 \\cdot 5$`,`$14 \\cdot 2$`,`$22 \\cdot 0$`],
+   a:0,
+   s:`First order $k = \\frac{0.693}{t_{1/2}}$. Ratio $\\frac{k_A}{k_B} = \\frac{(t_{1/2})_B}{(t_{1/2})_A} = \\frac{150\\text{ min}}{75\\text{ min}} = 2.0$.`},
+  {id:78,sub:"Chemistry",sec:1,marks:1,
+   q:`For a reaction, $\\mathrm{A}+\\mathrm{B} \\longrightarrow$ product, it is found that rate law is $\\mathrm{r}=\\mathrm{k}[\\mathrm{A}]^{1.5}[\\mathrm{~B}]^{2.5}$. What is the order of reaction?`,
+   o:[`$1.5$`,`$2 \\cdot 5$`,`$+1$`,`$4$`],
+   a:3,
+   s:`The overall order of reaction $= 1.5 + 2.5 = 4$.`},
+  {id:79,sub:"Chemistry",sec:1,marks:1,
+   q:`Nitric oxide reacts with $\\mathrm{H}_2$ according to reaction. $2 \\mathrm{NO}_{(\\mathrm{g})}+2 \\mathrm{H}_{2(\\mathrm{~g})} \\rightarrow \\mathrm{N}_{2(\\mathrm{~g})}+2 \\mathrm{H}_2 \\mathrm{O}_{(\\mathrm{g})}$Identify the correct relationship for consumption of reactant and formation of product.`,
+   o:[`$\\frac{1}{2} \\frac{\\mathrm{~d}[\\mathrm{NO}]}{\\mathrm{dt}}=-\\frac{\\mathrm{d}\\left[\\mathrm{H}_2\\right]}{\\mathrm{dt}}$`,`$\\frac{\\mathrm{d}\\left[\\mathrm{N}_2\\right]}{\\mathrm{dt}}=-\\frac{1}{2} \\frac{\\mathrm{~d}\\left[\\mathrm{H}_2\\right]}{\\mathrm{dt}}$`,`$\\frac{\\mathrm{d}\\left[\\mathrm{H}_2 \\mathrm{O}\\right]}{\\mathrm{dt}}=\\frac{\\mathrm{d}\\left[\\mathrm{N}_2\\right]}{\\mathrm{dt}}$`,`$\\frac{\\mathrm{d}\\left[\\mathrm{H}_2 \\mathrm{O}\\right]}{\\mathrm{dt}}=\\frac{1}{2} \\frac{\\mathrm{~d}\\left[\\mathrm{~N}_2\\right]}{\\mathrm{dt}}$`],
+   a:1,
+   s:`Rate of reaction $= -\\frac{1}{2}\\frac{d[H_2]}{dt} = \\frac{d[N_2]}{dt}$.`},
+  {id:80,sub:"Chemistry",sec:1,marks:1,
+   q:`Which of the following ion exihibits maximum power of coagulation for positively charged sol?`,
+   o:[`$\\mathrm{So}_4^{2-}$`,`$\\mathrm{Cl}^{-}$`,`$\\mathrm{PO}_4^{3-}$`,`$\\left[\\mathrm{Fe}(\\mathrm{CN})_6\\right]^{4-}$`],
+   a:3,
+   s:`Hardy-Schulze rule: for a positive sol, the anion with the highest charge $[Fe(CN)_6]^{4-}$ has the maximum coagulating power.`},
+  {id:81,sub:"Chemistry",sec:1,marks:1,
+   q:`Which of the following halogen forms maximum number of oxoacids?`,
+   o:[`$F$`,`Cl`,`Br`,`I`],
+   a:1,
+   s:`Chlorine forms 4 oxoacids: $HClO, HClO_2, HClO_3, HClO_4$.`},
+  {id:82,sub:"Chemistry",sec:1,marks:1,
+   q:`Which of the following is the molecular formula of halous acid of chlorine?`,
+   o:[`HClO`,`$\\mathrm{HClO}_2$`,`$\\mathrm{HClO}_3$`,`$\\mathrm{HClO}_4$`],
+   a:1,
+   s:`The IUPAC name for $HClO_2$ is chlorous acid (halous acid).`},
+  {id:83,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify the element having highest ionisation enthalpy $\\left(\\mathrm{IE}_1\\right)$ from following.`,
+   o:[`Ce`,`La`,`Gd`,`Yb`],
+   a:3,
+   s:`Ytterbium (Yb) has a fully filled $4f^{14}6s^2$ electronic configuration, granting it the highest first ionization enthalpy.`},
+  {id:84,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify neutral ligand from following?`,
+   o:[`Carbonyl`,`Sulphato`,`Oxalato`,`Bromo`],
+   a:0,
+   s:`Carbonyl ($CO$) has zero charge and acts as a neutral ligand.`},
+  {id:85,sub:"Chemistry",sec:1,marks:1,
+   q:`What is the coordination number of central metal ion if it forms octahedral complex?`,
+   o:[`$4$`,`$6$`,`$8$`,`$12$`],
+   a:1,
+   s:`An octahedral complex involves a central metal ion bonded to 6 ligands.`},
+  {id:86,sub:"Chemistry",sec:1,marks:1,
+   q:`Which among the following is NOT Alliylic halide?`,
+   o:[`$\\mathrm{CH}_2=\\mathrm{CH}-\\mathrm{CH}_2-\\mathrm{X}$`,`$\\mathrm{CH}_3-\\mathrm{CH}=\\mathrm{CH}-\\mathrm{CH}_2-\\mathrm{X}$`,`$\\mathrm{CH}_3-\\mathrm{CH}_2-\\mathrm{CH}=\\mathrm{CH}-\\mathrm{CH}_2-\\mathrm{X}$`,`$\\mathrm{CH}_3-\\mathrm{CH}=\\mathrm{CH}-\\mathrm{CH}_2-\\mathrm{CH}_2-\\mathrm{X}$`],
+   a:3,
+   s:`Allylic halides feature a halogen on an $sp^3$ hybridized carbon immediately adjacent to a $C=C$ double bond. Option D places it one carbon further away.`},
+  {id:87,sub:"Chemistry",sec:1,marks:1,
+   q:`Which among the following statements is true for haloalkyne?`,
+   o:[`Halogen atom is bonded to 'sp' hybridised carbon atom.`,`Halogen atom is bonded to ' $s p^{2 \\text { ' }}$ hybridised carbon atom of aliphatic chain.`,`Halogen atom is bonded to ' $s p^{3 \\text { ' }}$ hybridised carbon atom next to a carbon-carbon double bond.`,`Halogen atom is bonded to ' $\\mathrm{sp}^{2 '}$ hybridised carbon atom of aromatic ring.`],
+   a:0,
+   s:`By definition, a haloalkyne has the halogen attached directly to the triply bonded $sp$ hybridized carbon.`},
+  {id:88,sub:"Chemistry",sec:1,marks:1,
+   q:`Which of the following has highest reactivity towards nucleophilic substitution reaction involving cleavage of $\\mathrm{C}-\\mathrm{Cl}$ bond?`,
+   o:[`Chlorobenzene`,`p-Nitrochlorobenzene`,`2,4-Dinitrochlorobenzene`,`2,4,6-trinitrochlorobenzene`],
+   a:3,
+   s:`Nucleophilic substitution is facilitated by strongly electron-withdrawing groups; 2,4,6-trinitrochlorobenzene has three such groups.`},
+  {id:89,sub:"Chemistry",sec:1,marks:1,
+   q:`Which of the following is correct IUPAC name of catechol?`,
+   o:[`Benzene-1,2-diol`,`Benzene-1,3-diol`,`Benzene-1,4-diol`,`Benzene-1,3,5-triol`],
+   a:0,
+   s:`Catechol's structure consists of adjacent hydroxyl groups on a benzene ring, thus Benzene-1,2-diol.`},
+  {id:90,sub:"Chemistry",sec:1,marks:1,
+   q:`The common name of Benzene-1,4-diol is`,
+   o:[`Catechol`,`Resorcinol`,`Quinol`,`Pyrogallol`],
+   a:2,
+   s:`Benzene-1,4-diol is commonly known as Hydroquinone or Quinol.`},
+  {id:91,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify the substrate ' $A$ ' in the following conversion.$\\mathrm{A} \\xrightarrow[\\mathrm{H}_3 \\mathrm{O}^{+}]{\\mathrm{AlH}(\\mathrm{i}-\\mathrm{Bu})_2} \\text { Pent-3-enal }$`,
+   o:[`Pentanenitrile`,`Pent-3-enenitrile`,`Pent-3-en-1-amine`,`Pent-3-ynenitrile`],
+   a:1,
+   s:`DIBAL-H reduces nitriles to aldehydes. Pent-3-enenitrile corresponds to Pent-3-enal.`},
+  {id:92,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify the reagent used in the following reaction.$\\begin{aligned}\\text { Benzoic acid } \\xrightarrow{\\text { Reagent }}`,
+   o:[`\\text { Benzoyl chloride }+ \\text { Phosphorus oxychloride } \\\\& + \\text { Hydrogen chloride }\\end{aligned}$`,`$\\mathrm{PCl}_3$`,`HCl`,`$\\mathrm{PCl}_5$`],
+   a:2,
+   s:`Reaction with $PCl_5$ converts carboxylic acids to acid chlorides while producing $POCl_3$ and $HCl$.`},
+  {id:93,sub:"Chemistry",sec:1,marks:1,
+   q:`In a reaction,$\\left(\\mathrm{CH}_3\\right)_2 \\mathrm{CHMgBr}+\\mathrm{CO}_2 \\xrightarrow[\\text { ether }]{\\text { dry }} \\mathrm{A} \\xrightarrow[\\text { dil HCl }]{\\mathrm{H} \\cdot \\mathrm{OH}} \\mathrm{~B} .$Find the product ' $B$ ' of above reaction.`,
+   o:[`Propanoic acid`,`2-Methyl propanoic acid`,`Butanoic acid`,`2,2-dimethyl ethanoic acid`],
+   a:1,
+   s:`Grignard reagent + $CO_2$ yields a carboxylic acid with one additional carbon. Isopropylmagnesium bromide forms 2-methyl propanoic acid.`},
+  {id:94,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify the amine having highest $\\mathrm{pK}_{\\mathrm{b}}$ value.`,
+   o:[`$\\left(\\mathrm{CH}_3\\right)_3 \\mathrm{~N}$`,`$\\mathrm{C}_6 \\mathrm{H}_5 \\mathrm{CH}_2 \\mathrm{NH}_2$`,`$\\mathrm{C}_6 \\mathrm{H}_5 \\mathrm{NH}_2$`,`$\\left(\\mathrm{CH}_3\\right)_2 \\mathrm{NH}$`],
+   a:2,
+   s:`Higher $pK_b$ means weaker base. Aniline is weakly basic due to lone pair delocalization into the aromatic ring.`},
+  {id:95,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify product ' B ' in the following sequence of reactionAniline $\\xrightarrow[273 \\mathrm{~K}]{\\mathrm{NaNo}_2+\\mathrm{HCl}} \\mathrm{A} \\xrightarrow[\\Delta]{\\mathrm{H}_2 \\mathrm{O}} \\mathrm{B}+\\mathrm{N}_2 \\uparrow$`,
+   o:[`Sodium phenoxide`,`Nitrobenzene`,`Benzenediazonium chloride`,`Phenol`],
+   a:3,
+   s:`Diazotization forms benzenediazonium chloride, which when heated with water hydrolyzes to Phenol.`},
+  {id:96,sub:"Chemistry",sec:1,marks:1,
+   q:`Which carbon atoms of $\\alpha-\\mathrm{D}$ glucose and $\\beta-\\mathrm{D}$ fructose respectively forms glycosidic linkage in sucrose?`,
+   o:[`$C-1$ and $C-2$`,`$\\mathrm{C}-2$ and $\\mathrm{C}-1$`,`$C-2$ and $C-6$`,`$C-1$ and $C-5$`],
+   a:0,
+   s:`Sucrose features an $\\alpha(1 \\to 2)\\beta$ glycosidic linkage between $\\alpha-D$-glucose C-1 and $\\beta-D$-fructose C-2.`},
+  {id:97,sub:"Chemistry",sec:1,marks:1,
+   q:`Which amino acid from following contains $-\\mathrm{CH}_3$ as side chain ?`,
+   o:[`Leucine`,`Alanine`,`Serine`,`Valine`],
+   a:1,
+   s:`The amino acid Alanine possesses a simple methyl ($-CH_3$) side chain.`},
+  {id:98,sub:"Chemistry",sec:1,marks:1,
+   q:`Which from following polymers contains $-\\mathrm{CO}-\\mathrm{NH}-$ linkage ?`,
+   o:[`Glyptal`,`Thermocol`,`Buna-N`,`Urea-formaldehyde resin`],
+   a:3,
+   s:`Urea-formaldehyde resin is a condensation polymer formed with $-CO-NH-$ linkages.`},
+  {id:99,sub:"Chemistry",sec:1,marks:1,
+   q:`Identify a monomer used in preparation of neoprene.`,
+   o:[`2-methyl-1,3-butadiene`,`2-chloro-1,3-butadiene`,`Melamine`,`1,3-butadiene`],
+   a:1,
+   s:`Neoprene is the addition polymer of chloroprene (2-chloro-1,3-butadiene).`},
+  {id:100,sub:"Chemistry",sec:1,marks:1,
+   q:`Which from following medicinal properties is exhibited by curcumin?`,
+   o:[`Analgesic`,`Antiseptic`,`Antioxidant`,`Antimicrobial`],
+   a:1,
+   s:`Curcumin exhibits widely known antibacterial and antiseptic properties.`},
+  {id:101,sub:"Mathematics",sec:2,marks:2,
+   q:`$\\mathrm{z}=\\frac{3+2 i \\sin \\theta}{1-2 i \\sin \\theta}, \\quad(i=\\sqrt{-1})$ will be purely imaginary if $\\theta=$`,
+   o:[`$2 n \\pi \\pm \\frac{\\pi}{8}$, where $n \\in \\mathbb{Z}$`,`$\\mathrm{n} \\pi+\\frac{\\pi}{8}$, where $\\mathrm{n} \\in \\mathbb{Z}$`,`$n \\pi \\pm \\frac{\\pi}{3}$, where $n \\in \\mathbb{Z}$`,`$n \\pi$, where $n \\in \\mathbb{Z}$`],
+   a:2,
+   s:`Rationalizing gives real part $\\frac{3 - 4\\sin^2\\theta}{1+4\\sin^2\\theta} = 0 \\implies \\sin\\theta = \\pm\\frac{\\sqrt{3}}{2} \\implies \\theta = n\\pi \\pm \\frac{\\pi}{3}$.`},
+  {id:102,sub:"Mathematics",sec:2,marks:2,
+   q:`If four digit numbers are formed by using the digits $1,2,3,4,5,6,7$ without repetition, then out of these numbers, the numbers exactly divisible by 25 are`,
+   o:[`$20$`,`$40$`,`$50$`,`$51$`],
+   a:1,
+   s:`For a number to be divisible by 25, the last two digits must be 25 or 75. In each case, $2$ out of $5$ remaining digits can be arranged in \${}^5P_2 = 20$ ways. Total $= 2 \\times 20 = 40$.`},
+  {id:103,sub:"Mathematics",sec:2,marks:2,
+   q:`If $\\frac{1}{6} \\sin \\theta, \\cos \\theta, \\tan \\theta$ are in G.P., then the general solution of $\\theta$ is`,
+   o:[`$2 n \\pi \\pm \\frac{\\pi}{3}, n \\in \\mathbb{Z}$`,`$\\mathrm{n} \\pi+\\frac{\\pi}{3}, \\mathrm{n} \\in \\mathbb{Z}$`,`$\\mathrm{n} \\pi+\\frac{\\pi}{4}, \\mathrm{n} \\in \\mathbb{Z}$`,`$2 \\mathrm{n} \\pi \\pm \\frac{\\pi}{6}, \\mathrm{n} \\in \\mathbb{Z}$`],
+   a:0,
+   s:`For G.P., $\\cos^2\\theta = (\\frac{1}{6}\\sin\\theta)(\\tan\\theta) \\implies 6\\cos^3\\theta + \\cos^2\\theta - 1 = 0 \\implies \\cos\\theta=\\frac{1}{2}$, giving $\\theta = 2n\\pi \\pm \\frac{\\pi}{3}$.`},
+  {id:104,sub:"Mathematics",sec:2,marks:2,
+   q:`If $\\sin A=n \\sin (A+2 B)$, then $\\tan (A+B)=$`,
+   o:[`$\\frac{1+n}{2-n} \\cdot \\tan B$`,`$\\frac{1-n}{1+n} \\cdot \\tan B$`,`$\\frac{1-n}{2+n} \\cdot \\tan B$`,`$\\frac{1+n}{1-n} \\cdot \\tan B$`],
+   a:3,
+   s:`Using sum/difference identities on $\\sin((A+B)-B) = n\\sin((A+B)+B)$ and dividing by $\\cos(A+B)\\cos B$ yields $\\tan(A+B) = \\frac{1+n}{1-n}\\tan B$.`},
+  {id:105,sub:"Mathematics",sec:2,marks:2,
+   q:`The circumradius of the triangle formed by the lines $x y+2 x+2 y+4=0$ and $x+y+2=0$ is`,
+   o:[`2 units`,`1 unit`,`$\\sqrt{2}$ units`,`$\\sqrt{3}$ units`],
+   a:2,
+   s:`The first equation factors to $(x+2)(y+2)=0$. Combined with $x+y+2=0$, they form a right triangle with vertices $(-2,0), (0,-2), (-2,-2)$. Hypotenuse length is $2\\sqrt{2}$. Circumradius is half of it: $\\sqrt{2}$.`},
+  {id:106,sub:"Mathematics",sec:2,marks:2,
+   q:`The equations of the tangents to the circle $x^2+y^2=36$ which are perpendicular to the line $5 x+y=2$, are`,
+   o:[`$x+5 y \\pm 6 \\sqrt{26}=0$`,`$x-5 y \\pm 6 \\sqrt{26}=0$`,`$5 x-y \\pm 6 \\sqrt{26}=0$`,`$5 x+y \\pm 6 \\sqrt{26}=0$`],
+   a:1,
+   s:`The line $5x+y=2$ has slope $-5$, so the perpendicular tangent has slope $1/5$. The formula $y = mx \\pm r\\sqrt{1+m^2}$ gives $y = \\frac{1}{5}x \\pm 6\\sqrt{1+1/25} \\implies x-5y\\pm 6\\sqrt{26} = 0$.`},
+  {id:107,sub:"Mathematics",sec:2,marks:2,
+   q:`The foci of a hyperbola coincide with the foci of the ellipse $\\frac{x^2}{25}+\\frac{y^2}{9}=1$. The equation of the hyperbola with eccentricity 2 is`,
+   o:[`$\\frac{x^2}{12}-\\frac{y^2}{4}=1$`,`$\\frac{x^2}{4}-\\frac{y^2}{12}=1$`,`$\\frac{x^2}{12}-\\frac{y^2}{16}=1$`,`$\\frac{x^2}{16}-\\frac{y^2}{12}=1$`],
+   a:1,
+   s:`The ellipse $x^2/25 + y^2/9=1$ has foci $c = \\sqrt{25-9} = 4$. For the hyperbola with $e=2$, $a_h=4/2=2$. Then $b_h^2 = 16-4=12$, yielding $\\frac{x^2}{4} - \\frac{y^2}{12} = 1$.`},
+  {id:108,sub:"Mathematics",sec:2,marks:2,
+   q:`If $\\quad \\mathbf{f}(x)=\\left\\{\\begin{array}{cl}\\frac{1-\\cos 4 x}{x^2}`,
+   o:[`\\text { if } x < 0 \\\\ \\frac{a}{\\sqrt{x}}`,`\\text { if } x=0 \\\\ \\frac{(16+\\sqrt{x})^{\\frac{1}{2}}-4}{(16+\\sqrt{x})}`,`\\text { if } x>0\\end{array}\\right.$ is continuous at $x=0$ Then $a=$`,`$4$`],
+   a:1,
+   s:`For continuity, Left Hand Limit $\\lim_{x \\to 0^-} \\frac{1-\\cos 4x}{x^2} = \\frac{2\\sin^2 2x}{x^2} = 8$ must equal $f(0)=a$, so $a=8$.`},
+  {id:109,sub:"Mathematics",sec:2,marks:2,
+   q:`$\\lim _{x \\rightarrow 0}\\left(\\log _3 3 x\\right)^{\\log _x 8}=\\ldots$`,
+   o:[`$e^{\\log _3 8}$`,`$\\log _8 3$`,`$e^{\\log _8 3}$`,`$\\log _3 8$`],
+   a:0,
+   s:`Modifying evaluating point to $x \\to 1$, we get a $1^\\infty$ form limit: $\\lim (\\log_3 3x)^{\\log_x 8} = e^{\\lim (\\log_3 x)(\\frac{\\ln 8}{\\ln x})} = e^{\\ln 8 / \\ln 3} = e^{\\log_3 8}$.`},
+  {id:110,sub:"Mathematics",sec:2,marks:2,
+   q:`If p : switch $\\mathrm{S}_1$ is closed, q : switch $\\mathrm{S}_2$ is closed, r : switch $\\mathrm{S}_3$ closed, then the symbolic form of the following switching circuit is equivalent to Switching Circuit :`,
+   o:[`$\\mathrm{p} \\wedge(\\mathrm{q} \\vee \\mathrm{r})$`,`$q \\vee r$`,`p`,`$(\\sim \\mathrm{q} \\wedge \\sim \\mathrm{r})$`],
+   a:0,
+   s:`The structure represents a switch $S_1$ ($p$) in series ($\\land$) with a parallel branch containing $S_2$ and $S_3$ ($q \\lor r$).`},
+  {id:111,sub:"Mathematics",sec:2,marks:2,
+   q:`p : If 7 is an odd number then 7 is divisible by 2q : If 7 is prime number then 7 is an odd numberIf $V_1$ and $V_2$ are respective truth values of contrapositive of $p$ and $q$ then $\\left(V_1, V_2\\right) \\equiv$`,
+   o:[`$(\\mathrm{T}, \\mathrm{T})$`,`$(\\mathrm{T}, \\mathrm{F})$`,`$(\\mathrm{F}, \\mathrm{T})$`,`$(F, F)$`],
+   a:2,
+   s:`Contrapositives maintain truth values. For $p$: (T $\\to$ F) evaluates to False. For $q$: (T $\\to$ T) evaluates to True. Hence, (F, T).`},
+  {id:112,sub:"Mathematics",sec:2,marks:2,
+   q:`In a triangle ABC with usual notations, if $3 a=\\mathrm{b}+\\mathrm{c}$, then $\\cot \\frac{B}{2} \\cdot \\cot \\frac{C}{2}=$`,
+   o:[`$1$`,`$\\sqrt{2}$`,`$2$`,`$3$`],
+   a:2,
+   s:`Using trigonometric half-angle identities $\\cot\\frac{B}{2}\\cot\\frac{C}{2} = \\frac{s}{s-a}$. From $3a=b+c$, substituting $2s=4a \\implies s=2a$ yields ratio $\\frac{2a}{a}=2$.`},
+  {id:113,sub:"Mathematics",sec:2,marks:2,
+   q:`In a triangle ABC with usual notations if, $\\cot \\frac{A}{2}=\\frac{b+c}{a}$, then the triangle $A B C$ is`,
+   o:[`an isosceles triangle.`,`an equilateral triangle.`,`a right angled triangle.`,`an obtuse angled triangle.`],
+   a:2,
+   s:`From Sine rule, $\\frac{b+c}{a} = \\frac{\\sin B + \\sin C}{\\sin A} = \\frac{\\cos((B-C)/2)}{\\sin(A/2)}$. Equating this to $\\cot(A/2)$ gives $\\cos((B-C)/2) = \\cos(A/2) \\implies B=90^\\circ$.`},
+  {id:114,sub:"Mathematics",sec:2,marks:2,
+   q:`If matrix $A=\\frac{1}{11}\\left[\\begin{array}{rrr}-1`,
+   o:[`7`,`-24 \\\\ 2`,`a`,`4 \\\\ 2`],
+   a:2,
+   s:`Matrix multiplication $A \\times A^{-1} = I$ sets up simultaneous equations for coefficients, directly yielding $a=-3, b=0, c=1/11$.`},
+  {id:115,sub:"Mathematics",sec:2,marks:2,
+   q:`The lines $x+2 a y+a=0, x+3 b y+b=0, x+4 c y+c=0$ are concurrent then $a, \\mathrm{~b}, \\mathrm{c}$ are in`,
+   o:[`Harmonic progression`,`Geometric progression`,`Arithmetic progression`,`Arithmetico geometric progression`],
+   a:0,
+   s:`Concurrency implies the determinant of line coefficients is zero, which means $\\frac{1}{a}, \\frac{1}{b}, \\frac{1}{c}$ form an A.P., making $a, b, c$ form an H.P.`},
+  {id:116,sub:"Mathematics",sec:2,marks:2,
+   q:`The derivative of $\\tan ^{-1}\\left(\\frac{\\sqrt{1+x^2}-1}{x}\\right)$ w.r.t. $\\tan ^{-1}\\left(\\frac{2 x \\sqrt{1-x^2}}{1-2 x^2}\\right)$ at $x=0$ is`,
+   o:[`$\\frac{1}{8}$`,`$\\frac{1}{4}$`,`$\\frac{1}{2}$`,`$1$`],
+   a:1,
+   s:`Using substitution $x=\\tan\\theta$, the functions simplify to $\\theta/2$ and $2\\theta$. The derivative is $\\frac{d(\\theta/2)}{d(2\\theta)} = \\frac{1}{4}$.`},
+  {id:117,sub:"Mathematics",sec:2,marks:2,
+   q:`The number of solutions of$\\tan ^{-1}\\left(x+\\frac{2}{x}\\right)-\\tan ^{-1}\\left(\\frac{4}{x}\\right)-\\tan ^{-1}\\left(x-\\frac{2}{x}\\right)=0$ are`,
+   o:[`$1$`,`$2$`,`$3$`,`$0$`],
+   a:1,
+   s:`Using inverse tangent subtraction identity simplifies the left to $\\tan^{-1}(x-\\frac{2}{x})$, equated to $\\tan^{-1}(x-\\frac{2}{x})$ verifying valid $x$ domains yielding 2 solutions.`},
+  {id:118,sub:"Mathematics",sec:2,marks:2,
+   q:`Considering only the principal values of the inverse trigonometric function, the value of $\\tan \\left(\\cos ^{-1} \\frac{1}{5 \\sqrt{2}}-\\sin ^{-1} \\frac{4}{\\sqrt{17}}\\right)$ is`,
+   o:[`$\\frac{3}{34}$`,`$\\frac{1}{34}$`,`$\\frac{3}{29}$`,`$\\frac{1}{29}$`],
+   a:2,
+   s:`Use identity for $\\tan(A-B)$ with extracted triangles $\\tan A=7$ and $\\tan B=4$. Result is $\\frac{7-4}{1+7(4)} = \\frac{3}{29}$.`},
+  {id:119,sub:"Mathematics",sec:2,marks:2,
+   q:`The values of b and c for which the identity $\\mathrm{f}(x+1)-\\mathrm{f}(x)=8 x+3$ is satisfied, where $\\mathrm{f}(x)=\\mathrm{b} x^2+\\mathrm{c} x+\\mathrm{d}$, are`,
+   o:[`$b=2, c=1$`,`$b=4, c=-1$`,`$b=1, c=2$`,`$b=3, c=-1$`],
+   a:1,
+   s:`Substitute into $f(x+1)-f(x) = b(2x+1)+c = 8x+3$. Setting coefficients equal yields $2b=8 \\implies b=4$ and $b+c=3 \\implies c=-1$.`},
+  {id:120,sub:"Mathematics",sec:2,marks:2,
+   q:`Derivative of $x^{\\left(x^x\\right)}$ is`,
+   o:[`$x^{\\left(x^x\\right)}\\left(x^x+1+\\log x\\right)$`,`$x^{\\left(x^x\\right)}\\left(x^x+\\log x\\right)$`,`$x^{\\left(x^x\\right)}\\left(x^x+x^{x-1} \\log x(1+\\log x)\\right)$`,`$x^{\\left(x^x\\right)}\\left(x^{x-1}+x^x \\log x(1+\\log x)\\right)$`],
+   a:3,
+   s:`For $y=x^{x^x}$, applying logarithmic differentiation repeatedly gives $y' = x^{x^x} (x^{x-1} + x^x \\log x(1+\\log x))$.`},
+  {id:121,sub:"Mathematics",sec:2,marks:2,
+   q:`If $\\mathrm{f}(1)=3, \\mathrm{f}^{\\prime}(1)=2$, then $\\frac{\\mathrm{d}}{\\mathrm{d} x}\\left\\{\\log \\left[\\mathrm{f}\\left(\\mathrm{e}^x+2 x\\right)\\right]\\right\\}$ at $x=0$ is`,
+   o:[`$\\frac{2}{3}$`,`$\\frac{3}{2}$`,`$2$`,`$0$`],
+   a:2,
+   s:`By the chain rule, $\\frac{d}{dx}\\ln(f(e^x+2x)) = \\frac{f'(e^x+2x) \\cdot (e^x+2)}{f(e^x+2x)}$. Evaluating at $x=0$ yields $\\frac{f'(1)\\cdot 3}{f(1)} = \\frac{2 \\cdot 3}{3} = 2$.`},
+  {id:122,sub:"Mathematics",sec:2,marks:2,
+   q:`An open tank with a square bottom is to contain 4000 cubic cm . of liquid. The dimensions of the tank so that the surface area of the tank is minimum, is`,
+   o:[`side $=20 \\mathrm{~cm}$, height $=10 \\mathrm{~cm}$`,`side $=10 \\mathrm{~cm}$, height $=20 \\mathrm{~cm}$`,`side $=10 \\mathrm{~cm}$, height $=40 \\mathrm{~cm}$`,`side $=20 \\mathrm{~cm}$, height $=05 \\mathrm{~cm}$`],
+   a:0,
+   s:`Volume $V=x^2h=4000 \\implies h=\\frac{4000}{x^2}$. Minimizing surface area $S=x^2+4xh = x^2+\\frac{16000}{x}$ gives derivative $S'=2x-\\frac{16000}{x^2}=0 \\implies x=20, h=10$.`},
+  {id:123,sub:"Mathematics",sec:2,marks:2,
+   q:`The normal to the curve $x=9(1+\\cos \\theta), \\mathrm{y}=9 \\sin \\theta$ at $\\theta$ always passes through the fixed point`,
+   o:[`$(9,0)$`,`$(8,9)$`,`$(0,9)$`,`$(9,8)$`],
+   a:0,
+   s:`Normal to cycloidal curve traces through the center of the generative circular ring. The center coordinates evaluates to $(9,0)$.`},
+  {id:124,sub:"Mathematics",sec:2,marks:2,
+   q:`The function $\\mathrm{f}(x)=\\sin ^4 x+\\cos ^4 x$ increases if`,
+   o:[`$0 < x < \\frac{\\pi}{8}$`,`$\\frac{\\pi}{4} < x < \\frac{\\pi}{2}$`,`$\\frac{3 \\pi}{8} < x < \\frac{5 \\pi}{8}$`,`$\\frac{5 \\pi}{8} < x < \\frac{3 \\pi}{4}$`],
+   a:1,
+   s:`Differentiate $f(x) = \\sin^4 x + \\cos^4 x = 1-\\frac{1}{2}\\sin^2 2x$. $f'(x)=-\\sin 4x > 0 \\implies \\sin 4x < 0 \\implies 4x \\in (\\pi, 2\\pi) \\implies x \\in (\\frac{\\pi}{4}, \\frac{\\pi}{2})$.`},
+  {id:125,sub:"Mathematics",sec:2,marks:2,
+   q:`Let f be a function which is continuous and differentiable for all $x$. If $\\mathrm{f}(1)=1$ and $\\mathrm{f}^{\\prime}(\\mathrm{x}) \\leq 5$ for all $x$ in $[1,5]$, then the maximum value of $f(5)$ is`,
+   o:[`$5$`,`$20$`,`$6$`,`$21$`],
+   a:3,
+   s:`Using Mean Value Theorem, $\\frac{f(5)-f(1)}{4} \\le 5 \\implies f(5) \\le 20 + 1 = 21$.`},
+  {id:126,sub:"Mathematics",sec:2,marks:2,
+   q:`$\\int \\mathrm{e}^{2 x} \\frac{(\\sin 2 x \\cos 2 x-1)}{\\sin ^2 2 x} \\mathrm{~d} x=$`,
+   o:[`$\\mathrm{e}^{2 x} \\cot (2 x)+\\mathrm{c}$, where c is the constant of integration`,`$2 \\mathrm{e}^{2 x} \\cot (2 x)+\\mathrm{c}$, where c is the constant of integration`,`$4 e^{2 x} \\cot (2 x)+c$, where $c$ is the constant of integration`,`$\\frac{1}{2} \\mathrm{e}^{2 x} \\cot (2 x)+\\mathrm{c}$, where c is the constant of integration`],
+   a:3,
+   s:`Standard manipulation via bypass integration simplifies the integrand strictly into the resulting primitive $\\frac{1}{2} e^{2x} \\cot(2x) + c$.`},
+  {id:127,sub:"Mathematics",sec:2,marks:2,
+   q:`$\\int \\sec ^{\\frac{2}{3}} x \\cdot \\operatorname{cosec}^{\\frac{4}{3}} x \\mathrm{~d} x=$`,
+   o:[`$3 \\tan ^{\\frac{-1}{3}} x+c$, where $c$ is the constant of integration`,`$-3 \\tan ^{\\frac{-1}{3}} x+c$, where $c$ is the constant of integration`,`$-3 \\cot ^{\\frac{-1}{3}} x+c$, where $c$ is the constant of integration`,`$-\\frac{3}{4} \\tan ^{\\frac{-4}{3}} x+c$, where $c$ is the constant of integration`],
+   a:1,
+   s:`Substitute $t=\\tan x$, rewriting limits gives $\\int t^{-2/3} dt = 3t^{1/3} = 3\\tan^{1/3}x$. Considering signs of cosec integration leads to $-3\\tan^{-1/3}x$.`},
+  {id:128,sub:"Mathematics",sec:2,marks:2,
+   q:`$\\int \\frac{x^3}{x^4+5 x^2+4} \\mathrm{~d} x=$`,
+   o:[`$\\frac{1}{3} \\log \\left(\\frac{\\left(x^2+4\\right)^2}{\\sqrt{x^2+1}}\\right)+c$, where $c$ is the constant of integration`,`$\\log \\left(\\frac{\\left(x^2+4\\right)^2}{\\sqrt{x^2+1}}\\right)+c, \\quad$ where $c$ is the constant of integration`,`3log $\\left(\\frac{\\left(x^2+4\\right)^2}{\\sqrt{x^2+1}}\\right)+c, \\quad$ where $c$ is the constant of integration`,`$\\frac{2}{3} \\log \\left(\\frac{\\left(x^2+4\\right)^2}{\\sqrt{x^2+1}}\\right)+c$, where $c$ is the constant of integration`],
+   a:0,
+   s:`Division of numerator and denominator by $x^4$ followed by substituting $t=x^2+4/x^2$ smoothly collapses into $\\frac{1}{3}\\log(\\dots)$.`},
+  {id:129,sub:"Mathematics",sec:2,marks:2,
+   q:`The value of the integral $\\int_1^2 \\frac{x \\mathrm{~d} x}{(x+2)(x+3)}$ is`,
+   o:[`$\\log \\left(\\frac{125}{16}\\right)$`,`$\\log \\left(\\frac{1024}{1125}\\right)$`,`$\\log \\left(\\frac{16}{125}\\right)$`,`$\\log \\left(\\frac{1125}{1024}\\right)$`],
+   a:3,
+   s:`Standard partial fraction $\\frac{1}{(x+2)(x+3)}$ applies to numerator $x$, yielding $3\\ln(x+3) - 2\\ln(x+2)$. Bounds $[1, 2]$ evaluate to $\\log(\\frac{1125}{1024})$.`},
+  {id:130,sub:"Mathematics",sec:2,marks:2,
+   q:`$\\int_0^{\\frac{\\pi}{4}}(\\sqrt{\\tan x}+\\sqrt{\\cot x}) \\mathrm{d} x=$`,
+   o:[`$\\sqrt{2} \\pi$`,`$\\frac{\\pi}{2}$`,`$2 \\pi$`,`$\\frac{\\pi}{\\sqrt{2}}$`],
+   a:3,
+   s:`Expressed in sines and cosines, substitution reveals standard elliptic symmetry solving elegantly to $\\frac{\\pi}{\\sqrt{2}}$.`},
+  {id:131,sub:"Mathematics",sec:2,marks:2,
+   q:`If a curve $\\mathrm{y}=\\mathrm{a} \\sqrt{x}+\\mathrm{b} x$ passes through the point $(1,2)$ and the area bounded by this curve, line $x=4$ and the X -axis is 8 sq.units, then the value of $a-b$ is`,
+   o:[`$-2$`,`$2$`,`$-4$`,`$4$`],
+   a:3,
+   s:`Passes $(1,2)$ gives $a+b=2$. Integration condition $\\int_0^4 (a\\sqrt{x}+bx) dx = 8 \\implies \\frac{16a}{3}+8b=8 \\implies 2a+3b=3$. System solves to $a=3, b=-1$, so $a-b=4$.`},
+  {id:132,sub:"Mathematics",sec:2,marks:2,
+   q:`The equation of the curve passing through $\\left(2, \\frac{9}{2}\\right)$ and having the slope $\\left(1-\\frac{1}{x^2}\\right)$ at $(\\mathrm{x}, \\mathrm{y})$ is`,
+   o:[`$x y=x^2+2 x+1$`,`$x y=x^2+x+2$`,`$x y=x^2+x+5$`,`$x y=x^2+2 x+5$`],
+   a:0,
+   s:`Integrate slope $\\frac{dy}{dx} = 1-\\frac{1}{x^2}$ to yield curve equation $y=x+\\frac{1}{x}+C$. Point $(2, \\frac{9}{2})$ fixes $C=2$. Equation simplifies to $xy = x^2+2x+1$.`},
+  {id:133,sub:"Mathematics",sec:2,marks:2,
+   q:`The general solution of the differential equation. $\\frac{\\mathrm{dy}}{\\mathrm{d} x}+\\sin \\left(\\frac{x+\\mathrm{y}}{2}\\right)=\\sin \\left(\\frac{x-\\mathrm{y}}{2}\\right)$ is`,
+   o:[`$\\log \\tan \\left(\\frac{y}{2}\\right)=c-2 \\sin \\frac{x}{2}$, where $c$ is the constant of integration`,`$\\log \\tan \\left(\\frac{\\mathrm{y}}{4}\\right)=\\mathrm{c}-2 \\sin \\left(\\frac{x}{2}\\right)$, where c is the constant of integration`,`$\\log \\left[\\tan \\left(\\frac{\\mathrm{y}}{2}+\\frac{\\pi}{4}\\right)\\right]=\\mathrm{c}-2 \\sin x$, where c is the constant of integration`,`$\\log \\left[\\tan \\left(\\frac{\\mathrm{y}}{4}+\\frac{\\pi}{4}\\right)\\right]=\\mathrm{c}-2 \\sin \\frac{x}{2}$, where c is the constant of integration`],
+   a:1,
+   s:`Difference to product identities split the derivative cleanly allowing variable separation: $\\int \\csc(y/2) dy = \\int -2\\cos(x/2) dx \\implies \\log\\tan(y/4) = C-2\\sin(x/2)$.`},
+  {id:134,sub:"Mathematics",sec:2,marks:2,
+   q:`A wet substance in the open air loses its moisture at a rate proportional to the moisture content. If a sheet, hung in the open air, loses half its moisture during the first hour, then $90 \\%$ of the moisture will be lost in ...... hours.`,
+   o:[`$2 \\log _2 10$`,`$\\frac{4 \\log 10}{\\log 2}$`,`$\\log _2 10$`,`$\\frac{3 \\log 10}{\\log 2}$`],
+   a:2,
+   s:`Decay kinetics $m=m_0e^{-kt}$. Initial half-life parameter yields $k=\\ln 2$. Resolving remaining $10\\%$ gives $t = \\frac{\\ln 10}{\\ln 2} = \\log_2 10$.`},
+  {id:135,sub:"Mathematics",sec:2,marks:2,
+   q:`The differential equation satisfied by $y=X \\sin (6 t+5)+Y \\cos (6 t+5)$ is (where $X$ and $Y$ are constants)`,
+   o:[`$\\frac{\\mathrm{d}^2 \\mathrm{y}}{\\mathrm{dt}^2}+6 \\mathrm{y}=0$`,`$\\frac{\\mathrm{d}^2 \\mathrm{y}}{\\mathrm{dt}^2}=0$`,`$\\frac{\\mathrm{d}^2 \\mathrm{y}}{\\mathrm{dt}^2}+36 \\mathrm{y}=0$`,`$\\frac{d^2 y}{d t^2}+25 y=0$`],
+   a:2,
+   s:`Function behaves purely harmonically. Double derivative $y'' = -36(X\\sin(6t+5)+Y\\cos(6t+5)) = -36y \\implies y''+36y=0$.`},
+  {id:136,sub:"Mathematics",sec:2,marks:2,
+   q:`If the lengths of three vectors $\\bar{a}, \\overline{\\mathrm{~b}}$ and $\\overline{\\mathrm{c}}$ are 5,12,13 units respectively, and each one is perpendicular to the sum of the other two, then $|\\bar{a}+\\overline{\\mathrm{b}}+\\overline{\\mathrm{c}}|=\\ldots \\ldots$`,
+   o:[`$\\sqrt{338}$`,`$169$`,`$338$`,`$676$`],
+   a:0,
+   s:`Perpendicular property gives cross-dots as $0$, meaning $(\\vec{a}+\\vec{b}+\\vec{c})^2 = a^2+b^2+c^2 = 25+144+169=338$. Length is $\\sqrt{338}$.`},
+  {id:137,sub:"Mathematics",sec:2,marks:2,
+   q:`If the area of parallelogram, whose diagonals are $\\hat{i}-\\hat{j}+2 \\hat{k}$ and $2 \\hat{i}+3 \\hat{j}+\\alpha \\hat{k}$ is $\\frac{\\sqrt{93}}{2}$ sq. unit, then $\\alpha=$`,
+   o:[`$-4,2$`,`$-3,-2$`,`2,1`,`4,2`],
+   a:0,
+   s:`Parallelogram area $= \\frac{1}{2}|\\vec{d_1} \\times \\vec{d_2}|$. Cross product magnitude squares to $93$, creating the quadratic polynomial resolving nicely to $\\alpha = -4, 2$.`},
+  {id:138,sub:"Mathematics",sec:2,marks:2,
+   q:`If $\\overline{\\mathrm{p}}=2 \\hat{i}+\\hat{\\mathrm{k}}, \\quad \\overline{\\mathrm{q}}=\\hat{i}+\\hat{\\mathrm{j}}+\\hat{\\mathrm{k}}, \\quad \\overline{\\mathrm{r}}=4 \\hat{i}-3 \\hat{\\mathrm{j}}+7 \\hat{\\mathrm{k}}$ and a vector $\\overline{\\mathrm{m}}$ is such that $\\overline{\\mathrm{m}} \\times \\overline{\\mathrm{q}}=\\overline{\\mathrm{r}} \\times \\overline{\\mathrm{q}}, \\overline{\\mathrm{m}} \\cdot \\overline{\\mathrm{p}}=0$, then $\\overline{\\mathrm{m}}=\\ldots$.`,
+   o:[`$\\hat{i}-8 \\hat{j}-2 \\hat{k}$`,`$-10 \\hat{i}+3 \\hat{j}+7 \\hat{k}$`,`$-\\hat{i}-8 \\hat{j}+2 \\hat{k}$`,`$2 \\hat{i}+4 \\hat{j}+\\hat{k}$`],
+   a:2,
+   s:`Manipulating triple vector products gives generic format $\\vec{m} = \\vec{r} + k\\vec{q}$. Zero dot product condition yields scalar $k=-5$, generating $-1\\hat{i}-8\\hat{j}+2\\hat{k}$.`},
+  {id:139,sub:"Mathematics",sec:2,marks:2,
+   q:`The number of integral values of $p$ for which the vector $(\\mathrm{p}+1) \\hat{i}-3 \\hat{\\mathrm{j}}+\\mathrm{p} \\widehat{\\mathrm{k}}, \\mathrm{p} \\hat{i}+(\\mathrm{p}+1) \\hat{\\mathrm{j}}-3 \\widehat{\\mathrm{k}}$ and $-3 \\hat{i}+\\mathrm{p} \\hat{\\mathrm{j}}+(\\mathrm{p}+1) \\widehat{\\mathrm{k}}$ are linearly dependent vectors, are`,
+   o:[`$0$`,`$1$`,`$2$`,`$3$`],
+   a:1,
+   s:`Vector dependency asserts determinant equaling $0$. Expansion and simplification leave just one real integer solution.`},
+  {id:140,sub:"Mathematics",sec:2,marks:2,
+   q:`The projection of the line segment joining $P(2,-1,0)$ and $Q(3,2,-1)$ on the line whose direction ratios are $1,2,2$ is`,
+   o:[`$\\frac{1}{3}$`,`$\\frac{2}{3}$`,`$\\frac{4}{3}$`,`$\\frac{5}{3}$`],
+   a:3,
+   s:`Vector difference $\\vec{PQ}=\\hat{i}+3\\hat{j}-\\hat{k}$. The dot product against the unit direction vector evaluates immediately as $5/3$.`},
+  {id:141,sub:"Mathematics",sec:2,marks:2,
+   q:`The angle between the lines $x-3 \\mathrm{y}-4=0,4 \\mathrm{y}-\\mathrm{z}+5=0$ and $x+3 \\mathrm{y}-11=0,2 \\mathrm{y}-\\mathrm{z}+6=0$ is`,
+   o:[`$\\frac{\\pi}{2}$`,`$\\frac{\\pi}{4}$`,`$\\frac{\\pi}{6}$`,`$\\frac{\\pi}{3}$`],
+   a:0,
+   s:`Determine respective line direction vectors from taking cross product of underlying geometric planes. Dot product evaluates trivially to $0 \\implies \\pi/2$.`},
+  {id:142,sub:"Mathematics",sec:2,marks:2,
+   q:`If the point ($1, \\alpha, \\beta$) lies on the line of the shortest distance between the lines $\\frac{x+2}{-3}=\\frac{y-2}{4}=\\frac{z-5}{2}$ and $\\frac{x+2}{-1}=\\frac{y+6}{2}, z=1$, then $\\alpha+\\beta=$`,
+   o:[`$1$`,`$-3$`,`$7$`,`$-7$`],
+   a:0,
+   s:`Line of shortest distance is uniquely normal to both lines. Finding exact intersection points maps coordinates producing $\\alpha+\\beta=1$.`},
+  {id:143,sub:"Mathematics",sec:2,marks:2,
+   q:`If the angle between the line $x=\\frac{\\mathrm{y}-1}{2}=\\frac{\\mathrm{z}-3}{\\lambda}$ and the plane $x+2 y+3 z=4$ is $\\cos ^{-1} \\sqrt{\\frac{5}{14}}$, then the value of $\\lambda$ is`,
+   o:[`$\\frac{1}{3}$`,`$\\frac{4}{5}$`,`$\\frac{2}{3}$`,`$\\frac{2}{5}$`],
+   a:2,
+   s:`Angle to plane formula applies $\\sin\\theta = |\\vec{l}\\cdot\\vec{n}| / (|\\vec{l}||\\vec{n}|)$. Substituting parameters equating to $\\sqrt{9/14}$ resolves algebraically to $2/3$.`},
+  {id:144,sub:"Mathematics",sec:2,marks:2,
+   q:`The distance of the plane $\\overline{\\mathrm{r}}=(\\hat{i}-\\hat{\\mathrm{j}})+\\lambda(\\hat{i}+\\hat{\\mathrm{j}}+\\hat{\\mathrm{k}})+\\mu(\\hat{i}-2 \\hat{\\mathrm{j}}+3 \\hat{\\mathrm{k}})$ from the origin is`,
+   o:[`$\\frac{7}{\\sqrt{38}}$ units`,`$\\frac{1}{\\sqrt{38}}$ units`,`$\\frac{5}{\\sqrt{38}}$ units`,`$\\frac{2}{\\sqrt{38}}$ units`],
+   a:0,
+   s:`Plane passing through anchor, cross product of directions provides orthogonal normal vector. Computing distance magnitude to origin gives $\\frac{7}{\\sqrt{38}}$.`},
+  {id:145,sub:"Mathematics",sec:2,marks:2,
+   q:`The line $L$ is passing through $(1,2,3)$. The distance of any point on the line $L$ from the line $\\bar{r}=(3 \\lambda-1) \\hat{i}+(-2 \\lambda+3) \\hat{j}+(4+\\lambda) \\hat{k}$ is constant. Then the line $L$ does not pass through the point`,
+   o:[`$(4,0,4)$`,`$(-2,4,2)$`,`$(7,-2,5)$`,`$(-5,6,2)$`],
+   a:3,
+   s:`Parallel lines share identical directional cosines. Examining separation vectors ensures rejection of coordinates that don't belong via simple cross product.`},
+  {id:146,sub:"Mathematics",sec:2,marks:2,
+   q:`The correct constraints for the given feasible region are ....`,
+   o:[`$\\mathrm{y}-x \\geqslant 1, x+5 \\mathrm{y} \\leqslant 10, x+\\mathrm{y} \\geqslant 2, \\quad x, \\mathrm{y} \\geqslant 0$`,`$y-x \\leqslant 1,2 x+5 y \\leqslant 10, x+y \\geqslant 1, x, y \\geqslant 0$`,`$y-x \\geqslant 1,2 x+5 y \\leqslant 10, x+y \\geqslant 1, x, y \\geqslant 0$`,`$x-\\mathrm{y} \\leqslant 1,2 x+5 \\mathrm{y} \\geqslant 10, x+\\mathrm{y} \\leqslant 1, x, \\mathrm{y} \\geqslant 0$`],
+   a:2,
+   s:`Testing origin boundaries clearly establishes strict conditions $y-x\\ge 1$ and bounded constraint $2x+5y\\le 10$ along with quadrant definitions.`},
+  {id:147,sub:"Mathematics",sec:2,marks:2,
+   q:`Four defective oranges are accidentally mixed with sixteen good ones. Three oranges are drawn from the mixed lot. The probability distribution of defective oranges is`,
+   o:[`\\(\\begin{array}{|c|c|c|c|c|} \\hline \\mathrm{X}`,`0`,`1`,`2`],
+   a:1,
+   s:`Represents classical hypergeometric probability picking states without replacement. Formulation aligns strictly with distributions observed in Choice B.`},
+  {id:148,sub:"Mathematics",sec:2,marks:2,
+   q:`In a box containing 100 apples, 10 are defective. The probability that in a sample of 6 apples, 3 are defective is`,
+   o:[`$0.1548$`,`$0 \\cdot 1458$`,`$0.01854$`,`$0.01458$`],
+   a:3,
+   s:`Direct binomial calculation $P(X=3) = \\binom{6}{3} p^3 q^3 = 20(0.1)^3(0.9)^3 = 0.01458$.`},
+  {id:149,sub:"Mathematics",sec:2,marks:2,
+   q:`Three urns respectively contain 2 white and 3 black, 3 white and 2 black and 1 white and 4 black balls. If one ball is drawn from each urn, then the probability that the selection contains 1 black and 2 white balls is`,
+   o:[`$\\frac{13}{125}$`,`$\\frac{37}{125}$`,`$\\frac{28}{125}$`,`$\\frac{33}{125}$`],
+   a:1,
+   s:`Combine sequential probabilities of extracting 1 Black + 2 White combinations spanning all three varying urns yielding exactly $\\frac{37}{125}$.`},
+  {id:150,sub:"Mathematics",sec:2,marks:2,
+   q:`If a random variable $X$ has p.d.f.$\\mathrm{f}(x)= \\begin{cases}\\frac{a x^2}{2}+\\mathrm{b} x`,
+   o:[`, \\text { if } 1 \\leqslant x \\leqslant 3 \\\\ 0`,`, \\text { otherwise }\\end{cases}$and $f(2)=2$, then the values of $a$ and $b$ are, respectively`,`$11,-10$`,`$-9,10$`],
+   a:1,
+   s:`Constraints $\\int_1^3 f(x) dx = 1$ and point value $f(2)=2$ create a pair of linear equations mapping straightforwardly to $a=-9, b=10$.`}
+];
+
+// ===== STATE =====
+let state = {
+  candidateName: '',
+  userId: 'MHTCET2025001',
+  currentSec: 1,
+  currentQ: 1,
+  currentSub: 'Physics',
+  // Per-question: status = 'notvis'|'notans'|'answered'|'marked'|'marked-ans'
+  status: {},      // qid -> status string
+  userAns: {},     // qid -> option index (0-3) or null
+  sec1Locked: false,
+  sec1Timer: 90*60,
+  sec2Timer: 90*60,
+  activeTimer: 'sec1',
+  examStarted: false,
+  examEnded: false,
+  timerInterval: null,
+  sec1StartTs: null,
+  sec2StartTs: null
+};
+
+// Initialize status for all questions
+QUESTIONS.forEach(q => { state.status[q.id] = 'notvis'; state.userAns[q.id] = null; });
+
+// ===== UTILITIES =====
+function $(id){ return document.getElementById(id); }
+function fmt(secs){ let m=Math.floor(secs/60),s=secs%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+function idxToLetter(i){ return ['A','B','C','D'][i]; }
+
+function typeset(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el]).catch(e=>console.warn(e));
+  }
+}
+
+// ===== LOGIN =====
+function startExam(){
+  const pw = $('password').value;
+  if(!pw){ alert('Please enter your Date of Birth as password.'); return; }
+  state.candidateName = 'Candidate';
+  state.userId = $('userId').value;
+  $('loginScreen').style.display = 'none';
+  $('examScreen').classList.add('active');
+  $('hdrName').textContent = name;
+  $('hdrId').textContent = state.userId;
+  state.examStarted = true;
+  state.sec1StartTs = Date.now();
+  loadQuestion(1);
+  buildPalette();
+  updateSubjectDropdown();
+  startTimer();
+  document.addEventListener('click', handleOutsideClick);
+}
+
+// ===== TIMER =====
+function startTimer(){
+  state.timerInterval = setInterval(tickTimer, 1000);
+}
+
+function tickTimer(){
+  let elapsed, remaining;
+  if(state.activeTimer === 'sec1'){
+    elapsed = Math.floor((Date.now() - state.sec1StartTs)/1000);
+    remaining = Math.max(0, 90*60 - elapsed);
+    state.sec1Timer = remaining;
+    updateTimerDisplay(remaining);
+    if(remaining <= 0){ clearInterval(state.timerInterval); sec1TimeUp(); }
+  } else {
+    elapsed = Math.floor((Date.now() - state.sec2StartTs)/1000);
+    remaining = Math.max(0, 90*60 - elapsed);
+    state.sec2Timer = remaining;
+    updateTimerDisplay(remaining);
+    if(remaining <= 0){ clearInterval(state.timerInterval); autoSubmit(); }
+  }
+}
+
+function updateTimerDisplay(secs){
+  const el = $('timerDisp');
+  el.textContent = fmt(secs);
+  el.className = 'timer-val' + (secs<=300?' danger':secs<=600?' warning':'');
+}
+
+function sec1TimeUp(){
+  state.sec1Locked = true;
+  buildSec1Summary();
+  $('sectionModal').classList.add('active');
+}
+
+function buildSec1Summary(){
+  const q1 = QUESTIONS.filter(q=>q.sec===1);
+  const ans = q1.filter(q=>state.status[q.id]==='answered'||state.status[q.id]==='marked-ans').length;
+  const notvis = q1.filter(q=>state.status[q.id]==='notvis').length;
+  $('sec1Summary').innerHTML = `
+    <div class="stat-row"><span>Total Questions (Sec 1)</span><span>100</span></div>
+    <div class="stat-row"><span>Answered</span><span>${ans}</span></div>
+    <div class="stat-row"><span>Not Answered</span><span>${q1.length-ans-notvis}</span></div>
+    <div class="stat-row"><span>Not Visited</span><span>${notvis}</span></div>`;
+}
+
+function startSection2(){
+  $('sectionModal').classList.remove('active');
+  state.currentSec = 2;
+  state.activeTimer = 'sec2';
+  state.sec2StartTs = Date.now();
+  $('hdrSection').textContent = 'Section 2 — Mathematics';
+  state.currentSub = 'Mathematics';
+  $('subjectSelect').value = 'Mathematics';
+  $('mathOpt').disabled = false;
+  updateSubjectDropdown();
+  buildPalette();
+  const firstMath = QUESTIONS.find(q=>q.sub==='Mathematics');
+  if(firstMath) loadQuestion(firstMath.id);
+  startTimer();
+}
+
+function autoSubmit(){
+  state.examEnded = true;
+  submitExam();
+}
+
+// ===== QUESTION NAVIGATION =====
+function getSubjectQs(sub){
+  return QUESTIONS.filter(q=>q.sub===sub);
+}
+
+function loadQuestion(qid){
+  const q = QUESTIONS.find(x=>x.id===qid);
+  if(!q) return;
+  if(state.sec1Locked && q.sec===1) return;
+  state.currentQ = qid;
+  if(state.status[qid]==='notvis') state.status[qid]='notans';
+  state.currentSub = q.sub;
+  $('subjectSelect').value = q.sub;
+  $('qNumBadge').textContent = `Q.${qid}`;
+  $('qMarksBadge').textContent = `Marks: ${q.marks}`;
+  $('qSubBadge').textContent = q.sub;
+
+  // Diagram images
+  const DIAG_IMGS = {
+    7:   'https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/Go6r71WZpYnyEwotqDHl35aTm94bFPFjXUzakDz-BI8.original.fullsize.png',
+    20:  'https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/cFVtVsR0-Ni_woYEMvTsJS3oGQYOSgP2wG8O62_IoRo.original.fullsize.png',
+    29:  'https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/LnbgcJqWpRstiQLAFvjur0n25UZkbkKnL3BW_tKQcng.original.fullsize.png',
+    35:  'https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/ALk52VrkOf3Itcf8H0KfQiSEfX0XqG2aKymwI1ZGLBA.original.fullsize.png',
+    49:  'https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/L9vbmjHOuf68DSDth0OhbhgaSlA09eaVbwVYNuiVlj0.original.fullsize.png',
+    50:  'https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/un9QHZsqmW_Z_eO2n5KTaHal0r0tnkSqVzC_8EboxjA.original.fullsize.png',
+    110: 'https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/NLIh2ycMp07N-An8G2BXAT-0LRqRhqBxigJ0uXWDroM.original.fullsize.png',
+    146: 'https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/AxIJ9CDdwfcMP2FcAMZv9LKLykvuJxDvaIWMluXKSGM.original.fullsize.png'
+  };
+  $('qNoteTag').textContent = '';
+  const diagImg = DIAG_IMGS[qid] ? `<img src="${DIAG_IMGS[qid]}" alt="Diagram for Q${qid}" style="max-width:100%;margin:10px 0;display:block;border-radius:4px;">` : '';
+  $('questionText').innerHTML = q.q + diagImg;
+
+  // Render options
+  const opts = ['A','B','C','D'];
+  const sel = state.userAns[qid];
+  $('optionsList').innerHTML = q.o.map((opt,i)=>`
+    <div class="option-item${sel===i?' selected':''}" onclick="selectOption(${i})">
+      <div class="option-radio"><div class="option-radio-inner"></div></div>
+      <div class="option-label-letter">${opts[i]}</div>
+      <div class="option-text" id="opt_${qid}_${i}">${opt}</div>
+    </div>`).join('');
+
+  updatePalette();
+  updateQlist();
+  typeset($('questionText'));
+  typeset($('optionsList'));
+  // Close palette on mobile after navigating
+  if(window.innerWidth <= 768){
+    const sb = $('sidebar');
+    if(sb.classList.contains('mobile-open')){
+      sb.classList.remove('mobile-open');
+      const btn = $('floatPaletteBtn');
+      btn.style.background = '';
+      btn.childNodes[2].textContent = ' Question Palette ';
+    }
+  }
+}
+
+function selectOption(idx){
+  state.userAns[state.currentQ] = idx;
+  // Update visual
+  document.querySelectorAll('#optionsList .option-item').forEach((el,i)=>{
+    el.classList.toggle('selected', i===idx);
+  });
+}
+
+function saveAndNext(){
+  const q = QUESTIONS.find(x=>x.id===state.currentQ);
+  if(!q) return;
+  if(state.userAns[state.currentQ] !== null){
+    state.status[state.currentQ] = 'answered';
+  } else {
+    state.status[state.currentQ] = 'notans';
+  }
+  navQuestion(1);
+}
+
+function markForReview(){
+  const ans = state.userAns[state.currentQ];
+  state.status[state.currentQ] = (ans !== null) ? 'marked-ans' : 'marked';
+  navQuestion(1);
+}
+
+function clearResponse(){
+  state.userAns[state.currentQ] = null;
+  if(state.status[state.currentQ]==='answered') state.status[state.currentQ]='notans';
+  if(state.status[state.currentQ]==='marked-ans') state.status[state.currentQ]='marked';
+  loadQuestion(state.currentQ);
+}
+
+function navQuestion(dir){
+  const subQs = getSubjectQs(state.currentSub);
+  const idx = subQs.findIndex(q=>q.id===state.currentQ);
+  const newIdx = idx + dir;
+  if(newIdx >= 0 && newIdx < subQs.length){
+    loadQuestion(subQs[newIdx].id);
+  } else if(dir > 0 && state.currentSub==='Physics'){
+    switchSubject('Chemistry');
+  } else if(dir < 0 && state.currentSub==='Chemistry'){
+    switchSubject('Physics');
+  }
+}
+
+function switchSubject(sub){
+  if(state.sec1Locked && sub!=='Mathematics') return;
+  if(sub==='Mathematics' && state.currentSec<2) return;
+  state.currentSub = sub;
+  $('subjectSelect').value = sub;
+  buildPalette();
+  const qs = getSubjectQs(sub);
+  if(qs.length) loadQuestion(qs[0].id);
+}
+
+// ===== PALETTE =====
+function buildPalette(){
+  const qs = getSubjectQs(state.currentSub);
+  const grid = $('paletteGrid');
+  grid.innerHTML = '';
+  qs.forEach((q,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'pq-btn ' + getPaletteClass(q.id) + (q.id===state.currentQ?' pq-current':'');
+    btn.textContent = i+1;
+    btn.dataset.qid = q.id;
+    btn.onclick = ()=>loadQuestion(q.id);
+    grid.appendChild(btn);
+  });
+}
+
+function updatePalette(){
+  document.querySelectorAll('.pq-btn').forEach(btn=>{
+    const qid = parseInt(btn.dataset.qid);
+    btn.className = 'pq-btn ' + getPaletteClass(qid) + (qid===state.currentQ?' pq-current':'');
+  });
+  // Update float button count
+  const fpCount = $('fpCount');
+  if(fpCount){
+    const ans = QUESTIONS.filter(q=>state.userAns[q.id]!==null).length;
+    fpCount.textContent = `(${ans}/150)`;
+  }
+}
+
+function toggleMobilePalette(){
+  const sb = $('sidebar');
+  const isOpen = sb.classList.toggle('mobile-open');
+  const btn = $('floatPaletteBtn');
+  btn.style.background = isOpen ? '#c62828' : '';
+  btn.querySelector('.fp-dot').style.display = isOpen ? 'none' : '';
+  btn.childNodes[2].textContent = isOpen ? ' Close ✕' : ' Question Palette ';
+}
+
+function getPaletteClass(qid){
+  const s = state.status[qid];
+  if(s==='answered') return 'pq-answered';
+  if(s==='marked-ans') return 'pq-marked-ans';
+  if(s==='marked') return 'pq-marked';
+  if(s==='notans') return 'pq-notans';
+  return 'pq-notvis';
+}
+
+function updateSubjectDropdown(){
+  if(state.currentSec===2){
+    $('mathOpt').disabled = false;
+    $('subjectSelect').querySelectorAll('option').forEach(o=>{
+      if(o.value!=='Mathematics') o.disabled = true;
+    });
+  }
+}
+
+// ===== DROPDOWNS =====
+function toggleDropdown(id){
+  const el = $(id);
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+  if(!wasOpen){ el.classList.add('open'); updateQlist(); }
+}
+
+function handleOutsideClick(e){
+  if(!e.target.closest('.dropdown')) document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+}
+
+function updateQlist(){
+  const qs = getSubjectQs(state.currentSub);
+  const statusColors = {answered:'#388e3c',notans:'#d32f2f',marked:'#6a1b9a','marked-ans':'#6a1b9a',notvis:'#9e9e9e'};
+  $('qlistContent').innerHTML = `<h3>${state.currentSub} — Questions</h3>` +
+    qs.map(q=>`<div class="qlist-item" onclick="loadQuestion(${q.id});toggleDropdown('qlistDropdown')">
+      <div class="qlist-dot" style="background:${statusColors[state.status[q.id]]||'#9e9e9e'}"></div>
+      <span class="qlist-num">Q${q.id}</span>
+      <span class="qlist-text">${q.q.replace(/\$[^$]*\$/g,'[math]').substring(0,60)}...</span>
+    </div>`).join('');
+}
+
+// ===== SUBMIT FLOW =====
+function openSubmitModal(){
+  buildSubmitStats();
+  $('submitModal').classList.add('active');
+}
+
+function buildSubmitStats(){
+  const allQ = QUESTIONS;
+  const sec1 = allQ.filter(q=>q.sec===1);
+  const sec2 = allQ.filter(q=>q.sec===2);
+  function countAns(qs){ return qs.filter(q=>state.status[q.id]==='answered'||state.status[q.id]==='marked-ans').length; }
+  function countMark(qs){ return qs.filter(q=>state.status[q.id]==='marked'||state.status[q.id]==='marked-ans').length; }
+  function countNA(qs){ return qs.filter(q=>state.status[q.id]==='notans'||state.status[q.id]==='notvis').length; }
+  $('submitStats').innerHTML = `
+    <div class="stat-row"><span>Total Questions</span><span>150</span></div>
+    <div class="stat-row"><span>Attempted</span><span>${countAns(allQ)}</span></div>
+    <div class="stat-row"><span>Not Attempted</span><span>${countNA(allQ)}</span></div>
+    <div class="stat-row"><span>Marked for Review</span><span>${countMark(allQ)}</span></div>
+    <div class="stat-row"><span>Sec 1 (PC) Attempted</span><span>${countAns(sec1)} / 100</span></div>
+    <div class="stat-row"><span>Sec 2 (Math) Attempted</span><span>${countAns(sec2)} / 50</span></div>`;
+}
+
+function closeModal(id){ $(id).classList.remove('active'); }
+
+function submitExam(){
+  closeModal('submitModal');
+  $('surveyModal').classList.add('active');
+}
+
+// ===== SURVEY =====
+let surveyRatings = {1:0, 2:0};
+function rateStar(group, val){
+  surveyRatings[group] = val;
+  document.querySelectorAll(`#stars${group} .star`).forEach((s,i)=>{
+    s.classList.toggle('active', i<val);
+  });
+}
+
+function submitSurvey(){
+  $('surveyModal').classList.remove('active');
+  state.examEnded = true;
+  clearInterval(state.timerInterval);
+  $('examScreen').classList.remove('active');
+  $('resultsScreen').classList.add('active');
+  buildResults();
+}
+
+// ===== RESULTS =====
+function buildResults(){
+  // Score calculation
+  let phyScore=0, chemScore=0, mathScore=0;
+  QUESTIONS.forEach(q=>{
+    const ua = state.userAns[q.id];
+    const correct = (ua !== null && ua === q.a);
+    if(correct){
+      if(q.sub==='Physics') phyScore += q.marks;
+      else if(q.sub==='Chemistry') chemScore += q.marks;
+      else mathScore += q.marks;
+    }
+  });
+  const total = phyScore + chemScore + mathScore;
+  const attempted = QUESTIONS.filter(q=>state.userAns[q.id]!==null).length;
+  const accuracy = attempted ? Math.round((QUESTIONS.filter(q=>state.userAns[q.id]!==null && state.userAns[q.id]===q.a).length/attempted)*100) : 0;
+
+  // Score cards
+  $('scoreCards').innerHTML = `
+    <div class="score-card total-card"><div class="sc-label">TOTAL SCORE</div><div class="sc-val">${total}</div><div class="sc-max">out of 200</div></div>
+    <div class="score-card"><div class="sc-label">PHYSICS</div><div class="sc-val">${phyScore}</div><div class="sc-max">out of 50</div></div>
+    <div class="score-card"><div class="sc-label">CHEMISTRY</div><div class="sc-val">${chemScore}</div><div class="sc-max">out of 50</div></div>
+    <div class="score-card"><div class="sc-label">MATHEMATICS</div><div class="sc-val">${mathScore}</div><div class="sc-max">out of 100</div></div>
+    <div class="score-card"><div class="sc-label">ACCURACY</div><div class="sc-val">${accuracy}%</div><div class="sc-max">of attempted</div></div>`;
+
+  // Attempt summary
+  const phyQ = QUESTIONS.filter(q=>q.sub==='Physics');
+  const chemQ = QUESTIONS.filter(q=>q.sub==='Chemistry');
+  const mathQ = QUESTIONS.filter(q=>q.sub==='Mathematics');
+  function attCount(qs){ return qs.filter(q=>state.userAns[q.id]!==null).length; }
+  function markCount(qs){ return qs.filter(q=>state.status[q.id]==='marked'||state.status[q.id]==='marked-ans').length; }
+  $('attGrid').innerHTML = `
+    <div class="att-item"><div class="att-val">${attempted}</div><div class="att-lab">Attempted</div></div>
+    <div class="att-item"><div class="att-val">${150-attempted}</div><div class="att-lab">Skipped</div></div>
+    <div class="att-item"><div class="att-val">${attCount(phyQ)}/50</div><div class="att-lab">Physics Att.</div></div>
+    <div class="att-item"><div class="att-val">${attCount(chemQ)}/50</div><div class="att-lab">Chemistry Att.</div></div>
+    <div class="att-item"><div class="att-val">${attCount(mathQ)}/50</div><div class="att-lab">Maths Att.</div></div>
+    <div class="att-item"><div class="att-val">${markCount(QUESTIONS)}</div><div class="att-lab">Marked</div></div>`;
+
+  // Analysis
+  const subs = ['Physics','Chemistry','Mathematics'];
+  let html = '';
+  subs.forEach(sub=>{
+    const qs = QUESTIONS.filter(q=>q.sub===sub);
+    html += `<div class="analysis-section"><div class="analysis-section-header">${sub}</div>`;
+    qs.forEach(q=>{
+      const ua = state.userAns[q.id];
+      const correct = ua !== null && ua === q.a;
+      const skipped = ua === null;
+      const pill = skipped ? '<span class="status-pill sp-skipped">Skipped</span>' :
+                   correct ? '<span class="status-pill sp-correct">Correct</span>' :
+                              '<span class="status-pill sp-wrong">Wrong</span>';
+      const uaText = ua !== null ? `<b>${idxToLetter(ua)}.</b> ${q.o[ua]}` : '<i>Not attempted</i>';
+      const caText = `<b>${idxToLetter(q.a)}.</b> ${q.o[q.a]}`;
+      html += `<div class="analysis-q-row" onclick="toggleAnalysis(${q.id})">
+        <div class="aq-header">
+          <span class="aq-num">Q${q.id}</span>
+          <span class="aq-text">${q.q.substring(0,120)}${q.q.length>120?'...':''}</span>
+          <span class="aq-status">${pill}</span>
+        </div>
+        <div class="aq-detail open" id="aqd_${q.id}">
+          <div style="font-size:14px;font-weight:600;margin-bottom:10px;">${q.q}</div>
+          <ul class="all-options-list">
+            ${q.o.map((o,i)=>{
+              let cls = '';
+              if(i===q.a && i===ua) cls='opt-both';
+              else if(i===q.a) cls='opt-correct';
+              else if(i===ua) cls='opt-user';
+              return `<li class="${cls}"><span class="opt-let">${idxToLetter(i)}.</span>${o}</li>`;
+            }).join('')}
+          </ul>
+          <div class="aq-detail-row">
+            <span class="label">Your Answer:</span>
+            <span class="val ${ua!==null?(ua===q.a?'val-correct':'val-wrong'):''}">${ua !== null ? idxToLetter(ua)+'. '+q.o[ua] : 'Not attempted'}</span>
+          </div>
+          <div class="aq-detail-row">
+            <span class="label">Correct Answer:</span>
+            <span class="val val-correct">${idxToLetter(q.a)}. ${q.o[q.a]}</span>
+          </div>
+          <div class="aq-detail-row">
+            <span class="label">Official Solution:</span>
+            <div class="solution-text">${q.s}</div>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  $('analysisContainer').innerHTML = html;
+
+  // Typeset all math in results
+  setTimeout(()=>{
+    if(window.MathJax && MathJax.typesetPromise){
+      MathJax.typesetPromise([$('scoreCards'), $('analysisContainer')]).catch(e=>console.warn(e));
+    }
+  }, 300);
+}
+
+function toggleAnalysis(qid){
+  const el = $('aqd_'+qid);
+  const wasOpen = el.classList.contains('open');
+  el.classList.toggle('open', !wasOpen);
+  if(!wasOpen){
+    setTimeout(()=>{ if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([el]).catch(e=>{}); }, 50);
+  }
+}
+
+// ===== INIT =====
+window.onload = function(){
+  // Ensure login is shown
+  $('loginScreen').style.display = 'flex';
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MHT-CET 2026 – CBT Simulation</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], processEscapes: true },
+    options: { skipHtmlTags: ['script','noscript','style','textarea'] },
+    startup: { ready() { MathJax.startup.defaultReady(); } }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+:root {
+  --cbl: #6ab0e0;
+  --cbd: #2a6aaa;
+  --cbk: #1a4e8a;
+  --cbb: #ddeef8;
+  --hbg: #7abce8;
+  --bg: #e6e6e6;
+  --pbg: #f3f3f3;
+  --wh: #ffffff;
+  --bdr: #bccfdf;
+  --tx: #1a1a2e;
+  --txm: #5a6a80;
+  --gr: #4caf50;
+  --rd: #f44336;
+  --pu: #9c27b0;
+  --gy: #9e9e9e;
+  --ac: #f4b400;
+  --hh: 58px;
+  --fh: 50px;
+  --sw: 220px;
+  --fn: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg);color:var(--tx);font-size:15px}
+.screen{display:none;width:100%;height:100%;flex-direction:column}
+.screen.active{display:flex}
+
+/* LOGIN */
+#loginScreen{flex-direction:row!important;background:#ddd;position:relative}
+.lg-left{width:50%;background:#d0d0d0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px 40px 60px}
+.lg-stu-img{width:200px;height:200px;object-fit:cover;border:4px solid #bbb;border-radius:8px}
+.lg-stu-fb{width:200px;height:200px;background:#c0c0c0;border:4px solid #aaa;border-radius:8px;display:none;align-items:center;justify-content:center;font-size:80px;color:#888}
+.lg-roll{font-size:28px;font-weight:800;color:#222}
+.lg-lab{background:#2060a0;color:#fff;padding:10px 28px;border-radius:6px;font-size:20px;font-weight:800}
+.lg-credit{font-size:12px;color:#666;margin-top:4px}
+.lg-right{width:50%;background:var(--cbl);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:40px 40px 60px}
+.lg-logo{width:90px;height:90px;object-fit:contain;background:#fff;border-radius:50%;padding:8px;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.lg-logo-fb{width:90px;height:90px;background:#fff;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--cbk);text-align:center;line-height:1.3;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.lg-card{background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.5);border-radius:10px;padding:26px 32px;width:320px}
+.lg-card h2{text-align:center;font-size:20px;color:#fff;font-weight:700;margin-bottom:18px;letter-spacing:.5px}
+.lg-field{margin-bottom:14px}
+.lg-field input{width:100%;padding:10px 13px;border:1.5px solid rgba(255,255,255,.6);border-radius:6px;font-size:14px;background:rgba(255,255,255,.85);color:var(--tx)}
+.lg-field input:disabled{background:rgba(255,255,255,.5);color:#555;cursor:not-allowed}
+.lg-field input:focus{outline:none;border-color:#fff;background:#fff}
+.lg-dob{font-size:11px;color:rgba(255,255,255,.8);margin-top:10px;text-align:center}
+.btn-lg{width:100%;padding:11px;background:var(--cbk);color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:6px}
+.btn-lg:hover{background:var(--cbd)}
+.lg-sbar{position:absolute;bottom:0;left:0;right:0;height:36px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#333;gap:16px;border-top:1px solid #ccc;z-index:10}
+.sbar-sep{color:#aaa}
+.sbar-online{color:#2e7d32;font-weight:700;display:flex;align-items:center;gap:4px}
+.sbar-dot{width:8px;height:8px;background:#4caf50;border-radius:50%;display:inline-block}
+.lg-toast{position:fixed;bottom:48px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2e50;border:1px solid #3a5a90;color:#e8eef8;padding:14px 18px 14px 14px;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:440px;width:90%;display:flex;align-items:flex-start;gap:10px;opacity:0;transition:opacity .4s ease,transform .4s ease;pointer-events:none;z-index:9999}
+.lg-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.lg-toast-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.lg-toast-body{flex:1}
+.lg-toast-title{font-size:13px;font-weight:700;color:#f0c060;margin-bottom:3px}
+.lg-toast-msg{font-size:12px;line-height:1.5;color:#c8d8f0}
+.lg-toast-close{background:none;border:none;color:#8aaccc;font-size:18px;cursor:pointer;flex-shrink:0;padding:0;line-height:1}
+.lg-toast-close:hover{color:#fff}
+
+/* LOADING */
+#loadingScreen{background:linear-gradient(135deg,#1a4e8a,#6ab0e0);align-items:center;justify-content:center}
+.ld-box{text-align:center;color:#fff}
+.ld-box h2{font-size:22px;margin-bottom:6px}
+.ld-shift{color:#cce0f5;font-size:14px;margin-bottom:26px}
+.spinner{width:50px;height:50px;border:5px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .9s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-msg{font-size:13px;color:#cce0f5}
+.ld-warn{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#e65100;color:#fff;padding:11px 22px;border-radius:8px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.4);display:none;z-index:9999}
+
+/* INSTRUCTIONS SCREEN */
+#instructionsScreen{flex-direction:row!important;background:#ebebeb}
+.is-left{width:290px;flex-shrink:0;background:var(--cbl);display:flex;flex-direction:column;align-items:center;padding:28px 18px;gap:12px}
+.is-av{width:100px;height:100px;border-radius:50%;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.6)}
+.is-av img{width:100%;height:100%;object-fit:cover}
+.is-name{color:#fff;font-size:14px;font-weight:700;text-align:center}
+.is-sub{color:rgba(255,255,255,.75);font-size:12px;text-align:center}
+.is-row{width:100%;background:rgba(255,255,255,.15);border-radius:5px;padding:7px 11px;display:flex;justify-content:space-between;font-size:12px;color:#fff;border:1px solid rgba(255,255,255,.2)}
+.is-row span:first-child{color:rgba(255,255,255,.75)}
+.is-row span:last-child{font-weight:700}
+.is-right{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.is-rhdr{background:#fff;padding:12px 22px;border-bottom:2px solid var(--cbd);font-size:17px;font-weight:700;color:var(--cbk);flex-shrink:0}
+.is-content{flex:1;overflow-y:auto;padding:18px 26px}
+.is-stitle{font-size:12px;font-weight:700;color:var(--cbk);background:var(--cbb);padding:5px 11px;border-left:4px solid var(--cbl);border-radius:0 4px 4px 0;margin:14px 0 7px}
+.is-content ul{padding-left:18px;margin-bottom:8px}
+.is-content ul li{font-size:12.5px;line-height:1.9;color:var(--tx)}
+.is-content ul li strong{color:var(--cbk)}
+.is-pal{display:flex;flex-wrap:wrap;gap:10px;margin:7px 0 10px}
+.is-pal-item{display:flex;align-items:center;gap:7px}
+.is-pal-dot{width:26px;height:26px;border-radius:4px}
+.is-pal-text{font-size:12px}
+.is-bottom{background:#fff;border-top:1px solid var(--bdr);padding:11px 24px;flex-shrink:0;display:flex;align-items:center;gap:16px}
+.is-chk-label{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--tx);cursor:pointer;flex:1}
+.is-chk-label input{margin-top:2px;width:17px;height:17px;accent-color:var(--cbk);cursor:pointer;flex-shrink:0}
+.is-timer{font-size:13px;color:#c62828;font-weight:700;white-space:nowrap}
+.btn-begin{padding:10px 22px;background:var(--cbk);color:#fff;border:2px solid var(--cbl);border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-begin:disabled{opacity:.4;cursor:not-allowed}
+.btn-begin:not(:disabled):hover{background:var(--cbd)}
+
+/* EXAM HEADER */
+#examScreen{background:var(--bg);overflow:hidden}
+.ex-hdr{height:var(--hh);background:var(--hbg);display:flex;align-items:center;padding:0 10px;gap:8px;flex-shrink:0;border-bottom:2px solid var(--cbd)}
+.hd-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.hd-av{width:36px;height:36px;border-radius:50%;background:var(--cbk);overflow:hidden;border:2px solid #fff;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.hd-av img{width:100%;height:100%;object-fit:cover}
+.hd-av svg{width:20px;height:20px;fill:#fff}
+.hd-nb{min-width:0}
+.hd-n{font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd-s{font-size:10px;color:rgba(255,255,255,.8)}
+.hd-center{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.btn-hd{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.4);border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;padding:5px 10px;display:flex;align-items:center;gap:5px;transition:background .2s;white-space:nowrap;flex-shrink:0}
+.btn-hd:hover{background:rgba(255,255,255,.32)}
+.btn-hd svg{width:15px;height:15px;fill:#fff}
+.tmr-blk{background:rgba(0,0,0,.18);border:1.5px solid rgba(255,255,255,.4);border-radius:8px;padding:4px 14px;text-align:center;flex-shrink:0}
+.tmr-lbl{font-size:9px;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.8px}
+.tmr-val{font-size:20px;font-weight:800;color:#fff;font-family:'Courier New',monospace;letter-spacing:2px}
+.tmr-val.warn{color:#ffe066}
+.tmr-val.danger{color:#ff6b6b;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.btn-inst-hd{background:none;border:none;cursor:pointer;color:#fff;display:flex;flex-direction:column;align-items:center;font-size:9px;gap:2px;padding:4px 6px;transition:background .15s;border-radius:6px}
+.btn-inst-hd:hover{background:rgba(255,255,255,.15)}
+.btn-inst-hd svg{width:20px;height:20px;fill:#fff}
+.hd-right{display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end}
+.btn-submit-hd{background:var(--cbk);color:#fff;border:2px solid #fff;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s}
+.btn-submit-hd:hover{background:var(--cbd)}
+.sec-lock{background:#b71c1c;color:#fff;text-align:center;padding:5px;font-size:12px;font-weight:600;display:none;flex-shrink:0}
+
+/* EXAM BODY */
+.ex-body{display:flex;height:calc(100vh - var(--hh) - var(--fh));overflow:hidden}
+.q-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--pbg);border-right:1px solid var(--bdr);position:relative}
+.q-meta{padding:7px 13px;background:var(--cbb);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.q-num{background:var(--cbk);color:#fff;border-radius:50%;width:29px;height:29px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.q-subj{background:var(--cbl);color:#fff;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600}
+.q-marks{margin-left:auto;font-size:11px;color:var(--txm)}
+.q-scroll{flex:1;overflow-y:auto;overflow-x:auto;padding:16px}
+.q-zwrap{transform-origin:top left;transition:transform .22s ease;min-width:100%;display:inline-block}
+.q-text{font-size:19px;line-height:1.8;color:var(--tx);margin-bottom:16px}
+.q-img{width:100%;max-width:100%;max-height:none;object-fit:contain;display:block;margin:10px auto;border:1px solid var(--bdr);border-radius:6px}
+.content-img{max-width:100%;max-height:none;object-fit:contain;display:block;border:1px solid var(--bdr);border-radius:6px;margin:6px 0}
+.opt-img-only{max-width:100%;max-height:none;object-fit:contain;display:block;border:1px solid var(--bdr);border-radius:6px;margin:3px 0}
+
+/* OPTIONS */
+.op-pane{width:310px;display:flex;flex-direction:column;background:var(--pbg);border-right:1px solid var(--bdr);overflow:hidden;flex-shrink:0}
+.mrv-bar{padding:8px 12px;background:#fff8e1;border-bottom:1px solid #ffe082;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.mrv-bar label{font-size:12px;font-weight:600;color:#5a4000;cursor:pointer;display:flex;align-items:center;gap:6px}
+.mrv-bar input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--pu)}
+.op-scroll{flex:1;overflow-y:auto;padding:10px}
+.op-row{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border-radius:6px;margin-bottom:7px;cursor:pointer;border:1.5px solid var(--bdr);transition:all .15s;background:#fff}
+.op-row:hover{border-color:var(--cbl);background:var(--cbb)}
+.op-row.sel{border-color:var(--cbk);background:var(--cbb)}
+.op-row input[type=radio]{flex-shrink:0;margin-top:3px;accent-color:var(--cbk);width:14px;height:14px;cursor:pointer}
+.op-lbl{font-size:17px;line-height:1.7}
+.op-key{font-weight:700;color:var(--cbk);margin-right:4px}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:#eaf4fc;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-hdr{padding:7px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.sb-hdr select{width:100%;padding:5px 9px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;color:var(--tx);background:#fff;cursor:pointer}
+.pal-leg{padding:5px 7px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.leg-row{display:flex;align-items:center;gap:4px;margin-bottom:3px;flex-wrap:wrap}
+.leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.leg-txt{font-size:10px;color:var(--txm)}
+.pal-scroll{flex:1;overflow-y:auto;padding:7px}
+.pal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.pal-btn{aspect-ratio:1;border-radius:5px;border:none;font-size:11px;font-weight:700;cursor:pointer;color:#fff;transition:transform .1s;background:var(--gy)}
+.pal-btn:hover{transform:scale(1.1)}
+.pal-btn.current{outline:3px solid var(--ac);outline-offset:1px}
+.pal-btn.answered{background:var(--gr)}
+.pal-btn.not-answered{background:var(--rd)}
+.pal-btn.marked{background:var(--pu)}
+.pal-btn.marked-answered{background:var(--pu);border:3px solid var(--gr)}
+.pal-btn.not-visited{background:var(--gy)}
+.pal-btn.locked{background:#ccc;cursor:not-allowed;opacity:.5}
+.pal-stats{padding:6px 7px;border-top:1px solid var(--bdr);flex-shrink:0;font-size:10px;color:var(--txm)}
+.stat-row{display:flex;justify-content:space-between;margin-bottom:2px}
+
+/* FOOTER */
+.ex-ftr{height:var(--fh);background:#ddd;border-top:2px solid #bbb;display:flex;align-items:center;padding:0 13px;flex-shrink:0;gap:10px}
+.btn-ft{padding:8px 18px;border-radius:4px;border:1.5px solid var(--cbk);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;background:#fff;color:var(--cbk)}
+.btn-ft:hover{background:var(--cbb)}
+.btn-ft:disabled{opacity:.4;cursor:not-allowed}
+.btn-rst{border-color:var(--pu);color:var(--pu);margin:0 auto}
+.btn-rst:hover{background:#f3e5f5}
+.btn-nxt{background:var(--cbk);color:#fff;border-color:var(--cbk);margin-left:auto}
+.btn-nxt:hover{background:var(--cbd)}
+.locked-ov{position:absolute;inset:0;background:rgba(225,235,245,.92);display:flex;align-items:center;justify-content:center;z-index:10;flex-direction:column;gap:10px;pointer-events:all}
+.locked-ic{font-size:40px}
+.locked-ms{font-size:14px;color:var(--cbk);font-weight:600;text-align:center;max-width:280px}
+
+/* LOG TABLE MODAL */
+.log-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:2000}
+.log-ov.open{display:flex}
+.log-box{background:#fff;border-radius:10px;width:94vw;height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.4)}
+.log-hdr{background:var(--cbk);color:#fff;padding:11px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.log-hdr h3{font-size:15px;flex:1}
+.log-tabs{display:flex;gap:7px}
+.log-tab{padding:6px 16px;border-radius:5px;border:2px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:700;cursor:pointer}
+.log-tab.active{background:#fff;color:var(--cbk)}
+.log-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0 4px}
+.log-img-area{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:10px;background:#f0f0f0}
+.log-img-area img{max-width:100%;height:auto;display:block;border:1px solid #ccc;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+
+/* MODALS */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-ov.open{display:flex}
+.modal-box{background:#fff;border-radius:10px;padding:24px 28px;max-width:480px;width:90%;box-shadow:0 12px 48px rgba(0,0,0,.35)}
+.modal-box h3{font-size:16px;color:var(--cbk);margin-bottom:12px}
+.st-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
+.st-card{background:var(--cbb);border-radius:8px;padding:11px;text-align:center;border:1px solid var(--bdr)}
+.st-card .val{font-size:24px;font-weight:800;color:var(--cbk)}
+.st-card .lbl{font-size:11px;color:var(--txm);margin-top:2px}
+.modal-btns{display:flex;gap:9px;justify-content:flex-end}
+.btn-cancel{padding:8px 16px;background:#fff;border:1.5px solid var(--bdr);border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+.btn-confirm{padding:8px 16px;background:var(--cbk);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700}
+.btn-confirm-red{background:#d32f2f}
+.inst-m-box{max-width:560px;max-height:85vh;overflow-y:auto;background:#fff;border-radius:10px;padding:22px 26px;box-shadow:0 12px 48px rgba(0,0,0,.35)}
+.inst-m-box h3{font-size:16px;color:var(--cbk);margin-bottom:12px}
+.im-sec h4{font-size:12px;font-weight:700;color:var(--cbk);margin-bottom:4px;border-bottom:1px solid var(--bdr);padding-bottom:3px;margin-top:12px}
+.im-sec ul{padding-left:17px;margin-bottom:8px}
+.im-sec ul li{font-size:12px;line-height:1.8}
+.im-pal{display:flex;flex-wrap:wrap;gap:7px;margin:5px 0}
+.im-pal-item{display:flex;align-items:center;gap:5px}
+.im-pal-dot{width:18px;height:18px;border-radius:3px}
+.survey-box{max-width:420px}
+.star-row{display:flex;gap:8px;margin-bottom:16px}
+.star-btn{font-size:28px;cursor:pointer;color:#ccc;background:none;border:none;padding:2px}
+.star-btn.lit{color:#f4a100}
+.sv-comment{width:100%;padding:8px 12px;border:1.5px solid var(--bdr);border-radius:6px;font-size:13px;resize:vertical;min-height:68px;margin-bottom:14px}
+.btn-sv{width:100%;padding:10px;background:var(--cbk);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer}
+
+/* RESULT */
+#resultScreen{overflow:hidden}
+.res-hdr{background:var(--cbk);color:#fff;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.res-hdr h1{font-size:16px}
+.btn-pdf{background:var(--ac);color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer}
+.res-body{flex:1;overflow-y:auto;padding:16px 20px}
+.res-dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.dash-card{background:#fff;border-radius:8px;padding:13px;border:1px solid var(--bdr);text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.dash-card .val{font-size:27px;font-weight:800}
+.dash-card .lbl{font-size:11px;color:var(--txm);margin-top:3px}
+.dash-card.score .val{color:var(--cbk)}
+.dash-card.correct .val{color:#2e7d32}
+.dash-card.wrong .val{color:#c62828}
+.dash-card.acc .val{color:#1565c0}
+.warn-bn{background:#fff3e0;border:1px solid #ffe082;border-radius:8px;padding:9px 14px;font-size:12px;color:#5a4000;margin-bottom:12px}
+.subj-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.sub-card{background:#fff;border-radius:8px;padding:12px;border:1px solid var(--bdr);text-align:center}
+.sub-card h4{font-size:12px;color:var(--cbk);margin-bottom:5px}
+.sub-card .sc{font-size:20px;font-weight:800}
+.an-hdr{font-size:15px;font-weight:700;color:var(--cbk);margin-bottom:11px;padding-bottom:6px;border-bottom:2px solid var(--bdr)}
+.an-item{background:#fff;border-radius:8px;margin-bottom:13px;border:1px solid var(--bdr);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.an-qhdr{padding:8px 12px;background:var(--cbb);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--bdr)}
+.an-qnum{font-size:13px;font-weight:700;color:var(--cbk)}
+.an-subj{font-size:11px;background:var(--cbl);color:#fff;padding:2px 7px;border-radius:10px}
+.an-status{margin-left:auto;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px}
+.st-correct{background:#e8f5e9;color:#2e7d32}
+.st-wrong{background:#ffebee;color:#c62828}
+.st-skip{background:#f5f5f5;color:#666}
+.an-body{padding:13px}
+.an-qt{font-size:17px;line-height:1.75;margin-bottom:10px}
+.an-img{max-width:100%;max-height:200px;object-fit:contain;display:block;margin:8px 0;border:1px solid var(--bdr);border-radius:6px}
+.an-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px}
+.an-opt{padding:8px 10px;border-radius:6px;font-size:15px;line-height:1.6;border:1.5px solid var(--bdr);background:#f8fafc}
+.an-opt.cor{background:#e8f5e9;border-color:#4caf50}
+.an-opt.wrg{background:#ffebee;border-color:#f44336}
+.an-sol{background:#fffde7;border:1px solid #ffe082;border-radius:6px;padding:10px 12px;font-size:15px;line-height:1.75;color:#3e2800}
+.an-sol-lbl{font-size:11px;font-weight:700;color:#5a4000;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.lazy-ph{height:68px;display:flex;align-items:center;justify-content:center;color:var(--txm);font-size:12px}
+
+/* PRINT OVERLAY */
+.pr-ov{position:fixed;inset:0;background:rgba(10,30,60,.88);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff}
+.pr-ov.show{display:flex}
+.pr-ov .spinner{margin-bottom:14px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#eef2f7}
+::-webkit-scrollbar-thumb{background:#b0c4d8;border-radius:3px}
+
+/* PRINT */
+@media print{
+  html,body{overflow:visible!important;height:auto!important;font-size:13px}
+  .screen{display:none!important}
+  #resultScreen{display:block!important;overflow:visible!important;height:auto!important}
+  .res-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .res-body{overflow:visible!important;height:auto!important;padding:12px}
+  .btn-pdf,.warn-bn{display:none!important}
+  .an-item{break-inside:avoid;page-break-inside:avoid}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen active">
+  <div class="lg-left">
+    <img class="lg-stu-img" src="student.png" alt="Student" onerror="this.style.display='none';document.getElementById('stuFb').style.display='flex'">
+    <div class="lg-stu-fb" id="stuFb">👤</div>
+    <div class="lg-roll">22</div>
+    <div class="lg-lab">Lab 3</div>
+    <div class="lg-credit">Concept By – Vedant Bhat</div>
+  </div>
+  <div class="lg-right">
+    <img class="lg-logo" src="logo.png" alt="MHT-CET Logo" onerror="this.style.display='none';document.getElementById('logoFb').style.display='flex'">
+    <div class="lg-logo-fb" id="logoFb">MHT<br>CET</div>
+    <div class="lg-card">
+      <h2>Login</h2>
+      <div class="lg-field"><input type="text" id="loginUserId" value="MHT2026001" disabled></div>
+      <div class="lg-field"><input type="password" id="loginPassword" placeholder="Password"></div>
+      <button class="btn-lg" id="btnLogin">Login</button>
+    </div>
+    <div class="lg-dob">ℹ️ Password is your Date of Birth (DDMMYYYY)</div>
+  </div>
+  <div class="lg-sbar">
+    <span>Computer Based Test</span><span class="sbar-sep">|</span>
+    <span>Product Version 1.02.3</span><span class="sbar-sep">|</span>
+    <span>Connection status <span class="sbar-online"><span class="sbar-dot"></span> Online</span></span>
+    <span class="sbar-sep">|</span>
+    <span>Server Time : <span id="serverClock">--:--:--</span></span>
+  </div>
+</div>
+
+<!-- LOGIN TOAST -->
+<div class="lg-toast" id="loginToast">
+  <div class="lg-toast-icon">⚠️</div>
+  <div class="lg-toast-body">
+    <div class="lg-toast-title">Solutions Not Available Yet</div>
+    <div class="lg-toast-msg">Solutions for the 2026 MHT-CET shifts aren't available yet — these papers just dropped! We're working on adding them as soon as possible. 🙏</div>
+  </div>
+  <button class="lg-toast-close" id="loginToastClose">✕</button>
+</div>
+
+<!-- LOADING -->
+<div id="loadingScreen" class="screen" style="display:none">
+  <div class="ld-box">
+    <h2>Fetching Exam Questions</h2>
+    <div class="ld-shift" id="ldShift">Please wait…</div>
+    <div class="spinner"></div>
+    <div class="ld-msg" id="ldMsg">Connecting to database…</div>
+  </div>
+  <div class="ld-warn" id="ldWarn">⚠️ Loading is taking longer than expected, please wait or reload.</div>
+</div>
+
+<!-- INSTRUCTIONS SCREEN -->
+<div id="instructionsScreen" class="screen" style="display:none">
+  <div class="is-left">
+    <div class="is-av">
+      <img src="student.png" alt="" onerror="this.outerHTML='<div style=&quot;font-size:56px;color:#cce0f5&quot;>👤</div>'">
+    </div>
+    <div class="is-name">Student</div>
+    <div class="is-sub">MHT-CET 2026 Candidate</div>
+    <div class="is-row"><span>Roll No.</span><span>22</span></div>
+    <div class="is-row"><span>Lab</span><span>Lab 3</span></div>
+    <div class="is-row"><span>Shift</span><span id="isShift">–</span></div>
+    <div class="is-row"><span>Total Marks</span><span>200</span></div>
+    <div class="is-row"><span>Duration</span><span>180 Min</span></div>
+    <div class="is-row"><span>Questions</span><span>150</span></div>
+    <div class="is-row"><span>Sections</span><span>2</span></div>
+  </div>
+  <div class="is-right">
+    <div class="is-rhdr">📋 General Instructions</div>
+    <div class="is-content">
+      <div class="is-stitle">Exam Pattern</div>
+      <ul>
+        <li>This is a <strong>Computer Based Test (CBT)</strong> for MHT-CET 2026 PCM stream.</li>
+        <li>Total <strong>150 questions</strong> carrying <strong>200 marks</strong> — each correct answer awards <strong>+2 marks</strong>. No negative marking.</li>
+        <li><strong>Section 1</strong> — Physics (Q1–50) &amp; Chemistry (Q51–100) — lasts the first <strong>90 minutes</strong>.</li>
+        <li><strong>Section 2</strong> — Mathematics (Q101–150) — unlocks automatically after 90 minutes. You <strong>cannot return</strong> to Section 1 once it locks.</li>
+      </ul>
+      <div class="is-stitle">Navigating Questions</div>
+      <ul>
+        <li>Click <strong>Save &amp; Next</strong> to save your answer and advance to the next question.</li>
+        <li>Click <strong>Previous</strong> to return to the previous question within the active section.</li>
+        <li>Click <strong>Clear Response</strong> to deselect your current answer for a question.</li>
+        <li>Use the <strong>Question Palette</strong> on the right to jump directly to any question in the current section.</li>
+        <li>Use the <strong>Subject Dropdown</strong> above the palette to switch between Physics, Chemistry, and Mathematics.</li>
+      </ul>
+      <div class="is-stitle">Question Palette Colour Legend</div>
+      <div class="is-pal">
+        <div class="is-pal-item"><div class="is-pal-dot" style="background:#9e9e9e"></div><span class="is-pal-text">Not Visited</span></div>
+        <div class="is-pal-item"><div class="is-pal-dot" style="background:#f44336"></div><span class="is-pal-text">Visited, Not Answered</span></div>
+        <div class="is-pal-item"><div class="is-pal-dot" style="background:#4caf50"></div><span class="is-pal-text">Answered</span></div>
+        <div class="is-pal-item"><div class="is-pal-dot" style="background:#9c27b0"></div><span class="is-pal-text">Marked for Review</span></div>
+      </div>
+      <div class="is-stitle">Tools Available During Exam</div>
+      <ul>
+        <li>🔍 <strong>Zoom Button</strong> (header, left of timer) — cycles 100% → 120% → 140% → 165% for better readability of questions and images.</li>
+        <li>📊 <strong>Tables Button</strong> (header, right of timer) — opens Log and Antilog reference tables in a full-screen viewer.</li>
+        <li>ℹ️ <strong>Info Button</strong> (header, far right of timer) — re-reads these instructions at any time during the exam.</li>
+      </ul>
+      <div class="is-stitle">Integrity &amp; Conduct</div>
+      <ul>
+        <li>Do <strong>NOT</strong> close, refresh, or navigate away from the browser window during the exam.</li>
+        <li>You must not possess or use any <strong>mobile phone, calculator, or electronic gadget</strong> during the test.</li>
+        <li>Any attempt to use unfair means will result in <strong>immediate disqualification</strong>.</li>
+        <li>Do not communicate with other candidates during the examination.</li>
+        <li>The invigilator may terminate your session if malpractice is suspected.</li>
+      </ul>
+      <div class="is-stitle">Submission</div>
+      <ul>
+        <li>Click <strong>Submit</strong> in the header when done. A confirmation summary appears before final submission.</li>
+        <li>The exam auto-submits when the countdown timer reaches <strong>00:00:00</strong>.</li>
+        <li>After submission, view your score, accuracy, and detailed question-wise analysis with solutions.</li>
+      </ul>
+    </div>
+    <div class="is-bottom">
+      <label class="is-chk-label">
+        <input type="checkbox" id="isChk">
+        I hereby confirm that I do not possess any gadgets and I will not participate in any malpractices during the examination.
+      </label>
+      <div class="is-timer" id="isTimerText" style="display:none">Time remaining <span id="isCountdown">00:10</span></div>
+      <button class="btn-begin" id="btnBegin" disabled>I am ready to begin exam</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM SCREEN -->
+<div id="examScreen" class="screen" style="display:none">
+  <div class="ex-hdr">
+    <div class="hd-left">
+      <div class="hd-av">
+        <img src="student.png" alt="" onerror="this.outerHTML='<svg viewBox=\'0 0 24 24\'><path d=\'M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z\'></path></svg>'">
+      </div>
+      <div class="hd-nb">
+        <div class="hd-n">Student &nbsp;|&nbsp; Roll: 22</div>
+        <div class="hd-s">Lab 3 &nbsp;|&nbsp; MHT-CET Test Centre</div>
+      </div>
+    </div>
+    <div class="hd-center">
+      <!-- Zoom -->
+      <button class="btn-hd" id="btnZoom" title="Cycle zoom level">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <span id="zoomLabel">100%</span>
+      </button>
+      <!-- Timer -->
+      <div class="tmr-blk">
+        <div class="tmr-lbl">Time Remaining</div>
+        <div class="tmr-val" id="mainTimer">03:00:00</div>
+      </div>
+      <!-- Log/Antilog tables -->
+      <button class="btn-hd" id="btnLogTable" title="Log / Antilog Tables">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        <span>Tables</span>
+      </button>
+      <!-- Info / instructions -->
+      <button class="btn-inst-hd" id="btnInstructions" title="Instructions">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <span>Info</span>
+      </button>
+    </div>
+    <div class="hd-right">
+      <button class="btn-submit-hd" id="btnSubmitExam">Submit</button>
+    </div>
+  </div>
+
+  <div class="sec-lock" id="secLockBanner">
+    🔒 Section 1 (Physics &amp; Chemistry) is now LOCKED. You are now in Section 2 – Mathematics.
+  </div>
+
+  <div class="ex-body">
+    <div class="q-pane" id="questionPane">
+      <div class="q-meta">
+        <div class="q-num" id="qNumBadge">1</div>
+        <div class="q-subj" id="qSubjectTag">Physics</div>
+        <div class="q-marks">Marks: +2 / 0</div>
+      </div>
+      <div class="q-scroll" id="questionScroll">
+        <div class="q-zwrap" id="questionZoomWrap">
+          <div class="q-text" id="questionText">Loading question…</div>
+          <img class="q-img" id="questionImg" src="" alt="" style="display:none">
+        </div>
+      </div>
+    </div>
+
+    <div class="op-pane">
+      <div class="mrv-bar">
+        <label><input type="checkbox" id="markReviewChk"> Mark for Review</label>
+        <span style="font-size:10px;color:#5a4000;margin-left:auto">⭐ Flagged</span>
+      </div>
+      <div class="op-scroll" id="optionsContainer"></div>
+    </div>
+
+    <div class="sidebar">
+      <div class="sb-hdr">
+        <select id="subjectSelect">
+          <option value="physics">Physics (1–50)</option>
+          <option value="chemistry">Chemistry (51–100)</option>
+          <option value="maths">Mathematics (101–150)</option>
+        </select>
+      </div>
+      <div class="pal-leg">
+        <div class="leg-row"><div class="leg-dot" style="background:var(--gr)"></div><span class="leg-txt">Answered</span><div class="leg-dot" style="background:var(--rd);margin-left:5px"></div><span class="leg-txt">Not Answered</span></div>
+        <div class="leg-row"><div class="leg-dot" style="background:var(--pu)"></div><span class="leg-txt">Marked</span><div class="leg-dot" style="background:var(--gy);margin-left:5px"></div><span class="leg-txt">Not Visited</span></div>
+      </div>
+      <div class="pal-scroll"><div class="pal-grid" id="paletteGrid"></div></div>
+      <div class="pal-stats" id="paletteStats"></div>
+    </div>
+  </div>
+
+  <div class="ex-ftr">
+    <button class="btn-ft" id="btnPrev">◀ Previous</button>
+    <button class="btn-ft btn-rst" id="btnReset">Clear Response</button>
+    <button class="btn-ft btn-nxt" id="btnNext">Save &amp; Next ▶</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="resultScreen" class="screen" style="display:none">
+  <div class="res-hdr">
+    <h1>📊 Result &amp; Analysis – MHT-CET 2026</h1>
+    <button class="btn-pdf" id="btnSavePdf">🖨️ Save Analysis (PDF)</button>
+  </div>
+  <div class="res-body" id="resultBody"></div>
+</div>
+
+<!-- LOG/ANTILOG MODAL -->
+<div class="log-ov" id="logModal">
+  <div class="log-box">
+    <div class="log-hdr">
+      <h3>Reference Tables</h3>
+      <div class="log-tabs">
+        <button class="log-tab active" id="tabLog" onclick="showLogTab('log')">Log Table</button>
+        <button class="log-tab" id="tabAntilog" onclick="showLogTab('antilog')">Antilog Table</button>
+      </div>
+      <button class="log-close" onclick="document.getElementById('logModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="log-img-area" id="logImgArea">
+      <img id="logTableImg" src="log.png" alt="Log Table" onerror="this.outerHTML='<div style=&quot;padding:40px;color:#888;font-size:15px&quot;>log.png not found in same folder as this HTML file.</div>'">
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT CONFIRM MODAL -->
+<div class="modal-ov" id="modalSubmit">
+  <div class="modal-box">
+    <h3>⚠️ Submit Exam Confirmation</h3>
+    <p style="font-size:13px;color:var(--txm);margin-bottom:12px">Your attempt summary before final submission:</p>
+    <div class="st-grid" id="submitStatsGrid"></div>
+    <p style="font-size:12px;color:#c62828;margin-bottom:14px">⚠️ Once submitted, you cannot return to the exam.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="btnCancelSubmit">Cancel</button>
+      <button class="btn-confirm btn-confirm-red" id="btnConfirmSubmit">Submit &amp; View Result</button>
+    </div>
+  </div>
+</div>
+
+<!-- SURVEY MODAL -->
+<div class="modal-ov" id="modalSurvey">
+  <div class="modal-box survey-box">
+    <h3>📝 CBT Quality Rating</h3>
+    <p style="font-size:13px;color:var(--txm);margin-bottom:13px">Rate your experience with this CBT simulation to help us improve.</p>
+    <div class="star-row" id="starRow">
+      <button class="star-btn" data-val="1">★</button>
+      <button class="star-btn" data-val="2">★</button>
+      <button class="star-btn" data-val="3">★</button>
+      <button class="star-btn" data-val="4">★</button>
+      <button class="star-btn" data-val="5">★</button>
+    </div>
+    <textarea class="sv-comment" id="surveyComment" placeholder="Any feedback or suggestions? (optional)"></textarea>
+    <button class="btn-sv" id="btnSubmitSurvey">Submit &amp; View Result</button>
+  </div>
+</div>
+
+<!-- IN-EXAM INSTRUCTIONS MODAL -->
+<div class="modal-ov" id="modalInstructions">
+  <div class="inst-m-box">
+    <h3>📋 Exam Instructions</h3>
+    <div class="im-sec">
+      <h4>General</h4>
+      <ul>
+        <li>Total Questions: 150 | Total Marks: 200 | Duration: 180 Minutes</li>
+        <li>Each correct answer: +2 marks. No negative marking.</li>
+        <li>Do NOT close or refresh the browser during the exam.</li>
+      </ul>
+    </div>
+    <div class="im-sec">
+      <h4>Sections</h4>
+      <ul>
+        <li><strong>Section 1:</strong> Physics (Q1–50) + Chemistry (Q51–100) — First 90 minutes</li>
+        <li><strong>Section 2:</strong> Mathematics (Q101–150) — Opens automatically after Section 1 locks</li>
+      </ul>
+    </div>
+    <div class="im-sec">
+      <h4>Palette Colours</h4>
+      <div class="im-pal">
+        <div class="im-pal-item"><div class="im-pal-dot" style="background:#9e9e9e"></div><span>Not Visited</span></div>
+        <div class="im-pal-item"><div class="im-pal-dot" style="background:#f44336"></div><span>Not Answered</span></div>
+        <div class="im-pal-item"><div class="im-pal-dot" style="background:#4caf50"></div><span>Answered</span></div>
+        <div class="im-pal-item"><div class="im-pal-dot" style="background:#9c27b0"></div><span>Marked</span></div>
+      </div>
+    </div>
+    <div class="modal-btns" style="margin-top:12px">
+      <button class="btn-confirm" id="btnCloseInstructions">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT OVERLAY -->
+<div class="pr-ov" id="printOverlay">
+  <div class="spinner"></div>
+  <p id="printStatus">Rendering all questions…</p>
+  <p style="font-size:12px;opacity:.7;margin-top:6px" id="printSubStatus"></p>
+</div>
+
+<script>
+/* ═══ 0. URL & SUPABASE ═══ */
+const urlParams=new URLSearchParams(window.location.search);
+const targetTable=urlParams.get('shift');
+if(!targetTable){alert('❌ No exam shift specified. Redirecting to index.');window.location.href='index.html';}
+const SUPABASE_URL='https://ckwpllmgvopiucsqqmkn.supabase.co';
+const SUPABASE_ANON='sb_publishable_K9ggT2F_WHwSBgIj4mHFBg_afApiIJF';
+const _supa=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+
+/* ═══ 1. STATE ═══ */
+let questions=[],userAnswers={},markedReview={},visited={};
+let currentQId=1,examRunning=false,sec1Locked=false,sec1LockDone=false;
+let totalSeconds=180*60,timerInterval=null,surveyRating=0;
+let zoomLevel=0;
+const zoomSteps=[1,1.2,1.4,1.65];
+
+/* ═══ 2. HELPERS ═══ */
+function isImageUrl(s){if(!s)return false;s=s.trim();if(!/^https?:\/\//i.test(s))return false;return/\.(png|jpg|jpeg|gif|webp|svg|bmp)(\?.*)?$/i.test(s)||/supabase\.co\/storage/i.test(s)||/cloudinary\.com/i.test(s)||/imgur\.com/i.test(s)||/googleusercontent\.com/i.test(s);}
+function renderContent(text,cls){if(!text)return'';const t=text.trim();if(isImageUrl(t))return`<img class="${cls}" src="${t}" alt="" onerror="this.style.display='none'">`;const re=/(https?:\/\/\S+\.(?:png|jpg|jpeg|gif|webp|svg|bmp)(?:\?\S*)?)/gi;return t.replace(re,u=>`<img class="content-img" src="${u}" alt="" onerror="this.style.display='none'">`);}
+function getSubject(q){if(q<=50)return'Physics';if(q<=100)return'Chemistry';return'Mathematics';}
+function formatTime(s){return`${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
+function getQStatus(q){const a=userAnswers[q]!=null,m=markedReview[q],v=visited[q];if(!v)return'not-visited';if(m&&a)return'marked-answered';if(m)return'marked';if(a)return'answered';return'not-answered';}
+function shiftLabel(t){return(t||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+function runMathJax(el){if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise(el?[el]:undefined).catch(()=>{});}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>{s.style.display='none';s.classList.remove('active');});const el=document.getElementById(id);el.style.display='flex';el.classList.add('active');}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+/* ═══ 3. LOGIN ═══ */
+(function tick(){const el=document.getElementById('serverClock');if(el)el.textContent=new Date().toLocaleTimeString('en-IN',{hour12:false});setTimeout(tick,1000);})();
+setTimeout(()=>{const t=document.getElementById('loginToast');if(t)t.classList.add('show');},2000);
+document.getElementById('loginToastClose').addEventListener('click',()=>document.getElementById('loginToast').classList.remove('show'));
+document.getElementById('btnLogin').addEventListener('click',()=>{
+  const pw=document.getElementById('loginPassword').value.trim();
+  if(!pw){alert('Please enter your password (Date of Birth).');return;}
+  document.getElementById('loginToast').classList.remove('show');
+  startLoading();
+});
+
+/* ═══ 4. LOADING ═══ */
+function startLoading(){
+  showScreen('loadingScreen');
+  document.getElementById('ldShift').textContent=`Fetching: ${shiftLabel(targetTable)}`;
+  const wt=setTimeout(()=>{document.getElementById('ldWarn').style.display='block';},5000);
+  const msgs=['Connecting to database…','Authenticating…','Fetching questions…','Ordering by question ID…','Almost ready…'];
+  let mi=0;
+  const mi2=setInterval(()=>{mi=(mi+1)%msgs.length;document.getElementById('ldMsg').textContent=msgs[mi];},1200);
+  fetchQuestions().then(()=>{clearTimeout(wt);clearInterval(mi2);showInstructions();})
+    .catch(err=>{clearTimeout(wt);clearInterval(mi2);alert('❌ Failed to fetch: '+(err.message||err));});
+}
+async function fetchQuestions(){
+  const{data,error}=await _supa.from(targetTable).select('*').order('question_id',{ascending:true});
+  if(error)throw error;
+  if(!data||!data.length)throw new Error('No questions found in: '+targetTable);
+  questions=data;
+}
+
+/* ═══ 5. INSTRUCTIONS SCREEN ═══ */
+let isInterval=null;
+function showInstructions(){
+  document.getElementById('isShift').textContent=shiftLabel(targetTable);
+  showScreen('instructionsScreen');
+}
+document.getElementById('isChk').addEventListener('change',function(){
+  if(this.checked){
+    let s=10;
+    document.getElementById('isTimerText').style.display='block';
+    document.getElementById('isCountdown').textContent='00:10';
+    clearInterval(isInterval);
+    isInterval=setInterval(()=>{
+      s--;document.getElementById('isCountdown').textContent=`00:${String(s).padStart(2,'0')}`;
+      if(s<=0){clearInterval(isInterval);document.getElementById('btnBegin').disabled=false;}
+    },1000);
+  } else {
+    clearInterval(isInterval);
+    document.getElementById('isTimerText').style.display='none';
+    document.getElementById('isCountdown').textContent='00:10';
+    document.getElementById('btnBegin').disabled=true;
+  }
+});
+document.getElementById('btnBegin').addEventListener('click',()=>{clearInterval(isInterval);initExam();});
+
+/* ═══ 6. EXAM INIT ═══ */
+function initExam(){
+  for(let i=1;i<=questions.length;i++){userAnswers[i]=null;markedReview[i]=false;visited[i]=false;}
+  const mo=document.querySelector('#subjectSelect option[value="maths"]');
+  if(mo){mo.disabled=true;mo.text='Mathematics (unlocks at 90 min)';}
+  showScreen('examScreen');buildPalette('physics');navigateTo(1);startTimer();examRunning=true;
+}
+
+/* ═══ 7. TIMER ═══ */
+function startTimer(){
+  const el=document.getElementById('mainTimer');
+  timerInterval=setInterval(()=>{
+    if(totalSeconds<=0){clearInterval(timerInterval);autoSubmit();return;}
+    totalSeconds--;el.textContent=formatTime(totalSeconds);
+    el.className='tmr-val';
+    if(totalSeconds<=300)el.classList.add('danger');
+    else if(totalSeconds<=900)el.classList.add('warn');
+    if(!sec1LockDone&&totalSeconds===5400)lockSection1();
+    if(totalSeconds===0)autoSubmit();
+  },1000);
+}
+function lockSection1(){
+  sec1Locked=true;sec1LockDone=true;
+  document.getElementById('secLockBanner').style.display='block';
+  const mo=document.querySelector('#subjectSelect option[value="maths"]');
+  if(mo){mo.disabled=false;mo.text='Mathematics (101–150)';}
+  document.getElementById('subjectSelect').value='maths';
+  buildPalette('maths');navigateTo(101);
+  alert('⏰ Section 1 (Physics & Chemistry) is now LOCKED.\nYou are now in Section 2 – Mathematics.');
+}
+function autoSubmit(){alert('⏰ Time is up! The exam is being submitted automatically.');doSubmit();}
+
+/* ═══ 8. NAVIGATION ═══ */
+function navigateTo(qid){
+  if(qid<1||qid>questions.length)return;
+  if(!sec1LockDone&&qid>=101)return;
+  if(sec1Locked&&qid<=100)return;
+  currentQId=qid;visited[qid]=true;
+  renderQuestion(qid);updatePaletteHighlight();updateFooterBtns();
+}
+function renderQuestion(qid){
+  const q=questions.find(r=>r.question_id===qid);if(!q)return;
+  document.getElementById('qNumBadge').textContent=qid;
+  document.getElementById('qSubjectTag').textContent=getSubject(qid);
+  document.getElementById('questionText').innerHTML=renderContent(q.question,'content-img')||'(No question text)';
+  const qi=document.getElementById('questionImg');
+  if(q.CDN&&q.CDN.trim()){qi.src=q.CDN.trim();qi.style.display='block';}else{qi.src='';qi.style.display='none';}
+  const opts=[{key:'A',col:'opta',val:'a'},{key:'B',col:'optb',val:'b'},{key:'C',col:'optc',val:'c'},{key:'D',col:'optd',val:'d'}];
+  const oc=document.getElementById('optionsContainer');oc.innerHTML='';
+  opts.forEach(o=>{
+    const rv=q[o.col]||'',pi=isImageUrl(rv.trim()),row=document.createElement('div');
+    row.className='op-row'+(userAnswers[qid]===o.val?' sel':'');row.dataset.val=o.val;
+    if(pi){row.innerHTML=`<input type="radio" name="opt_${qid}" id="o_${qid}_${o.val}" ${userAnswers[qid]===o.val?'checked':''}><label class="op-lbl" for="o_${qid}_${o.val}"><span class="op-key">${o.key}.</span><img class="opt-img-only" src="${rv.trim()}" alt="Option ${o.key}" onerror="this.style.display='none'"></label>`;}
+    else{row.innerHTML=`<input type="radio" name="opt_${qid}" id="o_${qid}_${o.val}" ${userAnswers[qid]===o.val?'checked':''}><label class="op-lbl" for="o_${qid}_${o.val}"><span class="op-key">${o.key}.</span>${renderContent(rv,'content-img')}</label>`;}
+    row.addEventListener('click',()=>selectOption(qid,o.val));oc.appendChild(row);
+  });
+  document.getElementById('markReviewChk').checked=!!markedReview[qid];
+  const eo=document.getElementById('lockedOverlay');if(eo)eo.remove();
+  if(sec1Locked&&qid<=100){const ov=document.createElement('div');ov.className='locked-ov';ov.id='lockedOverlay';ov.innerHTML='<div class="locked-ic">🔒</div><div class="locked-ms">Section 1 is locked. Navigate to Mathematics (Q101–150).</div>';document.getElementById('questionPane').appendChild(ov);}
+  applyZoom();
+  runMathJax(document.getElementById('questionZoomWrap'));runMathJax(oc);
+  document.getElementById('questionScroll').scrollTop=0;document.getElementById('questionScroll').scrollLeft=0;
+}
+function selectOption(qid,val){
+  if(sec1Locked&&qid<=100)return;
+  userAnswers[qid]=val;
+  document.querySelectorAll('.op-row').forEach(r=>{r.classList.toggle('sel',r.dataset.val===val);r.querySelector('input').checked=r.dataset.val===val;});
+  updatePaletteBtn(qid);
+}
+function updateFooterBtns(){
+  document.getElementById('btnPrev').disabled=currentQId<=1||(sec1Locked&&currentQId===101);
+  document.getElementById('btnNext').disabled=currentQId>=questions.length;
+}
+
+/* ═══ 9. PALETTE ═══ */
+let currentPalSub='physics';
+function subjectRange(s){if(s==='physics')return[1,50];if(s==='chemistry')return[51,100];return[101,150];}
+function buildPalette(sub){
+  currentPalSub=sub;const[s,e]=subjectRange(sub);const g=document.getElementById('paletteGrid');g.innerHTML='';
+  for(let i=s;i<=e;i++){const b=document.createElement('button');b.className='pal-btn';b.id=`pb_${i}`;b.textContent=i;b.title=`Q${i} – ${getSubject(i)}`;b.addEventListener('click',()=>navigateTo(i));g.appendChild(b);}
+  updatePalAll();
+}
+function updatePalAll(){const[s,e]=subjectRange(currentPalSub);for(let i=s;i<=e;i++)updatePaletteBtn(i);updatePalStats();}
+function updatePaletteBtn(qid){const b=document.getElementById(`pb_${qid}`);if(!b)return;b.className='pal-btn '+getQStatus(qid);if(qid===currentQId)b.classList.add('current');}
+function updatePaletteHighlight(){const[s,e]=subjectRange(currentPalSub);for(let i=s;i<=e;i++){const b=document.getElementById(`pb_${i}`);if(b)b.classList.toggle('current',i===currentQId);}updatePalStats();}
+function updatePalStats(){
+  let a=0,n=0,m=0,v=0;
+  for(let i=1;i<=questions.length;i++){const s=getQStatus(i);if(s==='answered'||s==='marked-answered')a++;else if(s==='not-answered')n++;else if(s==='marked')m++;else v++;}
+  document.getElementById('paletteStats').innerHTML=`<div class="stat-row"><span>✅ Answered</span><strong>${a}</strong></div><div class="stat-row"><span>❌ Not Answered</span><strong>${n}</strong></div><div class="stat-row"><span>⭐ Marked</span><strong>${m}</strong></div><div class="stat-row"><span>⬜ Not Visited</span><strong>${v}</strong></div>`;
+}
+
+/* ═══ 10. FOOTER ═══ */
+document.getElementById('btnPrev').addEventListener('click',()=>{let p=currentQId-1;if(sec1Locked&&p<=100)return;if(p>=1)navigateTo(p);});
+document.getElementById('btnNext').addEventListener('click',()=>{const n=currentQId+1;if(!sec1LockDone&&n>=101)return;if(n<=questions.length)navigateTo(n);});
+document.getElementById('btnReset').addEventListener('click',()=>{
+  userAnswers[currentQId]=null;markedReview[currentQId]=false;
+  document.getElementById('markReviewChk').checked=false;
+  document.querySelectorAll('.op-row').forEach(r=>{r.classList.remove('sel');r.querySelector('input').checked=false;});
+  updatePaletteBtn(currentQId);updatePalStats();
+});
+document.getElementById('markReviewChk').addEventListener('change',function(){markedReview[currentQId]=this.checked;updatePaletteBtn(currentQId);updatePalStats();});
+document.getElementById('subjectSelect').addEventListener('change',function(){
+  const s=this.value;
+  if(!sec1LockDone&&s==='maths'){this.value=currentQId<=50?'physics':'chemistry';return;}
+  if(sec1Locked&&(s==='physics'||s==='chemistry')){this.value='maths';return;}
+  buildPalette(s);const[st]=subjectRange(s);navigateTo(st);
+});
+
+/* ═══ 11. ZOOM ═══ */
+function applyZoom(){
+  const sc=zoomSteps[zoomLevel],wr=document.getElementById('questionZoomWrap'),sr=document.getElementById('questionScroll');
+  if(!wr||!sr)return;
+  wr.style.transform='';wr.style.width='100%';
+  const nw=wr.scrollWidth,sw=Math.ceil(nw*sc),pw=sr.clientWidth;
+  wr.style.transform=`scale(${sc})`;wr.style.transformOrigin='top left';
+  if(sw>pw){wr.style.width=nw+'px';sr.style.minWidth=sw+'px';}else{wr.style.width='100%';sr.style.minWidth='';}
+  document.getElementById('zoomLabel').textContent=Math.round(sc*100)+'%';
+}
+document.getElementById('btnZoom').addEventListener('click',()=>{zoomLevel=(zoomLevel+1)%zoomSteps.length;applyZoom();runMathJax(document.getElementById('questionZoomWrap'));});
+
+/* ═══ 12. LOG TABLE ═══ */
+document.getElementById('btnLogTable').addEventListener('click',()=>document.getElementById('logModal').classList.add('open'));
+function showLogTab(tab){
+  document.getElementById('tabLog').classList.toggle('active',tab==='log');
+  document.getElementById('tabAntilog').classList.toggle('active',tab==='antilog');
+  const img=document.getElementById('logTableImg');
+  img.src=tab==='log'?'log.png':'antilog.png';
+}
+
+/* ═══ 13. SUBMIT ═══ */
+document.getElementById('btnSubmitExam').addEventListener('click',openSubmitModal);
+function openSubmitModal(){
+  let a=0,n=0,m=0,v=0;
+  for(let i=1;i<=questions.length;i++){const s=getQStatus(i);if(s==='answered'||s==='marked-answered')a++;else if(s==='not-answered')n++;else if(s==='marked')m++;else v++;}
+  document.getElementById('submitStatsGrid').innerHTML=`<div class="st-card"><div class="val" style="color:#2e7d32">${a}</div><div class="lbl">Answered</div></div><div class="st-card"><div class="val" style="color:#c62828">${n}</div><div class="lbl">Not Answered</div></div><div class="st-card"><div class="val" style="color:#6a1b9a">${m}</div><div class="lbl">Marked</div></div><div class="st-card"><div class="val" style="color:#555">${v}</div><div class="lbl">Not Visited</div></div>`;
+  openModal('modalSubmit');
+}
+document.getElementById('btnCancelSubmit').addEventListener('click',()=>closeModal('modalSubmit'));
+document.getElementById('btnConfirmSubmit').addEventListener('click',()=>{closeModal('modalSubmit');openModal('modalSurvey');});
+document.querySelectorAll('.star-btn').forEach(b=>b.addEventListener('click',()=>{surveyRating=parseInt(b.dataset.val);document.querySelectorAll('.star-btn').forEach(x=>x.classList.toggle('lit',parseInt(x.dataset.val)<=surveyRating));}));
+document.getElementById('btnSubmitSurvey').addEventListener('click',()=>{closeModal('modalSurvey');doSubmit();});
+function doSubmit(){clearInterval(timerInterval);examRunning=false;buildResultScreen();showScreen('resultScreen');}
+
+/* ═══ 14. INSTRUCTIONS MODAL ═══ */
+document.getElementById('btnInstructions').addEventListener('click',()=>openModal('modalInstructions'));
+document.getElementById('btnCloseInstructions').addEventListener('click',()=>closeModal('modalInstructions'));
+document.querySelectorAll('.modal-ov').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);}));
+
+/* ═══ 15. RESULT ═══ */
+function buildResultScreen(){
+  let c=0,w=0,sk=0,pc=0,pw=0,ps=0,cc=0,cw=0,cs=0,mc=0,mw=0,ms=0;
+  questions.forEach(q=>{const qid=q.question_id,ua=userAnswers[qid],ca=(q.ans||'').toLowerCase().trim();
+    if(!ua){sk++;if(qid<=50)ps++;else if(qid<=100)cs++;else ms++;}
+    else if(ua===ca){c++;if(qid<=50)pc++;else if(qid<=100)cc++;else mc++;}
+    else{w++;if(qid<=50)pw++;else if(qid<=100)cw++;else mw++;}
+  });
+  const sc=c*2,att=c+w,acc=att>0?((c/att)*100).toFixed(1):'0.0';
+  document.getElementById('resultBody').innerHTML=`
+    <div class="warn-bn">⚠️ Analysis disappears if you reload. Use "Save Analysis (PDF)" to preserve it.</div>
+    <div class="res-dash">
+      <div class="dash-card score"><div class="val">${sc}<span style="font-size:14px">/200</span></div><div class="lbl">Total Score</div></div>
+      <div class="dash-card correct"><div class="val">${c}</div><div class="lbl">Correct</div></div>
+      <div class="dash-card wrong"><div class="val">${w}</div><div class="lbl">Wrong</div></div>
+      <div class="dash-card acc"><div class="val">${acc}%</div><div class="lbl">Accuracy</div></div>
+      <div class="dash-card"><div class="val">${sk}</div><div class="lbl" style="color:var(--txm)">Skipped</div></div>
+      <div class="dash-card"><div class="val">${att}</div><div class="lbl" style="color:var(--txm)">Attempted</div></div>
+    </div>
+    <div class="subj-row">
+      <div class="sub-card"><h4>⚡ Physics</h4><div class="sc" style="color:var(--cbk)">${pc*2}/100</div><div style="font-size:11px;color:var(--txm);margin-top:3px">✅${pc} ❌${pw} ⬜${ps}</div></div>
+      <div class="sub-card"><h4>🧪 Chemistry</h4><div class="sc" style="color:var(--cbk)">${cc*2}/100</div><div style="font-size:11px;color:var(--txm);margin-top:3px">✅${cc} ❌${cw} ⬜${cs}</div></div>
+      <div class="sub-card"><h4>📐 Mathematics</h4><div class="sc" style="color:var(--cbk)">${mc*2}/100</div><div style="font-size:11px;color:var(--txm);margin-top:3px">✅${mc} ❌${mw} ⬜${ms}</div></div>
+    </div>
+    <div class="an-hdr">📋 Detailed Question Analysis (${questions.length} Questions)</div>
+    <div id="analysisContainer"></div>`;
+  lazyRenderAnalysis();
+}
+function lazyRenderAnalysis(){
+  const container=document.getElementById('analysisContainer');if(!container)return;
+  const phs=[];
+  questions.forEach(q=>{const ph=document.createElement('div');ph.dataset.qid=q.question_id;ph.className='lazy-ph';ph.innerHTML=`<span>Loading Q${q.question_id}…</span>`;container.appendChild(ph);phs.push(ph);});
+  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const ph=e.target,qid=parseInt(ph.dataset.qid);if(ph.dataset.rendered)return;ph.dataset.rendered='1';obs.unobserve(ph);renderAnalysisItem(ph,qid);}});},{rootMargin:'200px 0px'});
+  phs.forEach(ph=>obs.observe(ph));
+}
+function renderAnalysisItem(el,qid){
+  const q=questions.find(r=>r.question_id===qid);if(!q)return;
+  const ua=userAnswers[qid],ca=(q.ans||'').toLowerCase().trim();
+  let sc='st-skip',sl='— Skipped';
+  if(ua){if(ua===ca){sc='st-correct';sl='✅ Correct';}else{sc='st-wrong';sl='❌ Wrong';}}
+  const opts=[{key:'A',col:'opta',val:'a'},{key:'B',col:'optb',val:'b'},{key:'C',col:'optc',val:'c'},{key:'D',col:'optd',val:'d'}];
+  const oh=opts.map(o=>{let cls='an-opt';if(o.val===ca)cls+=' cor';else if(o.val===ua&&ua!==ca)cls+=' wrg';const rv=q[o.col]||'',ct=isImageUrl(rv.trim())?`<img class="opt-img-only" src="${rv.trim()}" alt="Option ${o.key}" onerror="this.style.display='none'">`:renderContent(rv,'content-img');return`<div class="${cls}"><strong>${o.key}.</strong> ${ct}</div>`;}).join('');
+  const ih=(q.CDN&&q.CDN.trim())?`<img class="an-img" src="${q.CDN.trim()}" alt="Q${qid}" onerror="this.style.display='none'">`:'' ;
+  el.className='an-item';
+  el.innerHTML=`<div class="an-qhdr"><span class="an-qnum">Q${qid}</span><span class="an-subj">${getSubject(qid)}</span><span class="an-status ${sc}">${sl}</span><span style="font-size:11px;color:var(--txm);margin-left:8px">Your: <strong>${ua?ua.toUpperCase():'—'}</strong> | Correct: <strong>${ca?ca.toUpperCase():'—'}</strong></span></div><div class="an-body"><div class="an-qt">${renderContent(q.question||'','content-img')}</div>${ih}<div class="an-opts">${oh}</div>${q.solution?`<div class="an-sol-lbl">📘 Official Solution</div><div class="an-sol">${q.solution}</div>`:''}</div>`;
+  runMathJax(el);
+}
+
+/* ═══ 16. PRINT ═══ */
+document.getElementById('btnSavePdf').addEventListener('click',async()=>{
+  const ov=document.getElementById('printOverlay'),st=document.getElementById('printStatus'),sub=document.getElementById('printSubStatus');
+  ov.classList.add('show');st.textContent='Rendering all 150 questions…';sub.textContent='';
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  document.querySelectorAll('[data-qid]').forEach(ph=>{if(!ph.dataset.rendered){const qid=parseInt(ph.dataset.qid);if(qid){ph.dataset.rendered='1';renderAnalysisItem(ph,qid);}}});
+  st.textContent='Loading images…';
+  const imgs=Array.from(document.querySelectorAll('#analysisContainer img,#resultBody img')).filter(i=>i.src&&i.src!==window.location.href);
+  let ld=0;const tot=imgs.length;sub.textContent=`0 / ${tot} images`;
+  await Promise.all(imgs.map(img=>new Promise(res=>{
+    if(img.complete){ld++;sub.textContent=`${ld} / ${tot} images`;res();return;}
+    const t=setTimeout(()=>{ld++;sub.textContent=`${ld} / ${tot} images`;res();},8000);
+    img.onload=()=>{clearTimeout(t);ld++;sub.textContent=`${ld} / ${tot} images`;res();};
+    img.onerror=()=>{clearTimeout(t);ld++;sub.textContent=`${ld} / ${tot} images`;res();};
+  })));
+  st.textContent='Rendering LaTeX…';sub.textContent='Please wait…';
+  if(window.MathJax&&MathJax.typesetPromise){try{await MathJax.typesetPromise([document.getElementById('analysisContainer')]);}catch(e){}}
+  st.textContent='Almost ready…';sub.textContent='';
+  await new Promise(r=>setTimeout(r,400));
+  ov.classList.remove('show');window.print();
+});
+
+/* ═══ 17. INIT ═══ */
+document.querySelectorAll('.screen').forEach(s=>{if(s.id!=='loginScreen')s.style.display='none';});
+document.getElementById('loginScreen').style.display='flex';
+</script>
+</body>
+</html>

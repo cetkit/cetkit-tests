@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>MHT-CET 2025 — CBT</title>
+<script>
+window.MathJax = {
+  tex:{ inlineMath:[['$','$'],['\\(','\\)']], displayMath:[['$$','$$'],['\\[','\\]']], processEscapes:true },
+  options:{ skipHtmlTags:['script','noscript','style','textarea'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & ROOT ───────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f6fb;
+  --surface:#ffffff;
+  --surface2:#f8fafc;
+  --border:#e2e8f0;
+  --border2:#cbd5e1;
+  --text:#0f172a;
+  --text2:#475569;
+  --text3:#94a3b8;
+  --blue:#2563eb;
+  --blue-d:#1d4ed8;
+  --blue-s:#eff6ff;
+  --green:#16a34a;
+  --green-s:#f0fdf4;
+  --red:#dc2626;
+  --red-s:#fef2f2;
+  --purple:#7c3aed;
+  --purple-s:#f5f3ff;
+  --amber:#d97706;
+  --amber-s:#fffbeb;
+  --gray:#64748b;
+  --gray-s:#f1f5f9;
+  --shadow-xs:0 1px 3px rgba(0,0,0,.08);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.10);
+  --shadow-md:0 4px 20px rgba(0,0,0,.12);
+  --r4:4px;--r6:6px;--r8:8px;--r12:12px;--r16:16px;
+  --ff:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+html,body{height:100%;font-family:var(--ff);font-size:14px;color:var(--text);background:var(--bg);}
+
+/* ── SCREENS ────────────────────────────────── */
+.screen{display:none}
+.screen.active{display:flex;flex-direction:column;height:100%}
+#result-screen.active{display:block;height:auto;min-height:100%}
+
+/* ══════════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════════ */
+#login-screen{
+  align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#1e40af 100%);
+  min-height:100vh;padding:24px;
+}
+.login-wrap{
+  display:flex;align-items:center;gap:60px;
+  max-width:900px;width:100%;
+}
+.login-left{flex:1;color:#fff;}
+.login-left .chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.9);font-size:11px;font-weight:600;letter-spacing:1px;
+  text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:20px;
+}
+.login-left h1{font-size:36px;font-weight:700;line-height:1.15;margin-bottom:10px;}
+.login-left h1 span{color:#60a5fa;}
+.login-left p{color:rgba(255,255,255,.65);font-size:14px;line-height:1.7;max-width:360px;}
+.login-dividers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:28px;}
+.ld-item{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--r8);padding:12px 14px;}
+.ld-item .val{font-size:18px;font-weight:700;color:#fff;}
+.ld-item .lbl{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}
+
+.login-card{
+  background:#fff;border-radius:var(--r16);padding:36px 32px;
+  width:360px;flex-shrink:0;box-shadow:0 24px 64px rgba(0,0,0,.35);
+}
+.lc-header{margin-bottom:28px;}
+.lc-header h2{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.lc-header p{font-size:13px;color:var(--text2);}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.field input{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border);
+  border-radius:var(--r8);font-family:var(--ff);font-size:14px;color:var(--text);
+  background:#fff;transition:border-color .15s,box-shadow .15s;
+}
+.field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.field input:disabled{background:var(--gray-s);color:var(--text2);}
+.field-hint{font-size:12px;color:var(--amber);margin-top:5px;display:flex;align-items:center;gap:4px;}
+.btn-login{
+  width:100%;padding:12px;background:var(--blue);color:#fff;border:none;
+  border-radius:var(--r8);font-family:var(--ff);font-size:15px;font-weight:600;
+  cursor:pointer;transition:background .15s,transform .1s;margin-top:4px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-login:hover{background:var(--blue-d);}
+.btn-login:active{transform:scale(.98);}
+
+/* ══════════════════════════════════════════════
+   EXAM HEADER
+══════════════════════════════════════════════ */
+.exam-header{
+  background:#fff;border-bottom:1px solid var(--border);
+  height:54px;padding:0 20px;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;
+  box-shadow:var(--shadow-xs);z-index:100;position:relative;
+}
+.eh-left{display:flex;align-items:center;gap:16px;}
+.eh-brand{font-size:15px;font-weight:700;color:var(--blue);letter-spacing:-.3px;}
+.eh-cand{font-size:12px;color:var(--text2);}
+.eh-cand b{color:var(--text);}
+.section-pill{
+  background:var(--blue-s);color:var(--blue);border:1px solid #bfdbfe;
+  font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;
+  letter-spacing:.2px;
+}
+.eh-right{display:flex;align-items:center;gap:10px;}
+.timer-wrap{
+  display:flex;align-items:center;gap:8px;
+  background:var(--gray-s);border:1.5px solid var(--border2);
+  border-radius:var(--r8);padding:6px 14px;
+}
+.timer-icon{color:var(--text3);display:flex;}
+.timer-lbl{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.5px;}
+.timer-val{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--text);letter-spacing:1px;line-height:1;}
+.timer-wrap.warn{background:#fffbeb;border-color:#fbbf24;}
+.timer-wrap.warn .timer-val{color:var(--amber);}
+.timer-wrap.crit{background:#fef2f2;border-color:#fca5a5;animation:tpulse .8s infinite;}
+.timer-wrap.crit .timer-val{color:var(--red);}
+@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.6}}
+.btn-submit-exam{
+  padding:8px 16px;background:var(--red);color:#fff;border:none;
+  border-radius:var(--r6);font-family:var(--ff);font-size:13px;font-weight:600;
+  cursor:pointer;transition:background .15s;white-space:nowrap;
+}
+.btn-submit-exam:hover{background:#b91c1c;}
+
+/* ══════════════════════════════════════════════
+   SUBJECT TABS
+══════════════════════════════════════════════ */
+.subject-bar{
+  background:#fff;border-bottom:1px solid var(--border);
+  display:flex;padding:0 20px;flex-shrink:0;gap:2px;
+}
+.stab{
+  padding:0 18px;height:42px;border:none;background:transparent;
+  font-family:var(--ff);font-size:13px;font-weight:500;color:var(--text2);
+  cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;
+  transition:color .15s,border-color .15s;display:flex;align-items:center;gap:6px;
+}
+.stab:hover:not(:disabled){color:var(--blue);}
+.stab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600;}
+.stab:disabled{color:var(--border2);cursor:not-allowed;}
+
+/* ══════════════════════════════════════════════
+   EXAM BODY
+══════════════════════════════════════════════ */
+.exam-body{
+  flex:1;display:flex;overflow:hidden;min-height:0;
+}
+
+/* ── Question Panel ── */
+.q-panel{
+  flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;
+  scroll-behavior:smooth;
+}
+.q-topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.q-badge{
+  display:flex;align-items:center;gap:8px;
+}
+.q-num{
+  background:var(--blue);color:#fff;
+  font-size:12px;font-weight:600;padding:4px 12px;border-radius:var(--r6);
+}
+.q-marks{
+  background:var(--amber-s);color:var(--amber);
+  border:1px solid #fde68a;font-size:12px;font-weight:600;
+  padding:4px 10px;border-radius:var(--r6);
+}
+.q-status-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+
+.q-card{
+  background:#fff;border-radius:var(--r12);padding:22px;
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);
+}
+.q-text{font-size:15px;line-height:1.85;color:var(--text);word-break:break-word;}
+.q-text img{max-width:100%;border-radius:var(--r6);margin:10px auto;display:block;border:1px solid var(--border);}
+
+/* Options */
+.opts{margin-top:18px;display:flex;flex-direction:column;gap:8px;}
+.opt{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:11px 16px;border:1.5px solid var(--border);border-radius:var(--r8);
+  cursor:pointer;transition:border-color .12s,background .12s;background:#fff;
+}
+.opt:hover{border-color:#93c5fd;background:#f8fbff;}
+.opt.sel{border-color:var(--blue);background:var(--blue-s);}
+.opt input[type=radio]{
+  width:16px;height:16px;accent-color:var(--blue);
+  flex-shrink:0;margin-top:1px;cursor:pointer;
+}
+.opt-key{
+  width:24px;height:24px;border-radius:50%;background:var(--gray-s);
+  font-size:12px;font-weight:700;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  margin-top:0;transition:background .12s,color .12s;
+}
+.opt.sel .opt-key{background:var(--blue);color:#fff;}
+.opt-text{font-size:14px;line-height:1.75;color:var(--text);word-break:break-word;}
+.opt-text img{max-width:220px;border-radius:var(--r4);display:block;margin-top:6px;border:1px solid var(--border);}
+
+/* ── Action Bar ── */
+.action-bar{
+  background:#fff;border-top:1px solid var(--border);
+  padding:12px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;
+}
+.btn{
+  padding:8px 16px;border-radius:var(--r6);font-family:var(--ff);
+  font-size:13px;font-weight:600;cursor:pointer;border:none;
+  transition:all .12s;display:inline-flex;align-items:center;gap:6px;
+}
+.btn:active{transform:scale(.97);}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{background:var(--blue-d);}
+.btn-outline{background:#fff;color:var(--text);border:1.5px solid var(--border);}
+.btn-outline:hover{background:var(--gray-s);border-color:var(--border2);}
+.btn-purple{background:var(--purple-s);color:var(--purple);border:1.5px solid #ddd6fe;}
+.btn-purple:hover{background:#ede9fe;}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--gray-s);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.spacer{flex:1;}
+
+/* ══════════════════════════════════════════════
+   PALETTE PANEL
+══════════════════════════════════════════════ */
+.palette{
+  width:210px;flex-shrink:0;background:#fff;border-left:1px solid var(--border);
+  overflow-y:auto;display:flex;flex-direction:column;
+}
+.palette-inner{padding:14px;}
+.p-section-title{
+  font-size:11px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;
+}
+.p-stats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;}
+.ps{border-radius:var(--r6);padding:6px 8px;text-align:center;}
+.ps .n{font-size:17px;font-weight:700;}
+.ps .l{font-size:10px;color:var(--text3);text-transform:uppercase;margin-top:1px;}
+.ps-g{background:var(--green-s);}.ps-g .n{color:var(--green);}
+.ps-r{background:var(--red-s);}.ps-r .n{color:var(--red);}
+.ps-p{background:var(--purple-s);}.ps-p .n{color:var(--purple);}
+.ps-y{background:var(--gray-s);}.ps-y .n{color:var(--gray);}
+
+.p-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:12px;
+}
+.pq{
+  aspect-ratio:1;border:none;border-radius:var(--r4);
+  font-size:11px;font-weight:600;cursor:pointer;
+  background:var(--gray-s);color:var(--text2);
+  /* No transition — prevents flicker */
+  position:relative;
+}
+.pq.ans{background:var(--green);color:#fff;}
+.pq.nans{background:var(--red);color:#fff;}
+.pq.mrk{background:var(--purple);color:#fff;}
+.pq.cur::after{
+  content:'';position:absolute;inset:-2px;border-radius:5px;
+  border:2px solid var(--blue);pointer-events:none;
+}
+.p-legend{border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:5px;}
+.pl{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);}
+.pl-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+
+/* ── FAB (portrait-only palette trigger) ── */
+.palette-fab{
+  display:none;position:fixed;right:16px;z-index:200;
+  background:var(--blue);color:#fff;border:none;border-radius:28px;
+  padding:11px 18px;font-family:var(--ff);font-size:13px;font-weight:600;
+  cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.4);
+  align-items:center;gap:7px;bottom:25%;
+}
+.palette-fab svg{width:16px;height:16px;}
+/* Show FAB + hide side palette in portrait OR narrow viewport */
+@media (orientation:portrait){
+  #exam-screen .palette-fab{display:flex!important;}
+  #exam-screen .palette{display:none!important;}
+}
+@media (max-width:700px){
+  #exam-screen .palette-fab{display:flex!important;}
+  #exam-screen .palette{display:none!important;}
+}
+
+/* ── Palette overlay (mobile) ── */
+.p-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;
+}
+.p-overlay.open{display:block;}
+.p-overlay-panel{
+  position:absolute;right:0;top:0;bottom:0;width:228px;
+  background:#fff;overflow-y:auto;padding:16px;
+  animation:slideR .22s ease;box-shadow:-4px 0 20px rgba(0,0,0,.15);
+}
+@keyframes slideR{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.p-ov-close{
+  position:absolute;top:10px;right:10px;background:none;
+  border:none;font-size:20px;cursor:pointer;color:var(--text2);
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+}
+.p-ov-close:hover{background:var(--gray-s);}
+
+/* ══════════════════════════════════════════════
+   MODALS
+══════════════════════════════════════════════ */
+.modal-bg{
+  display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);
+  z-index:600;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(2px);
+}
+.modal-bg.open{display:flex;}
+.modal{
+  background:#fff;border-radius:var(--r16);padding:28px;
+  max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);
+  animation:modalIn .18s ease;
+}
+@keyframes modalIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:14px;}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.mg-item{padding:12px;border-radius:var(--r8);text-align:center;}
+.mg-item .mg-n{font-size:22px;font-weight:700;}
+.mg-item .mg-l{font-size:11px;text-transform:uppercase;margin-top:2px;}
+.mg-g{background:var(--green-s);}.mg-g .mg-n{color:var(--green);}
+.mg-r{background:var(--red-s);}.mg-r .mg-n{color:var(--red);}
+.mg-p{background:var(--purple-s);}.mg-p .mg-n{color:var(--purple);}
+.mg-y{background:var(--gray-s);}.mg-y .mg-n{color:var(--gray);}
+.modal p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;}
+.warn-box{
+  background:var(--amber-s);border:1px solid #fde68a;border-radius:var(--r8);
+  padding:10px 12px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.5;
+}
+
+/* ══════════════════════════════════════════════
+   SURVEY
+══════════════════════════════════════════════ */
+#survey-screen{align-items:center;justify-content:center;background:var(--bg);padding:24px;min-height:100vh;}
+.survey-card{
+  background:#fff;border-radius:var(--r16);padding:32px;
+  max-width:560px;width:100%;box-shadow:var(--shadow-md);
+}
+.survey-card h2{font-size:22px;font-weight:700;margin-bottom:4px;}
+.survey-card > p{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.6;}
+.sq{margin-bottom:20px;}
+.sq label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.stars{display:flex;gap:4px;}
+.star{background:none;border:none;font-size:26px;cursor:pointer;color:#e2e8f0;transition:color .1s;line-height:1;}
+.star.lit{color:#f59e0b;}
+.rg{display:flex;flex-wrap:wrap;gap:6px;}
+.rg label{
+  padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;
+  font-size:12px;font-weight:500;cursor:pointer;transition:all .12s;
+  display:flex;align-items:center;gap:5px;
+}
+.rg input{display:none;}
+.rg label:has(input:checked){background:var(--blue);color:#fff;border-color:var(--blue);}
+.sq textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r8);
+  font-family:var(--ff);font-size:13px;resize:vertical;min-height:72px;
+  transition:border-color .15s;color:var(--text);
+}
+.sq textarea:focus{outline:none;border-color:var(--blue);}
+.btn-survey{
+  width:100%;padding:12px;background:var(--blue);color:#fff;border:none;
+  border-radius:var(--r8);font-family:var(--ff);font-size:15px;font-weight:600;
+  cursor:pointer;transition:background .15s;margin-top:4px;
+}
+.btn-survey:hover{background:var(--blue-d);}
+
+/* ══════════════════════════════════════════════
+   RESULTS
+══════════════════════════════════════════════ */
+#result-screen{background:var(--bg);}
+.res-wrap{max-width:880px;margin:0 auto;padding:24px 20px;}
+.res-hero{
+  background:linear-gradient(135deg,#1e3a8a,#2563eb);
+  color:#fff;border-radius:var(--r12);padding:24px 28px;margin-bottom:18px;
+  display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.res-hero h2{font-size:22px;font-weight:700;margin-bottom:2px;}
+.res-hero p{font-size:13px;opacity:.75;}
+.res-score-big{font-size:40px;font-weight:700;line-height:1;}
+.res-score-big span{font-size:16px;font-weight:400;opacity:.7;}
+.score-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px;}
+.sc{background:#fff;border-radius:var(--r8);padding:14px;text-align:center;box-shadow:var(--shadow-xs);border:1px solid var(--border);}
+.sc .sv{font-size:26px;font-weight:700;line-height:1;}
+.sc .sl{font-size:11px;color:var(--text2);text-transform:uppercase;margin-top:3px;}
+.sc-t .sv{color:var(--blue);}
+.sc-p .sv{color:#0284c7;}
+.sc-c .sv{color:#059669;}
+.sc-m .sv{color:var(--purple);}
+
+.save-banner{
+  background:var(--amber-s);border:1.5px solid #fbbf24;border-radius:var(--r8);
+  padding:14px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start;
+}
+.sb-icon{font-size:22px;flex-shrink:0;}
+.sb-text strong{display:block;font-size:14px;font-weight:600;color:#92400e;margin-bottom:2px;}
+.sb-text p{font-size:12px;color:#a16207;line-height:1.5;}
+.btn-print{
+  margin-top:8px;padding:7px 14px;background:#d97706;color:#fff;border:none;
+  border-radius:var(--r6);font-family:var(--ff);font-size:12px;font-weight:600;cursor:pointer;
+}
+.btn-print:hover{background:#b45309;}
+
+.analysis-block{margin-bottom:24px;}
+.analysis-block h3{
+  font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;
+  padding:10px 14px;background:#fff;border-radius:var(--r8);border:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.qa{
+  background:#fff;border-radius:var(--r8);padding:14px 16px;margin-bottom:8px;
+  box-shadow:var(--shadow-xs);border:1px solid var(--border);border-left:4px solid var(--border);
+}
+.qa.ok{border-left-color:var(--green);}
+.qa.ng{border-left-color:var(--red);}
+.qa.sk{border-left-color:var(--border2);}
+.qa-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+.qa-qnum{font-size:12px;font-weight:700;color:var(--text2);}
+.qa-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;}
+.qa-tag.ok{background:var(--green-s);color:var(--green);}
+.qa-tag.ng{background:var(--red-s);color:var(--red);}
+.qa-tag.sk{background:var(--gray-s);color:var(--gray);}
+.qa-body{font-size:13px;line-height:1.75;margin-bottom:8px;color:var(--text);}
+.qa-body img{max-width:100%;border-radius:var(--r4);margin:4px 0;display:block;border:1px solid var(--border);}
+.qa-ans-row{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;}
+.qa-chip{padding:4px 10px;border-radius:var(--r6);font-weight:600;}
+.qa-chip.u-ok{background:var(--green-s);color:var(--green);}
+.qa-chip.u-ng{background:var(--red-s);color:var(--red);}
+.qa-chip.u-sk{background:var(--gray-s);color:var(--gray);}
+.qa-chip.c{background:#f0fdf4;color:var(--green);border:1px solid #86efac;}
+.qa-sol{
+  margin-top:8px;padding:7px 11px;background:var(--surface2);
+  border-left:3px solid #93c5fd;border-radius:0 var(--r4) var(--r4) 0;
+  font-size:12px;color:var(--text2);
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){.login-left{display:none;}.login-card{width:100%;max-width:400px;margin:auto;}}
+@media(max-width:768px){
+  .exam-header{height:auto;padding:8px 14px;flex-wrap:wrap;gap:6px;}
+  .eh-cand{display:none;}
+  .exam-body{flex-direction:column;overflow:hidden;}
+  .q-panel{padding:14px;}
+  .action-bar{padding:10px 14px;gap:6px;}
+  .btn{padding:8px 12px;font-size:12px;}
+}
+@media(max-width:480px){
+  .score-row{grid-template-columns:1fr 1fr;}
+  .res-hero{flex-direction:column;}
+}
+@media print{
+  .exam-header,.subject-bar,.action-bar,.palette,.palette-fab,.save-banner .btn-print{display:none!important;}
+  .qa{break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+
+<!-- ╔══════════════════════════════╗
+     ║         LOGIN                ║
+     ╚══════════════════════════════╝ -->
+<div id="login-screen" class="screen active">
+  <div class="login-wrap">
+    <div class="login-left">
+      <div class="chip">🎓 MHT-CET 2025 · Official CBT</div>
+      <h1>Maharashtra<br>Common Entrance<br><span>Test PCM</span></h1>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+        <span style="background:rgba(96,165,250,.18);border:1px solid rgba(96,165,250,.4);color:#93c5fd;font-size:13px;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:.3px;">📅 23 April 2025 · Shift 2</span>
+      </div>
+      <p>Physics · Chemistry · Mathematics</p>
+      <div class="login-dividers">
+        <div class="ld-item"><div class="val">150</div><div class="lbl">Questions</div></div>
+        <div class="ld-item"><div class="val">200</div><div class="lbl">Total Marks</div></div>
+        <div class="ld-item"><div class="val">180</div><div class="lbl">Minutes</div></div>
+        <div class="ld-item"><div class="val">0</div><div class="lbl">Negative Marks</div></div>
+      </div>
+      <p style="margin-top:28px;font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.3px;">Concept by <span style="color:rgba(255,255,255,.6);font-weight:600;">Vedant Bhat</span></p>
+    </div>
+    <div class="login-card">
+      <div class="lc-header">
+        <h2>Candidate Login</h2>
+        <p style="color:#64748b;font-size:13px;margin-top:2px;">MHT-CET · 23 April 2025 · Shift 2</p>
+      </div>
+      <div class="field">
+        <label>User ID</label>
+        <input type="text" value="MHT2025001" disabled>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="pwd" placeholder="Enter your Date of Birth">
+        <div class="field-hint">🔒 Password is your Date of Birth</div>
+      </div>
+      <button class="btn-login" onclick="doLogin()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Start Examination
+      </button>
+      <p style="text-align:center;margin-top:18px;font-size:11px;color:#94a3b8;">Concept by <span style="color:#475569;font-weight:600;">Vedant Bhat</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗
+     ║         EXAM                 ║
+     ╚══════════════════════════════╝ -->
+<div id="exam-screen" class="screen">
+
+  <!-- HEADER -->
+  <div class="exam-header">
+    <div class="eh-left">
+      <span class="eh-brand">MHT-CET 2025</span>
+      <span class="eh-cand"><b id="hdr-id">MHT2025001</b></span>
+      <span class="section-pill" id="hdr-sec">Section 1 · Physics &amp; Chemistry</span>
+    </div>
+    <div class="eh-right">
+      <div class="timer-wrap" id="timer-wrap">
+        <div class="timer-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div>
+          <div class="timer-lbl">Time Left</div>
+          <div class="timer-val" id="timer-val">90:00</div>
+        </div>
+      </div>
+      <button class="btn-submit-exam" onclick="showFinalModal()">Submit Exam</button>
+    </div>
+  </div>
+
+  <!-- SUBJECT TABS -->
+  <div class="subject-bar">
+    <button class="stab active" id="tab-phy" onclick="switchSubj('Physics')">⚛ Physics</button>
+    <button class="stab" id="tab-chem" onclick="switchSubj('Chemistry')">🧪 Chemistry</button>
+    <button class="stab" id="tab-math" onclick="switchSubj('Mathematics')" disabled>∫ Mathematics</button>
+  </div>
+
+  <!-- BODY: question + palette -->
+  <div class="exam-body">
+
+    <!-- Question Panel -->
+    <div class="q-panel" id="q-panel">
+      <div class="q-topbar">
+        <div class="q-badge">
+          <span class="q-num" id="q-num">Q 1 / 50</span>
+          <span class="q-marks" id="q-marks">+1 Mark</span>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-text" id="q-text"></div>
+        <div class="opts" id="opts"></div>
+      </div>
+    </div>
+
+    <!-- Palette (desktop) -->
+    <div class="palette" id="palette-desk">
+      <div class="palette-inner">
+        <div class="p-section-title">Question Palette</div>
+        <div class="p-stats" id="p-stats-d"></div>
+        <div class="p-grid" id="p-grid-d"></div>
+        <div class="p-legend">
+          <div class="pl"><span class="pl-dot" style="background:#94a3b8"></span>Not Visited</div>
+          <div class="pl"><span class="pl-dot" style="background:var(--red)"></span>Not Answered</div>
+          <div class="pl"><span class="pl-dot" style="background:var(--green)"></span>Answered</div>
+          <div class="pl"><span class="pl-dot" style="background:var(--purple)"></span>Marked for Review</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- exam-body -->
+
+  <!-- ACTION BAR -->
+  <div class="action-bar">
+    <button class="btn btn-purple" onclick="doMark()">🔖 Mark &amp; Next</button>
+    <button class="btn btn-outline" onclick="doClear()">✕ Clear</button>
+    <button class="btn btn-blue" onclick="doSave()">Save &amp; Next ›</button>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" id="btn-prev" onclick="navPrev()">‹ Prev</button>
+    <button class="btn btn-ghost" id="btn-next" onclick="navNext()">Next ›</button>
+  </div>
+
+  <!-- FAB (portrait-only palette trigger) — must be inside #exam-screen for CSS scoping -->
+  <button class="palette-fab" id="pal-fab" onclick="openOv()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Palette
+  </button>
+
+</div><!-- exam-screen -->
+
+<!-- Palette Overlay (mobile) -->
+<div class="p-overlay" id="p-overlay" onclick="maybeCloseOv(event)">
+  <div class="p-overlay-panel">
+    <button class="p-ov-close" onclick="closeOv()">✕</button>
+    <div class="p-section-title" style="margin-top:24px">Question Palette</div>
+    <div class="p-stats" id="p-stats-m"></div>
+    <div class="p-grid" id="p-grid-m"></div>
+    <div class="p-legend">
+      <div class="pl"><span class="pl-dot" style="background:#94a3b8"></span>Not Visited</div>
+      <div class="pl"><span class="pl-dot" style="background:var(--red)"></span>Not Answered</div>
+      <div class="pl"><span class="pl-dot" style="background:var(--green)"></span>Answered</div>
+      <div class="pl"><span class="pl-dot" style="background:var(--purple)"></span>Marked for Review</div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL SUBMIT MODAL -->
+<div class="modal-bg" id="modal-final">
+  <div class="modal">
+    <h2>🏁 Submit Examination</h2>
+    <div class="modal-grid" id="mfinal-grid"></div>
+    <p>Once submitted you cannot modify any answers. Confirm?</p>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-final')">Cancel</button>
+      <button class="btn btn-blue" onclick="doFinalSubmit()" style="background:var(--red)">Confirm &amp; Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗
+     ║         SURVEY               ║
+     ╚══════════════════════════════╝ -->
+<div id="survey-screen" class="screen">
+  <div class="survey-card">
+    <h2>📝 Quick Feedback</h2>
+    <p>A few questions before viewing your results. Takes under 30 seconds.</p>
+    <div class="sq">
+      <label>1. Overall rating for this CBT simulation</label>
+      <div class="stars" id="stars">
+        <button class="star" onclick="setStar(1)">★</button>
+        <button class="star" onclick="setStar(2)">★</button>
+        <button class="star" onclick="setStar(3)">★</button>
+        <button class="star" onclick="setStar(4)">★</button>
+        <button class="star" onclick="setStar(5)">★</button>
+      </div>
+    </div>
+    <div class="sq">
+      <label>2. Math/LaTeX rendering quality?</label>
+      <div class="rg">
+        <label><input type="radio" name="q2" value="clear"> Perfectly clear</label>
+        <label><input type="radio" name="q2" value="mostly"> Mostly clear</label>
+        <label><input type="radio" name="q2" value="issues"> Had issues</label>
+      </div>
+    </div>
+    <div class="sq">
+      <label>3. Timer and section transitions?</label>
+      <div class="rg">
+        <label><input type="radio" name="q3" value="yes"> Worked correctly</label>
+        <label><input type="radio" name="q3" value="partial"> Partially</label>
+        <label><input type="radio" name="q3" value="no"> Did not work</label>
+      </div>
+    </div>
+    <div class="sq">
+      <label>4. Interface / UI quality?</label>
+      <div class="rg">
+        <label><input type="radio" name="q4" value="exc"> Excellent</label>
+        <label><input type="radio" name="q4" value="good"> Good</label>
+        <label><input type="radio" name="q4" value="avg"> Average</label>
+        <label><input type="radio" name="q4" value="poor"> Poor</label>
+      </div>
+    </div>
+    <div class="sq">
+      <label>5. Suggestions or issues? (optional)</label>
+      <textarea placeholder="Write here…"></textarea>
+    </div>
+    <button class="btn-survey" onclick="goResults()">View My Results →</button>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗
+     ║         RESULTS              ║
+     ╚══════════════════════════════╝ -->
+<div id="result-screen" class="screen">
+  <div class="res-wrap" id="res-wrap"></div>
+</div>
+
+<!-- ╔══════════════════════════════╗
+     ║         JAVASCRIPT           ║
+     ╚══════════════════════════════╝ -->
+<script>
+const QUESTIONS = [{"num": 1, "subject": "Physics", "question": "The pressure on a square plate is measured by measuring the force acting on the plate and length of the sides of the plate. The maximum error in the measurement of force and length are respectively $4 \\%$ and $2 \\%$, the percentage error in the measurement of pressure is", "options": {"a": "1%", "b": "2%", "c": "6%", "d": "8%"}, "answer": "d", "solution": "$8\\\\%$"}, {"num": 2, "subject": "Physics", "question": "Two stones of masses m and 3 m are whirled in horizontal circles, the heavier one in a radius $\\left(\\frac{\\mathrm{r}}{3}\\right)$ and lighter one in a radius r . The tangential speed of lighter stone is ' $n$ ' times the value of heavier stone. When the magnitude of centripetal force becomes equal the value of $n$ is", "options": {"a": "4", "b": "3", "c": "2", "d": "1"}, "answer": "b", "solution": "$n=3$"}, {"num": 3, "subject": "Physics", "question": "An inextensible string of length ' $\\ell$ ' fixed at one end, carries a mass ' m ' at the other end. If the string makes $\\frac{1}{\\pi}$ revolutions per second around the vertical axis through the fixed end, the tension in the string is [The string makes an angle $\\theta$ with the vertical]", "options": {"a": "16 ml", "b": "8 ml", "c": "4 ml", "d": "2 ml"}, "answer": "c", "solution": "$4ml$"}, {"num": 4, "subject": "Physics", "question": "A body when projected at an angle ' $\\theta$ ' with the horizontal reaches a maximum height ' H '. The time of flight of the body will be ( $g=$ acceleration due to gravity)", "options": {"a": "$\\frac{1}{2} \\sqrt{\\frac{2 \\mathrm{H}}{\\mathrm{g}}}$", "b": "$\\sqrt{\\frac{g}{2 H}}$", "c": "$2 \\sqrt{\\frac{2 \\mathrm{H}}{\\mathrm{g}}}$", "d": "$\\sqrt{\\frac{2 \\mathrm{H}}{\\mathrm{g}}}$"}, "answer": "c", "solution": "$2\\\\sqrt{\\\\frac{2H}{g}}$"}, {"num": 5, "subject": "Physics", "question": "A motor cyclist has to rotate in horizontal circles inside the cylindrical wall of inner radius ' R ' metre. If the coefficient of friction between the wall and the tyres is ' $\\mu_{\\mathrm{s}}$ ', then the minimum speed required is ( $\\mathrm{g}=$ acceleration due to gravity)", "options": {"a": "$\\sqrt{\\mu_{\\mathrm{s}} \\mathrm{Rg}}$", "b": "$\\sqrt{\\frac{\\mathrm{Rg}}{\\mu_{\\mathrm{s}}}}$", "c": "$\\sqrt{\\frac{\\mu_{\\mathrm{s}}}{\\mathrm{Rg}}}$", "d": "$\\sqrt{\\frac{\\mathrm{R}^2 \\mathrm{~g}}{\\mu_{\\mathrm{s}}}}$"}, "answer": "b", "solution": "$\\\\sqrt{\\\\frac{Rg}{\\\\mu_s}}$"}, {"num": 6, "subject": "Physics", "question": "A particle describes a horizontal circle on smooth inner surface of a cone as shown in figure. If the height of the circle above the vertex is 10 cm . The speed of the particle is\n(g, acceleration due to gravity $=10 \\mathrm{~m} / \\mathrm{s}^2$ )\n<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/eNqZuAbdU8YwQZk_3lf6qilHkwaMN5U6ByivClr6aLQ.original.fullsize.png\"><br>", "options": {"a": "$2 \\mathrm{~m} / \\mathrm{s}$", "b": "$1.5 \\mathrm{~m} / \\mathrm{s}$", "c": "$1 \\mathrm{~m} / \\mathrm{s}$", "d": "$0.5 \\mathrm{~m} / \\mathrm{s}$"}, "answer": "c", "solution": "$1\\\\mathrm{~m/s}$"}, {"num": 7, "subject": "Physics", "question": "A particle is displaced from point $\\mathrm{P}(3 \\mathrm{~m}, 4 \\mathrm{~m}, 5 \\mathrm{~m})$ to a point $Q(2 m, 3 m, 4 m)$ under a constant force $\\vec{F}=(3 \\hat{i}+4 \\hat{j}+5 \\hat{k}) N$. The work done by the force in this process is", "options": {"a": "$+10 \\mathrm{~J}$", "b": "$+4 \\mathrm{~J}$", "c": "$-8 \\mathrm{~J}$", "d": "$-12 \\mathrm{~J}$"}, "answer": "d", "solution": "$-12\\\\mathrm{~J}$"}, {"num": 8, "subject": "Physics", "question": "What is the linear velocity if angular velocity $\\vec{\\omega}=3 \\hat{i}-4 \\hat{j}+\\hat{k}$ and radius $\\vec{r}=(5 \\hat{i}-6 \\hat{j}+6 \\hat{k})$ ?", "options": {"a": "$(-30 \\hat{\\mathrm{i}}-13 \\hat{\\mathrm{j}}-38 \\hat{\\mathrm{k}})$", "b": "$(8 \\hat{\\mathrm{i}}-10 \\hat{\\mathrm{j}}+7 \\hat{\\mathrm{k}})$", "c": "$(-18 \\hat{\\mathrm{i}}-13 \\hat{\\mathrm{j}}+2 \\hat{\\mathrm{k}})$", "d": "$(-2 \\hat{i}-2 \\hat{j}-5 \\hat{k})$"}, "answer": "c", "solution": "$(-18\\\\hat{i}-13\\\\hat{j}+2\\\\hat{k})$"}, {"num": 9, "subject": "Physics", "question": "The gravitational pull of the moon is $\\left(\\frac{1}{6}\\right)^{\\text {th }}$ of the earth and mass of moon is $\\left(\\frac{1}{8}\\right)^{\\text {th }}$ of the earth. This implies that the", "options": {"a": "radius of moon is $(1 / 4)^{\\text {th }}$ of the earth's radius.", "b": "radius of the earth is $(\\sqrt{4 / 3})^{\\text {th }}$ of the moon's radius.", "c": "moon's radius is half that of the earth.", "d": "radius of the earth is $(4 / 3)^{\\text {th }}$ of the moon's radius."}, "answer": "b", "solution": "radius of earth is $(\\\\sqrt{4/3})^{\\\\text{th}}$ of moon's radius"}, {"num": 10, "subject": "Physics", "question": "The energy needed for breaking a liquid drop of radius ' $R$ ' into 216 droplets, each of radius ' $r$ ' is ' $x$ ' times TR ${ }^2$. The value of ' $x$ ' is [ $\\mathrm{T}=$ surface tension of the liquid]", "options": {"a": "$4 \\pi$", "b": "$12 \\pi$", "c": "$180 \\pi$", "d": "$20 \\pi$"}, "answer": "d", "solution": "$x=20\\\\pi$"}, {"num": 11, "subject": "Physics", "question": "The amount of work done in blowing a soap bubble such that its diameter increases from $d_1$ to $d_2$ is ( $T=$ surface tension of soap solution)", "options": {"a": "$4 \\pi\\left(\\mathrm{~d}_2^2-\\mathrm{d}_1^2\\right) \\mathrm{T}$", "b": "$8 \\pi\\left(\\mathrm{~d}_2^2-\\mathrm{d}_1^2\\right) \\mathrm{T}$", "c": "$\\pi\\left(\\mathrm{d}_2^2-\\mathrm{d}_1^2\\right) \\mathrm{T}$", "d": "$2 \\pi\\left(\\mathrm{~d}_2^2-\\mathrm{d}_1^2\\right) \\mathrm{T}$"}, "answer": "d", "solution": "$2\\\\pi(d_2^2-d_1^2)T$"}, {"num": 12, "subject": "Physics", "question": "A solid cylinder of length $\\ell$ and cross-sectional area $\\frac{\\mathrm{a}}{5}$ is immersed such that it floats with its axis vertical at the liquid-liquid interface with length $\\ell / 4$ in the denser liquid as shown in figure. The lower density liquid $(\\varrho)$ is open to atmosphere having pressure $P_0$. The density d of solid cylinder is\n<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/RMm7cmJgaoP2BsvtwhCcjSCd9BGQYA2yW820CPh6I1o.original.fullsize.png\"><br>", "options": {"a": "$\\frac{1}{2} \\varrho$", "b": "$\\frac{3}{2} \\varrho$", "c": "$\\frac{3}{4} \\varrho$", "d": "$\\varrho$"}, "answer": "c", "solution": "$\\\\frac{3}{4}\\\\varrho$"}, {"num": 13, "subject": "Physics", "question": "A stationary object at $4^{\\circ} \\mathrm{C}$ and weighing 3.5 kg falls from a height of 2000 m on snow mountain at $0^{\\circ} \\mathrm{C}$. If the temperature of the object just before hitting the snow is $0^{\\circ} \\mathrm{C}$ and the object comes to rest immediately then the quantity of ice that melts is\n(Acceleration due to gravity $=10 \\mathrm{~m} / \\mathrm{s}^2$, Latent heat of ice $\\left.=3.5 \\times 10^5 \\mathrm{~J} / \\mathrm{kg}\\right)$", "options": {"a": "2 gram", "b": "20 gram", "c": "200 gram", "d": "2 kg"}, "answer": "c", "solution": "$200$ gram"}, {"num": 14, "subject": "Physics", "question": "During thermodynamic process, the increase in internal energy of a system is equal to the work done on the system. Which process does the system undergo?", "options": {"a": "Isothermal", "b": "Adiabatic", "c": "Isochoric", "d": "Isobaric"}, "answer": "b", "solution": "Adiabatic"}, {"num": 15, "subject": "Physics", "question": "A polyatomic gas at pressure 'P', having volume 'V' expands isothermally to a volume ' 3 V ' and then adiabatically to a volume ' 24 V '. The final pressure of gas is (for moderate temperature changes)", "options": {"a": "16 P", "b": "24 P", "c": "$\\mathrm{P} / 36$", "d": "$\\mathrm{P} / 48$"}, "answer": "d", "solution": "$P/48$"}, {"num": 16, "subject": "Physics", "question": "Six molecules of a gas in container have speeds $2 \\mathrm{~m} / \\mathrm{s}, 5 \\mathrm{~m} / \\mathrm{s}, 3 \\mathrm{~m} / \\mathrm{s}$, $6 \\mathrm{~m} / \\mathrm{s}, 3 \\mathrm{~m} / \\mathrm{s}$ and $5 \\mathrm{~m} / \\mathrm{s}$. The r.m.s. speed is", "options": {"a": "$4 \\mathrm{~m} / \\mathrm{s}$", "b": "$1.7 \\mathrm{~m} / \\mathrm{s}$", "c": "$4 \\cdot 24 \\mathrm{~m} / \\mathrm{s}$", "d": "$5 \\mathrm{~m} / \\mathrm{s}$"}, "answer": "c", "solution": "$4.24\\\\mathrm{~m/s}$"}, {"num": 17, "subject": "Physics", "question": "Select the correct statement.", "options": {"a": "The product of pressure and volume of an ideal gas will be equal to translational kinetic energy of the molecules.", "b": "The temperature of gas is $-73^{\\circ} \\mathrm{C}$. When the gas is heated to $527^{\\circ} \\mathrm{C}$, the r.m.s. speed of the molecules is doubled.", "c": "The temperature of gas is $-100^{\\circ} \\mathrm{C}$. When the gas is heated to $+627^{\\circ} \\mathrm{C}$, the r.m.s. speed of the molecules is four times.", "d": "The product of pressure and volume of an ideal gas will be equal to half the translational kinetic energy."}, "answer": "b", "solution": "$-73^\\\\circ C$ to $527^\\\\circ C$ doubles rms speed"}, {"num": 18, "subject": "Physics", "question": "A particle is executing S.H.M. of amplitude 'A'. When the potential energy of the particle is half of its maximum value during the oscillation, its displacement from the equilibrium position is", "options": {"a": "$\\pm \\frac{\\mathrm{A}}{4}$", "b": "$\\pm \\frac{\\mathrm{A}}{2}$", "c": "$\\pm \\frac{\\mathrm{A}}{\\sqrt{3}}$", "d": "$\\pm \\frac{\\mathrm{A}}{\\sqrt{2}}$"}, "answer": "d", "solution": "$\\\\pm\\\\frac{A}{\\\\sqrt{2}}$"}, {"num": 19, "subject": "Physics", "question": "The motion of the particle is given by the equation $x=A \\sin \\omega t+B \\cos \\omega t$.\nThe motion of the particle is", "options": {"a": "simple harmonic with amplitude $(A+B)$", "b": "simple harmonic with amplitude $(A-B)$", "c": "simple harmonic with amplitude $\\left(A^2+B^2\\right)^{\\frac{1}{2}}$", "d": "not simple harmonic"}, "answer": "c", "solution": "$\\\\sqrt{A^2+B^2}$"}, {"num": 20, "subject": "Physics", "question": "An object of mass 0.2 kg executes simple harmonic oscillations along the $X$ - axis with frequency of $\\left(\\frac{25}{\\pi}\\right) \\mathrm{Hz}$. At the position $x=0.04 \\mathrm{~m}$, the object has kinetic energy 1 J and potential energy 0.6 J . The amplitude of oscillation is", "options": {"a": "0.06 m", "b": "0.6 m", "c": "0.08 m", "d": "0.8 m"}, "answer": "c", "solution": "$0.08$ m"}, {"num": 21, "subject": "Physics", "question": "The fundamental frequency of sonometer wire is ' $n$ '. If the tension and length are increased 3 times and diameter is increased twice, the new frequency will be", "options": {"a": "$\\sqrt{\\frac{3}{2}} \\mathrm{n}$", "b": "$\\frac{\\sqrt{3}}{2} n$", "c": "$\\frac{\\mathrm{n}}{2 \\sqrt{3}}$", "d": "$2 \\sqrt{3} \\mathrm{n}$"}, "answer": "c", "solution": "$\\\\frac{n}{2\\\\sqrt{3}}$"}, {"num": 22, "subject": "Physics", "question": "An open organ pipe is closed such that the third overtone of the closed pipe is found to be higher in frequency by 200 Hz than the second overtone of the original pipe. The fundamental frequency of the open pipe is (Neglect end correction)", "options": {"a": "150 Hz", "b": "200 Hz", "c": "400 Hz", "d": "500 Hz"}, "answer": "c", "solution": "$400$ Hz"}, {"num": 23, "subject": "Physics", "question": "Two sound waves travelling in the same direction have displacement\n$\\begin{aligned}\n& y_1=a \\sin (0 \\cdot 2 \\pi x-50 \\pi t) \\text { and } \\\\\n& y_2=a \\sin (0 \\cdot 15 \\pi x-46 \\pi t)\n\\end{aligned}$\nHow many times, a listener can hear sound of maximum intensity in one second?", "options": {"a": "1", "b": "2", "c": "3", "d": "4"}, "answer": "b", "solution": "$2$"}, {"num": 24, "subject": "Physics", "question": "If a source emitting waves of frequency 'F' moves towards an observer with a velocity $\\frac{V}{3}$ and the observer moves away from the source with a velocity $\\frac{\\mathrm{V}}{4}$, the apparent frequency as heard by the observer will be ( $\\mathrm{V}=$ velocity of sound)", "options": {"a": "$\\frac{9}{8} \\mathrm{~F}$", "b": "$\\frac{8}{9} F$", "c": "$\\frac{3}{4} F$", "d": "$\\frac{4}{3} F$"}, "answer": "a", "solution": "$\\\\frac{9}{8}F$"}, {"num": 25, "subject": "Physics", "question": "Out of the following molecules the one which represents the polar molecule is\n<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/Uv7L2fRhuDpK0Sj3z5xa9ssSgHgWFRoSBj13SFbpVyE.original.fullsize.png\"><br>", "options": {"a": "(d)", "b": "(a)", "c": "(c)", "d": "(b)"}, "answer": "a", "solution": "(d)"}, {"num": 26, "subject": "Physics", "question": "Two point charges $+10 \\mu \\mathrm{C}$ and $4 \\mu \\mathrm{C}$ are placed 10 cm apart in air. The work required to be done to bring them 2 cm closer is\n$\\left(\\frac{1}{4 \\pi \\epsilon_0}=9 \\times 10^9 \\text { SI units }\\right)$", "options": {"a": "$0 \\cdot 65 \\mathrm{~J}$", "b": "$0 \\cdot 9 \\mathrm{~J}$", "c": "$1 \\cdot 2 \\mathrm{~J}$", "d": "$2 \\cdot 3 \\mathrm{~J}$"}, "answer": "b", "solution": "$0.9\\\\mathrm{~J}$"}, {"num": 27, "subject": "Physics", "question": "Three charges ' +3 q ' , ' Q ' and ' +q ' are placed in a straight line of length ' $\\ell$ ' at points at distances $0, \\frac{\\ell}{2}$ and $\\ell$ respectively. The value of $Q$ in order to have the net force on $+q$ to be zero, $Q=x q$. The value of $x$ is", "options": {"a": "$-\\frac{1}{4}$", "b": "$\\frac{-3}{4}$", "c": "$-3$", "d": "$4$"}, "answer": "b", "solution": "$x=-3/4$"}, {"num": 28, "subject": "Physics", "question": "A $4 \\mu \\mathrm{~F}$ capacitor is charged to 10 V . The battery is then disconnected and a pure 10 mH coil is connected across the capacitor so that LC oscillations are set up. The maximum current in the coil is", "options": {"a": "0.2 A", "b": "0.1 A", "c": "0.4 A", "d": "0.25 A"}, "answer": "a", "solution": "$0.2$ A"}, {"num": 29, "subject": "Physics", "question": "Two capacitors of $100 \\mu \\mathrm{~F}$ and $50 \\mu \\mathrm{~F}$ are connected in parallel. If the potential difference across $100 \\mu \\mathrm{~F}$ is 20 V and across $50 \\mu \\mathrm{~F}$ is 40 V , then the common potential of the parallel combination will be (same polarities of the capacitor connected together)", "options": {"a": "20 V", "b": "60 V", "c": "$\\frac{3}{80} \\mathrm{~V}$", "d": "$\\frac{80}{3} \\mathrm{~V}$"}, "answer": "d", "solution": "$\\\\frac{80}{3}\\\\mathrm{~V}$"}, {"num": 30, "subject": "Physics", "question": "Two cells of e.m.f.s $E_1$ and $E_2\\left(E_1>E_2\\right)$ are connected as shown in figure.\n<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/FI3KmXpWtjd0kxUcas8gJKFKWR-chDKW8yuN3USRA9Y.original.fullsize.png\"><br>\nWhen the potentiometer is connected between A and B , the balancing length of the potentiometer wire is 3.60 m . On connecting the potentiometer between A and C , the balancing length is 0.90 m . The ratio $E_1 / E_2$ is", "options": {"a": "$5:4$", "b": "$4: 3$", "c": "$3: 4$", "d": "$4: 5$"}, "answer": "b", "solution": "$4:3$"}, {"num": 31, "subject": "Physics", "question": "The length of a potentiometer wire is 'L'. A cell of e.m.f. 'E' is balanced at a length $\\frac{L}{4}$ from the positive end of the wire. If the length of the original wire is increased by $\\frac{L}{3}$, then using the same cell null point is obtained at", "options": {"a": "$\\frac{L}{4}$", "b": "$\\frac{L}{3}$", "c": "$\\frac{L}{2}$", "d": "$\\frac{3 \\mathrm{~L}}{4}$"}, "answer": "b", "solution": "$\\\\frac{L}{3}$"}, {"num": 32, "subject": "Physics", "question": "By increasing the temperature, the specific resistance of a conductor and a semiconductor respectively", "options": {"a": "increases , increases.", "b": "decreases , decreases.", "c": "increases , decreases.", "d": "decreases , increases."}, "answer": "c", "solution": "increases, decreases"}, {"num": 33, "subject": "Physics", "question": "The relation between magnetic moment $(\\mathrm{M})$ of a current carrying circular coil and length (L) of the wire used is", "options": {"a": "$M \\alpha L$", "b": "$\\mathrm{M} \\alpha \\frac{1}{\\mathrm{~L}}$", "c": "$M \\alpha L^2$", "d": "$\\mathrm{M} \\propto \\frac{1}{\\mathrm{~L}^2}$"}, "answer": "c", "solution": "$M\\\\propto L^2$"}, {"num": 34, "subject": "Physics", "question": "Two current carrying identical coils are kept as shown in figure. The magnetic field at centre ' $O$ ' is ( $N$ and $R$ represent the number of turns and radius of each coil respectively, $\\mu_0=$ permeability of free space)\n<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/NJFuX6RmrJx7WY-RS1kiEiEqyzsD0JoiK-42-SMWYys.original.fullsize.png\"><br>", "options": {"a": "$\\frac{\\mu_0 \\mathrm{NI}}{2 \\mathrm{R}}$", "b": "$\\frac{\\mu_0 \\mathrm{NI}}{\\sqrt{2} \\mathrm{R}}$", "c": "$\\frac{\\mu_0 \\mathrm{NI}}{2 \\sqrt{2} \\mathrm{R}}$", "d": "$\\frac{\\mu_0 \\mathrm{NI}}{2}$"}, "answer": "b", "solution": "$\\\\frac{\\\\mu_0 NI}{\\\\sqrt{2}R}$"}, {"num": 35, "subject": "Physics", "question": "In hydrogen atom, an electron of charge ' e ' revolves in an orbit of radius ' $r$ ' with speed ' $v$ '. The magnetic moment associated with electron is", "options": {"a": "$\\frac{\\mathrm{evr}}{3}$", "b": "$\\frac{\\text { evr }}{2}$", "c": "evr", "d": "$\\sqrt{2} \\mathrm{evr}$"}, "answer": "b", "solution": "$\\\\frac{evr}{2}$"}, {"num": 36, "subject": "Physics", "question": "Two identical coils of inductance L joined in series are placed very close to each other such that the winding direction of one coil is exactly opposite to that of the other. The net inductance is", "options": {"a": "$\\frac{L}{2}$", "b": "2 L", "c": "zero", "d": "L"}, "answer": "c", "solution": "zero"}, {"num": 37, "subject": "Physics", "question": "A coil of $n$ turns and resistance $R \\Omega$ is connected in series with resistance $\\mathrm{R} / 4$. The combination is moved for time t second through magnetic flux $\\phi_1$ to $\\phi_2$. The induced current in the circuit is", "options": {"a": "$\\frac{2 \\mathrm{n}\\left(\\phi_1-\\phi_2\\right)}{5 \\mathrm{Rt}}$", "b": "$\\frac{4 \\mathrm{n}\\left(\\phi_1-\\phi_2\\right)}{5 \\mathrm{Rt}}$", "c": "$\\frac{3 n\\left(\\phi_1-\\phi_2\\right)}{4 R t}$", "d": "$\\frac{5 \\mathrm{n}\\left(\\phi_1-\\phi_2\\right)}{3 R \\mathrm{t}}$"}, "answer": "b", "solution": "$\\\\frac{4n(\\\\phi_1-\\\\phi_2)}{5Rt}$"}, {"num": 38, "subject": "Physics", "question": "A coil of ' n ' turns and area ' A ' is suddenly removed from a magnetic field, a charge ' $q$ ' flows through the coil. If resistance of the coil is ' $R$ ' then the magnetic flux density is (in $\\mathrm{Wb} / \\mathrm{m}^2$ )", "options": {"a": "$\\frac{q^2 R}{2 n A}$", "b": "$\\frac{\\mathrm{qR}}{\\mathrm{nA}}$", "c": "$\\frac{\\mathrm{qR}^2}{\\mathrm{nA}}$", "d": "$\\frac{\\mathrm{qR}}{2 \\mathrm{nA}}$"}, "answer": "b", "solution": "$\\\\frac{qR}{nA}$"}, {"num": 39, "subject": "Physics", "question": "Same current is flowing in two different a.c. circuits. First circuit contains only inductance and second contains only capacitance. If the frequency of a.c. is increased in both circuits, the current will", "options": {"a": "increase in the first circuit and decrease in second.", "b": "increase in both circuits.", "c": "decrease in both circuits.", "d": "decrease in first circuit and increase in second."}, "answer": "d", "solution": "decrease in first, increase in second"}, {"num": 40, "subject": "Physics", "question": "If the power factor changes from 0.5 to 0.25 because impedance changes from $Z_1$ to $Z_2$ then $Z_1=x Z_2$. The value of $x$ is (Resistance remains constant)", "options": {"a": "$0.1$", "b": "$0.5$", "c": "$0.7$", "d": "$0.4$"}, "answer": "b", "solution": "$x=0.5$"}, {"num": 41, "subject": "Physics", "question": "A convex lens of refractive index 1.5 has power 3D. It is placed in a liquid of refractive index 2 . The new power of the lens is", "options": {"a": "$3D$", "b": "$0 \\cdot 75 \\mathrm{D}$", "c": "$1 \\cdot 5 \\mathrm{D}$", "d": "$2D$"}, "answer": "b", "solution": "$-1.5$ D"}, {"num": 42, "subject": "Physics", "question": "In Young's double slit experiment, the light of wavelength ' $\\lambda$ ' is used. The intensity at a point on the screen is 'I' where the path difference is $\\frac{\\lambda}{4}$. If ' $\\mathrm{I}_{\\mathrm{o}}$ ' denotes the maximum intensity then the ratio of ' $\\mathrm{I}_{\\mathrm{o}}$ ' to ' I ' is $\\left(\\cos 45^{\\circ}=1 / \\sqrt{2}\\right)$", "options": {"a": "$2:1$", "b": "$4:1$", "c": "$8:1$", "d": "$12:1$"}, "answer": "a", "solution": "$2:1$"}, {"num": 43, "subject": "Physics", "question": "In Young's double slit experiment, the intensity of light at a point on the screen where the path difference is $\\lambda$ is ' $I$ '. The intensity at a point where the path difference is $\\lambda / 6$ is $\\left[\\cos \\frac{\\pi}{6}=\\frac{\\sqrt{3}}{2}\\right]$ $[\\lambda=$ wavelength of light $][\\cos \\pi=-1]$", "options": {"a": "I", "b": "$\\frac{3 \\mathrm{I}}{4}$", "c": "$\\frac{\\mathrm{I}}{2}$", "d": "$\\frac{\\mathrm{I}}{4}$"}, "answer": "b", "solution": "$\\\\frac{3I}{4}$"}, {"num": 44, "subject": "Physics", "question": "Select the correct statement.", "options": {"a": "If the Brewster's angle for the light propagation from air to glass is ' $\\theta$ ', then Brewster's angle for the light propagating from glass to air is $\\left(\\frac{\\pi}{2}-\\theta\\right)$.", "b": "The Brewster's angle for the light propagating from the glass to air is $\\tan ^{-1}(\\mu)$ where $\\mu$ is the refractive index of glass.", "c": "The Brewster's angle for light propagating from air to glass is ' $\\theta$ ' then Brewster's angle for the light propagating from glass to air is $(\\pi+\\theta)$.", "d": "The Brewster's angle for light propagating from glass to air is $\\tan (\\mu)$ where is $\\mu$ the refractive index of glass."}, "answer": "a", "solution": "$\\\\frac{\\\\pi}{2}-\\\\theta$"}, {"num": 45, "subject": "Physics", "question": "Electron beam when accelerated by a voltage of 10 kV , has a de-Broglie wavelength ' $\\lambda$ '. If the voltage is increased to 20 kV then the de-Broglie wavelength associated with the electron beam would be", "options": {"a": "$4 \\lambda$", "b": "$2 \\lambda$", "c": "$\\frac{\\lambda}{2}$", "d": "$\\frac{\\lambda}{\\sqrt{2}}$"}, "answer": "d", "solution": "$\\\\frac{\\\\lambda}{\\\\sqrt{2}}$"}, {"num": 46, "subject": "Physics", "question": "Graph shows variation of stopping potential with frequency of incident radiation on a metal plate. The value of Planck's constant is [$\\mathrm{e}=$ charge on photoelectron]\n<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/c91cOp4tf8k3FF6cUxMMyaTR1uH-5JYRefJ5wI6qA7s.original.fullsize.png\"><br>", "options": {"a": "$\\frac{e\\left(V_2-V_1\\right)}{v_1 v_2}$", "b": "$\\frac{e V_1 V_2}{\\left(V_{2-} V_{1}\\right)}$", "c": "$\\frac{e\\left(V_2-V_1\\right)}{\\left(V_{2-} V_{1}\\right)}$", "d": "$\\frac{e\\left(V_1 V_2\\right)}{V_1 V_2}$"}, "answer": "c", "solution": "$\\\\frac{e(V_2-V_1)}{(\\\\nu_2-\\\\nu_1)}$"}, {"num": 47, "subject": "Physics", "question": "In hydrogen atom, transition from the state $n=6$ to $n=1$ results in ultraviolet radiation. Infrared radiation will be obtained in the transition", "options": {"a": "$\\mathrm{n}=3$ to $\\mathrm{n}=1$", "b": "$\\mathrm{n}=4$ to $\\mathrm{n}=2$", "c": "$\\mathrm{n}=6$ to $\\mathrm{n}=2$", "d": "$\\mathrm{n}=5$ to $\\mathrm{n}=3$"}, "answer": "d", "solution": "$n=5$ to $n=3$"}, {"num": 48, "subject": "Physics", "question": "A radioactive element ${ }_{92}^{242} \\mathrm{X}$ emits two $\\alpha$ particles, one electron and two positrons. The product nucleus is represented by ${ }_{\\mathrm{P}}^{234} \\mathrm{Y}$. The value of P is", "options": {"a": "87", "b": "85", "c": "92", "d": "96"}, "answer": "a", "solution": "$P=87$"}, {"num": 49, "subject": "Physics", "question": "I-V characteristics of LED is shown correctly by graph\n<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/JguW6hC3aDvX9aOcvWU91vlY_0-FOZnIos_ysxCyfYE.original.fullsize.png\"><br>", "options": {"a": "d", "b": "b", "c": "a", "d": "c"}, "answer": "c", "solution": "(a)"}, {"num": 50, "subject": "Physics", "question": "I - V characteristics of photodiode for different illumination intensities $\\mathrm{I}_1, \\mathrm{I}_2, \\mathrm{I}_3$ and $\\mathrm{I}_4$ are drawn as follows. Then the maximum intensity among them is\n<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/58b8l5375saVonUdNa-GyZDcAGZHBBfrm_2xuoisuLg.original.fullsize.png\"><br>", "options": {"a": "$\\mathrm{I}_1$", "b": "$\\mathrm{I}_2$", "c": "$\\mathrm{I}_3$", "d": "$\\mathrm{I}_4$"}, "answer": "d", "solution": "$I_4$"}, {"num": 51, "subject": "Chemistry", "question": "Find the number of millimoles for 0.160 g sodium hydroxide.", "options": {"a": "$0.08$", "b": "$0.20$", "c": "$4.0$", "d": "$40.00$"}, "answer": "c", "solution": "$4.0$"}, {"num": 52, "subject": "Chemistry", "question": "What is the number of node in 2 s orbital?", "options": {"a": "0", "b": "1", "c": "2", "d": "3"}, "answer": "b", "solution": "$1$"}, {"num": 53, "subject": "Chemistry", "question": "Which of the following elements has highest electronegativity?", "options": {"a": "Sr", "b": "Ca", "c": "Mg", "d": "Be"}, "answer": "d", "solution": "Be"}, {"num": 54, "subject": "Chemistry", "question": "What type of overlap is involved in the formation of C-H bonds in acetylene molecules?", "options": {"a": "$s p^3-s$", "b": "$\\mathrm{sp}^2-\\mathrm{s}$", "c": "$s p-s$", "d": "sp-sp"}, "answer": "c", "solution": "$sp$-$s$"}, {"num": 55, "subject": "Chemistry", "question": "A container contains equal masses of $\\mathrm{H}_2, \\mathrm{He}, \\mathrm{CO}_2$ and Ne at a certain temperature. Which of the following gases exerts minimum partial pressure?", "options": {"a": "$\\mathrm{H}_2$", "b": "He", "c": "$\\mathrm{CO}_2$", "d": "Ne"}, "answer": "c", "solution": "$CO_2$"}, {"num": 56, "subject": "Chemistry", "question": "Calculate work done if 1 mole of an ideal gas expands isothermally from $2 \\mathrm{dm}^3$ to $2.8 \\mathrm{dm}^3$ against constant external pressure 1 atm", "options": {"a": "$-40 \\cdot 52 \\mathrm{~J}$", "b": "$-81.04 \\mathrm{~J}$", "c": "$-121.56 \\mathrm{~J}$", "d": "$-60 \\cdot 78 \\mathrm{~J}$"}, "answer": "b", "solution": "$-81.04\\\\mathrm{~J}$"}, {"num": 57, "subject": "Chemistry", "question": "Identify from following the correct set of thermodynamic conditions for the reaction to be spontaneous below equilibrium temperature.", "options": {"a": "$\\Delta \\mathrm{H} < 0$ and $\\Delta \\mathrm{S} < 0$", "b": "$\\Delta H>0$ and $\\Delta S>0$", "c": "$\\Delta \\mathrm{H} < 0$ and $\\Delta \\mathrm{S}>0$", "d": "$\\Delta \\mathrm{H}>0$ and $\\Delta \\mathrm{S} < 0$"}, "answer": "a", "solution": "$\\\\Delta H<0$ and $\\\\Delta S<0$"}, {"num": 58, "subject": "Chemistry", "question": "Calculate the standard enthalpy change for synthesis of ammonia gas from following data\ni. $2 \\mathrm{H}_{2(\\mathrm{~g})}+\\mathrm{N}_{2(\\mathrm{~g})} \\longrightarrow \\mathrm{N}_2 \\mathrm{H}_{4(\\mathrm{~g})} ; \\quad \\Delta_{\\mathrm{r}} \\mathrm{H}_1^0=95.4 \\mathrm{~kJ}$\nii. $\\mathrm{N}_2 \\mathrm{H}_{4(\\mathrm{~g})}+\\mathrm{H}_{2(\\mathrm{~g})} \\longrightarrow 2 \\mathrm{NH}_{3(\\mathrm{~g})} ; \\quad \\Delta_{\\mathrm{r}} \\mathrm{H}_2^0=-187 \\cdot 6 \\mathrm{~kJ}$", "options": {"a": "$-92 \\cdot 2 \\mathrm{~kJ}$", "b": "$-46 \\cdot 1 \\mathrm{~kJ}$", "c": "$-138 \\cdot 3 \\mathrm{~kJ}$", "d": "$-283 \\cdot 2 \\mathrm{~kJ}$"}, "answer": "b", "solution": "$-46.1\\\\mathrm{~kJ}$"}, {"num": 59, "subject": "Chemistry", "question": "Calculate the equilibrium concentration of $\\mathrm{Pb}^{++}$ions in a solution of PbS containing $1 \\times 10^{-11} \\mathrm{~mol~} \\mathrm{dm}{ }^{-3}$ of sulphide ions.\n(Given $\\mathrm{K}_{\\mathrm{sp}}$ for $\\mathrm{PbS}=8.0 \\times 10^{-28}$ )", "options": {"a": "$4 \\times 10^{-14}$", "b": "$4 \\times 10^{-17}$", "c": "$8 \\times 10^{-17}$", "d": "$8 \\times 10^{-11}$"}, "answer": "c", "solution": "$8\\\\times10^{-17}$"}, {"num": 60, "subject": "Chemistry", "question": "Which among the following salts forms basic solution when dissolved in water?", "options": {"a": "$\\mathrm{NH}_4 \\mathrm{NO}_3$", "b": "$\\mathrm{Na}_2 \\mathrm{CO}_3$", "c": "$\\mathrm{NaNO}_3$", "d": "$\\mathrm{CuSO}_4$"}, "answer": "b", "solution": "$Na_2CO_3$"}, {"num": 61, "subject": "Chemistry", "question": "The pH of monoacidic base is 10 . Calculate its percentage dissociation in 0.01 M solution at 298 K ?", "options": {"a": "$10 \\%$", "b": "$5 \\%$", "c": "$2 \\%$", "d": "$1 \\%$"}, "answer": "d", "solution": "$1\\\\%$"}, {"num": 62, "subject": "Chemistry", "question": "For a reaction, $\\mathrm{NH}_4 \\mathrm{NO}_2 \\rightarrow \\mathrm{~N}_2+2 \\mathrm{H}_2 \\mathrm{O}$. Which from following phenomena is true regarding nitrogen?", "options": {"a": "Oxidised", "b": "Reduced", "c": "Oxidised as well as reduced", "d": "Neither oxidised nor reduced"}, "answer": "c", "solution": "Oxidised as well as reduced"}, {"num": 63, "subject": "Chemistry", "question": "Which of the following is structural formula of mesityl oxide?", "options": {"a": "$\\left(\\mathrm{CH}_3\\right)_2 \\mathrm{CH}-\\mathrm{CH}=\\mathrm{CH}-\\mathrm{CO}-\\mathrm{CH}_3$", "b": "$\\left(\\mathrm{CH}_3\\right)_2 \\mathrm{C}=\\mathrm{CH}-\\mathrm{CO}-\\mathrm{CH}_3$", "c": "$\\left(\\mathrm{CH}_3\\right)_3 \\mathrm{C}-\\mathrm{CH}=\\mathrm{CH}-\\mathrm{CO}-\\mathrm{CH}_3$", "d": "$\\left(\\mathrm{CH}_3\\right)_2 \\mathrm{CH}-\\mathrm{CH}=\\mathrm{CH}-\\mathrm{CO}-\\mathrm{CH}\\left(\\mathrm{CH}_3\\right)_2$"}, "answer": "b", "solution": "$(CH_3)_2C=CH-CO-CH_3$"}, {"num": 64, "subject": "Chemistry", "question": "How many chiral carbon atoms are present in 2-chloro-3,4,5-trimethylhexane?", "options": {"a": "4", "b": "3", "c": "2", "d": "1"}, "answer": "b", "solution": "$3$"}, {"num": 65, "subject": "Chemistry", "question": "What is the difference in molar mases of third and fourth homologues of alkane series?", "options": {"a": "$28 \\mathrm{~g} \\mathrm{~mol}^{-1}$", "b": "$14 \\mathrm{~g} \\mathrm{~mol}^{-1}$", "c": "$15 \\mathrm{~g} \\mathrm{~mol}^{-1}$", "d": "$16 \\mathrm{~g} \\mathrm{~mol}^{-1}$"}, "answer": "b", "solution": "$14\\\\mathrm{~g~mol^{-1}}$"}, {"num": 66, "subject": "Chemistry", "question": "Identify the alkyne formed by reaction of calcium carbide with water?", "options": {"a": "Ethyne", "b": "Propyne", "c": "But-1-yne", "d": "But-2-yne"}, "answer": "a", "solution": "Ethyne"}, {"num": 67, "subject": "Chemistry", "question": "Identify the major product formed in the following reaction.\n$\\text { Chlorobenzene } \\frac{\\mathrm{Cl}_2}{\\text { Anhydrous } \\mathrm{FeCl}_3} \\text { Product }$", "options": {"a": "<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/Jf96RIV6FitprxUuVuVAVkpoz0sPkMuJoHSJueSF7ew.original.fullsize.png\"><br>", "b": "<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/eoxrbuLEkLmtMJZIYv_l01cAk4k_v9k78vqN2-U-VSs.original.fullsize.png\"><br>", "c": "<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/--dDEimN0Mpwt1ekUWVGrKpPFWOAZX4wOgvtWtjIdQg.original.fullsize.png\"><br>", "d": "<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/oDk7AqjqruQm3BdvsfOyMfgZvgoDSGFk4p03lmTA6p4.original.fullsize.png\"><br>"}, "answer": "a", "solution": "p-dichlorobenzene"}, {"num": 68, "subject": "Chemistry", "question": "Calculate the number of unit cells in 0.79 g metal if product of density and volume of unit cell is $1.58 \\times 10^{-22} \\mathrm{~g}$", "options": {"a": "$3.96 \\times 10^{21}$", "b": "$1.72 \\times 10^{21}$", "c": "$4.46 \\times 10^{21}$", "d": "$5.0 \\times 10^{21}$"}, "answer": "d", "solution": "$5.0\\\\times10^{21}$"}, {"num": 69, "subject": "Chemistry", "question": "Calculate the volume of bcc unit cell if radius of an atom present in it is $1.86 \\times 10^{-8} \\mathrm{~cm}$.", "options": {"a": "$5.391 \\times 10^{-23} \\mathrm{~cm}^3$", "b": "$8.995 \\times 10^{-23} \\mathrm{~cm}^3$", "c": "$7.951 \\times 10^{-23} \\mathrm{~cm}^3$", "d": "$6.453 \\times 10^{-23} \\mathrm{~cm}^3$"}, "answer": "c", "solution": "$7.951\\\\times10^{-23}\\\\mathrm{~cm^3}$"}, {"num": 70, "subject": "Chemistry", "question": "Calculate the osmotic pressure of 0.2 M aqueous solution of electrolyte at 300 K . If van't Hoff factor is 1.6\n$\\left[\\mathrm{R}=0.0821 \\mathrm{~atm} \\mathrm{dm}^3 \\mathrm{~K}^{-1} \\mathrm{~mol}^{-1}\\right]$", "options": {"a": "7.21 atm", "b": "7.88 atm", "c": "8.81 atm", "d": "8.32 atm"}, "answer": "b", "solution": "$7.88$ atm"}, {"num": 71, "subject": "Chemistry", "question": "Which from following mixtures obeys Raoult's law?", "options": {"a": "Phenol and aniline", "b": "Chloroform and acetone", "c": "Ethanol and acetone", "d": "Benzene and toluene"}, "answer": "d", "solution": "Benzene and toluene"}, {"num": 72, "subject": "Chemistry", "question": "Calculate the cryoscopic constant of solvent if depression in freezing point of 0.4 m solution of nonvolatile solute is 1.8 K .", "options": {"a": "$4 \\cdot 0 \\mathrm{~K} \\mathrm{~kg} \\mathrm{~mol}^{-1}$", "b": "$4 \\cdot 5 \\mathrm{~K} \\mathrm{~kg} \\mathrm{~mol}^{-1}$", "c": "$5.1 \\mathrm{~K} \\mathrm{~kg} \\mathrm{~mol}^{-1}$", "d": "$5.7 \\mathrm{~K} \\mathrm{~kg} \\mathrm{~mol}^{-1}$"}, "answer": "b", "solution": "$4.5\\\\mathrm{~K~kg~mol^{-1}}$"}, {"num": 73, "subject": "Chemistry", "question": "A hypothetical galvanic cell is\n$\\ominus_{\\mathrm{A}_{(\\mathrm{s})}}\\left|\\mathrm{A}^{+}(1 \\mathrm{M})\\right|\\left|\\mathrm{B}^{+2}(1 \\mathrm{M})\\right| \\mathrm{B}_{(\\mathrm{s})}^{\\oplus}$\nand emf of cell is positive. What is the possible cell reaction?", "options": {"a": "$\\mathrm{A}_{(\\mathrm{s})}+\\mathrm{B}_{(\\mathrm{aq})}^{+2} \\rightarrow \\mathrm{~A}_{(\\mathrm{aq})}^{+1}+\\mathrm{B}_{(\\mathrm{s})}$", "b": "$2 \\mathrm{~A}_{(\\mathrm{s})}+\\mathrm{B}_{(\\mathrm{aq})}^{+2} \\rightarrow 2 \\stackrel{+}{\\mathrm{A}}_{(\\mathrm{aq})}^{1}+\\mathrm{B}_{(\\mathrm{s})}$", "c": "$\\mathrm{A}_{(\\mathrm{s})}+2 \\mathrm{~B}_{(\\mathrm{aq})}^{+2} \\rightarrow \\mathrm{~A}_{(\\mathrm{aq})}^{+1}+2 \\mathrm{~B}_{(\\mathrm{s})}$", "d": "$2 \\mathrm{~A}_{(\\mathrm{aq})}^{+}+\\mathrm{B}_{(\\mathrm{s})} \\rightarrow 2 \\mathrm{~A}_{(\\mathrm{s})}+\\stackrel{+2}{\\mathrm{~B}}_{(\\mathrm{aq})}$"}, "answer": "b", "solution": "$2A_{(s)}+B^{+2}_{(aq)}\\\\rightarrow 2A^{+}_{(aq)}+B_{(s)}$"}, {"num": 74, "subject": "Chemistry", "question": "The standard emf for cell,\n$\\Theta_{\\mathrm{Cd}_{(\\mathrm{s})}}\\left|\\mathrm{Cd}^{+2}(1 \\mathrm{M})\\right|\\left|\\mathrm{Cu}^{+2}(1 \\mathrm{M})\\right| \\mathrm{Cu}_{(\\mathrm{s})}^{\\oplus}$\nis 0.74 V . If concentration of $\\mathrm{Cd}_{(\\mathrm{aq})}^{+2}$ and $\\mathrm{Cu}_{(\\mathrm{aq})}^{+2}$ decreases by 10 times at 298 K . Calculate emf of cell.", "options": {"a": "$+0.074 \\mathrm{~V}$", "b": "$+0.850 \\mathrm{~V}$", "c": "$+0.680 \\mathrm{~V}$", "d": "$+0.740 \\mathrm{~V}$"}, "answer": "d", "solution": "$+0.740\\\\mathrm{~V}$"}, {"num": 75, "subject": "Chemistry", "question": "Which from following is nonconductor of electricity?", "options": {"a": "Solid sodium chloride", "b": "Aqueous potassium chloride", "c": "Graphite (s)", "d": "Copper metal (s)"}, "answer": "a", "solution": "Solid sodium chloride"}, {"num": 76, "subject": "Chemistry", "question": "Which from following statements is true regarding the cell emf at 298 K for $\\stackrel{\\ominus}{\\mathrm{Ni}}{ }_{(\\mathrm{s})}|\\stackrel{+2}{\\mathrm{Ni}}(0 \\cdot 01 \\mathrm{M})|\\left|\\mathrm{Ag}^{+}(0 \\cdot 01 \\mathrm{M})\\right| \\mathrm{Ag}_{(\\mathrm{s})}^{\\oplus}$", "options": {"a": "less than $E^{\\circ}{ }_{\\text {cell }}$ by 0.0592 V", "b": "greater than $\\mathrm{E}^{\\circ}{ }_{\\text {cell }}$ by 0.0592 V", "c": "less than $E^{\\circ}{ }_{\\text {cell }}$ by 0.0296 V", "d": "greater than $\\mathrm{E}^{\\circ}{ }_{\\text {cell }}$ by 0.0296 V"}, "answer": "c", "solution": "less than $E^\\\\circ_{cell}$ by 0.0296 V"}, {"num": 77, "subject": "Chemistry", "question": "A first order reaction is $50 \\%$ completed in 16 minute. Find the percentage of reactant reacting in 32 minute.", "options": {"a": "$25 \\%$", "b": "$40 \\%$", "c": "$50 \\%$", "d": "$75 \\%$"}, "answer": "d", "solution": "$75\\\\%$"}, {"num": 78, "subject": "Chemistry", "question": "Rate of reaction is $r_1=k[A]^a[B]^b$. If the concentration of $A$ is doubled and $B$ is halved the new rate is $r_2$, What is the value of $\\frac{r_2}{r_1}$ ?", "options": {"a": "$a-b$", "b": "$a+b$", "c": "$2^{(a-b)}$", "d": "$\\frac{1}{2}(a+b)$"}, "answer": "c", "solution": "$2^{(a-b)}$"}, {"num": 79, "subject": "Chemistry", "question": "Rate law for the reaction,\n$\\mathrm{NO}_{2(\\mathrm{~g})}+\\mathrm{CO}_{(\\mathrm{g})} \\rightarrow \\mathrm{NO}_{(\\mathrm{g})}+\\mathrm{CO}_{2(\\mathrm{~g})}$ is as $\\mathrm{R}=\\mathrm{k}\\left[\\mathrm{NO}_2\\right]^2$\nWhat is the order of reaction w.r.t. CO ?", "options": {"a": "Zero", "b": "$1$", "c": "$1.5$", "d": "$2$"}, "answer": "a", "solution": "Zero"}, {"num": 80, "subject": "Chemistry", "question": "What type of colloid the fog is ?", "options": {"a": "Aerosol", "b": "Foam", "c": "Gel", "d": "Emulsion"}, "answer": "a", "solution": "Aerosol"}, {"num": 81, "subject": "Chemistry", "question": "What is shape of interhalogen compound so that central halogen exhibits +3 oxidation state?", "options": {"a": "Tetrahedral", "b": "Bent ' $T$ ' shape", "c": "Square pyramidal", "d": "Square planer"}, "answer": "b", "solution": "Bent T shape"}, {"num": 82, "subject": "Chemistry", "question": "Which of the following interhalogen compounds in liquid state at room temperature?", "options": {"a": "ICl", "b": "$\\mathrm{ClF}_3$", "c": "$\\mathrm{BrF}_5$", "d": "$\\mathrm{IF}_7$"}, "answer": "a", "solution": "ICl"}, {"num": 83, "subject": "Chemistry", "question": "Identify the lanthanoid that exhibits zero effective magnetic moment in +3 state.", "options": {"a": "Но", "b": "Lu", "c": "Pr", "d": "Er"}, "answer": "b", "solution": "Lu"}, {"num": 84, "subject": "Chemistry", "question": "What is the value of spin only magnetic moment for $\\mathrm{Mn}^{2+}$ in BM ?", "options": {"a": "$3.87$", "b": "$4.9$", "c": "$1.73$", "d": "$5.92$"}, "answer": "d", "solution": "$5.92$ BM"}, {"num": 85, "subject": "Chemistry", "question": "Identify a lowest field strength ligand from following.", "options": {"a": "$\\mathrm{I}^{-}$", "b": "$S^{2-}$", "c": "en", "d": "CO"}, "answer": "a", "solution": "$I^-$"}, {"num": 86, "subject": "Chemistry", "question": "What is EAN of Co in $\\left[\\mathrm{Co}\\left(\\mathrm{NH}_3\\right)_6\\right]^{3+}$ ?", "options": {"a": "36", "b": "34", "c": "38", "d": "32"}, "answer": "a", "solution": "$36$"}, {"num": 87, "subject": "Chemistry", "question": "Which of the following compounds has difficulty in breaking of C-X bond?", "options": {"a": "o-Nitrochlorobenzene", "b": "m-Nitrochlorobenzene", "c": "p-Nitrochlorobenzene", "d": "2,4,6-trinitrochlorobenzene"}, "answer": "b", "solution": "m-Nitrochlorobenzene"}, {"num": 88, "subject": "Chemistry", "question": "Identify ' $A$ ' in the following reaction.\n$\\text { A + Acetic anhydride } \\xrightarrow{\\mathrm{H}^{+}} \\text {Aspirin + Acetic acid }$", "options": {"a": "Acrylic acid", "b": "Oxalic acid", "c": "Salicylic acid", "d": "Phthalic acid"}, "answer": "c", "solution": "Salicylic acid"}, {"num": 89, "subject": "Chemistry", "question": "Which of the following is NOT phenol?", "options": {"a": "<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/nN7IVCbGUKtCiu94WtKOFL_8BjWyWv4tLp-g7cp0Uno.original.fullsize.png\"><br>", "b": "<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/MLd5TJ-lP4qV1Uvj7WaGbHNUONgtGOyGUWpAB_ESEzs.original.fullsize.png\"><br>", "c": "<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/Wc72W8Z3rXXDeS9MV4jrHk8lnS-MXngevcCapuZVOpI.original.fullsize.png\"><br>", "d": "<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/4RUss1MECMCla9ckH9ivdbv1w1Jjv7A-nt-MTAKWVdA.original.fullsize.png\"><br>"}, "answer": "a", "solution": "Option A"}, {"num": 90, "subject": "Chemistry", "question": "Which of the following compounds has lowest solubility in water?", "options": {"a": "Phenol", "b": "p-Cresol", "c": "o-Nitrophenol", "d": "p-Nitrophenol"}, "answer": "c", "solution": "o-Nitrophenol"}, {"num": 91, "subject": "Chemistry", "question": "Which among the following has lowest boiling point?", "options": {"a": "Pentanal", "b": "Propanal", "c": "Methanal", "d": "Ethanal"}, "answer": "c", "solution": "Methanal"}, {"num": 92, "subject": "Chemistry", "question": "Find the number of moles of glycerol produced when n mole of triglyceride undergoes saponification.", "options": {"a": "n", "b": "2n", "c": "3n", "d": "$\\frac{3}{2} \\mathrm{n}$"}, "answer": "a", "solution": "$n$"}, {"num": 93, "subject": "Chemistry", "question": "Identify secondary amine from following.", "options": {"a": "Phenylmethanamine", "b": "N -Methylethanamine", "c": "N,N-Dimethylethanamine", "d": "Prop-2-en-1-amine"}, "answer": "b", "solution": "N-Methylethanamine"}, {"num": 94, "subject": "Chemistry", "question": "Identify the product ' $B$ ' in the following sequence of reactions.\nEthanenitrile $\\xrightarrow{\\mathrm{SnCl}_2, \\mathrm{HCl}} \\mathrm{A} \\xrightarrow{\\mathrm{H}_3, \\mathrm{O}^{+}} \\mathrm{B}+\\mathrm{NH}_4 \\mathrm{Cl}$", "options": {"a": "Ethylamine", "b": "Ethanamide", "c": "Ethanol", "d": "Ethanal"}, "answer": "d", "solution": "Ethanal"}, {"num": 95, "subject": "Chemistry", "question": "Identify correct decreasing order of basic strength of amines from following.", "options": {"a": "$\\left(\\mathrm{CH}_3\\right)_3 \\mathrm{~N}>\\left(\\mathrm{CH}_3\\right)_2 \\mathrm{NH}>\\mathrm{CH}_3 \\mathrm{NH}_2$", "b": "$\\left(\\mathrm{CH}_3\\right)_2 \\mathrm{NH}>\\mathrm{CH}_3 \\mathrm{NH}_2>\\left(\\mathrm{CH}_3\\right)_3 \\mathrm{~N}$", "c": "$\\left(\\mathrm{CH}_3\\right)_2 \\mathrm{NH}>\\left(\\mathrm{CH}_3\\right)_3 \\mathrm{~N}>\\mathrm{CH}_3 \\mathrm{NH}_2$", "d": "$\\mathrm{CH}_3 \\mathrm{NH}_2>\\left(\\mathrm{CH}_3\\right)_2 \\mathrm{NH}>\\left(\\mathrm{CH}_3\\right)_3 \\mathrm{~N}$"}, "answer": "c", "solution": "$(CH_3)_2NH>(CH_3)_3N>CH_3NH_2$"}, {"num": 96, "subject": "Chemistry", "question": "What is the total number of -OH groups present in a nucleoside involved in formation of DNA?", "options": {"a": "5", "b": "4", "c": "3", "d": "2"}, "answer": "c", "solution": "$3$"}, {"num": 97, "subject": "Chemistry", "question": "Identify acidic amino acid from following list represented by three letter symbols.", "options": {"a": "Thr", "b": "Trp", "c": "His", "d": "Glu"}, "answer": "d", "solution": "Glu"}, {"num": 98, "subject": "Chemistry", "question": "Which from following polymers is biodegradable?", "options": {"a": "Nyon 6", "b": "Nylon 6,6", "c": "Nylon 2-nylon 6", "d": "HDP"}, "answer": "c", "solution": "Nylon 2-nylon 6"}, {"num": 99, "subject": "Chemistry", "question": "Which from following is a polyester fibre?", "options": {"a": "PHBV", "b": "Urea formaldehyde", "c": "Thermocol", "d": "Polyacrylonitrile"}, "answer": "a", "solution": "PHBV"}, {"num": 100, "subject": "Chemistry", "question": "Which from following metal nanoparticle is used for coating the filter material that acts as effective bacterial disinfectant?", "options": {"a": "Nickel", "b": "Silver", "c": "Gold", "d": "Copper"}, "answer": "b", "solution": "Silver"}, {"num": 101, "subject": "Mathematics", "question": "Argument of the complex number $\\mathrm{z}=\\frac{13-5 \\mathrm{i}}{4-9 \\mathrm{i}}, i=\\sqrt{-1}$ is", "options": {"a": "$\\frac{\\pi}{4}$", "b": "$\\frac{\\pi}{2}$", "c": "$\\frac{\\pi}{6}$", "d": "$\\frac{\\pi}{3}$"}, "answer": "d", "solution": "$\\\\frac{\\\\pi}{3}$"}, {"num": 102, "subject": "Mathematics", "question": "If ${ }^{15} \\mathrm{C}_4+{ }^{15} \\mathrm{C}_5+{ }^{16} \\mathrm{C}_6+{ }^{17} \\mathrm{C}_7+{ }^{18} \\mathrm{C}_8={ }^{19} \\mathrm{C}_{\\mathrm{r}}$, then the value of r is equal to", "options": {"a": "9 or 10", "b": "7 or 12", "c": "8 or 10", "d": "8 or 11"}, "answer": "d", "solution": "$8$ or $11$"}, {"num": 103, "subject": "Mathematics", "question": "If $\\sin \\theta=\\frac{1}{2}\\left(x+\\frac{1}{x}\\right)$, then $\\sin 3 \\theta+\\frac{1}{2}\\left(x^3+\\frac{1}{x^3}\\right)=$", "options": {"a": "0", "b": "1", "c": "$\\frac{1}{4}$", "d": "2"}, "answer": "a", "solution": "$0$"}, {"num": 104, "subject": "Mathematics", "question": "The number of values of $x$ in the interval $[0,3 \\pi]$ satisfying the equation $2 \\sin ^2 x+5 \\sin x-3=0$ is", "options": {"a": "4", "b": "6", "c": "2", "d": "1"}, "answer": "a", "solution": "$4$"}, {"num": 105, "subject": "Mathematics", "question": "Let $A \\equiv(0,0), B(3,0), C(0,-4)$ are vertices of $\\triangle A B C$ then the co-ordinates of incentre of $\\triangle A B C$ is", "options": {"a": "$(1,1)$", "b": "$(1,-1)$", "c": "$(-1,1)$", "d": "$(-1,-1)$"}, "answer": "b", "solution": "$(1,-1)$"}, {"num": 106, "subject": "Mathematics", "question": "The equation $x^2-3 x y+\\lambda y^2+3 x-5 y+2=0$, where $\\lambda$ is real number, represents pair of lines. If $\\theta$ is acute angle between the lines, then $\\frac{\\operatorname{cosec}^2 \\theta}{\\sqrt{10}}=$", "options": {"a": "10", "b": "$\\frac{1}{\\sqrt{10}}$", "c": "2", "d": "$\\sqrt{10}$"}, "answer": "c", "solution": "$2$"}, {"num": 107, "subject": "Mathematics", "question": "The equations of the tangents to the circle $x^2+y^2=36$ which are perpendicular to the line $5 x+y-2=0$ are", "options": {"a": "$x-5 y \\pm 6 \\sqrt{26}=0$", "b": "$x+5 y \\pm 6 \\sqrt{26}=0$", "c": "$x-5 y \\pm \\sqrt{26}=0$", "d": "$x+5 y \\pm \\sqrt{26}=0$"}, "answer": "a", "solution": "$x-5y\\\\pm6\\\\sqrt{26}=0$"}, {"num": 108, "subject": "Mathematics", "question": "The foci of the conic $25 x^2+16 y^2-150 x=175$ are", "options": {"a": "$(0, \\pm 3)$", "b": "$(3, \\pm 3)$", "c": "$(0, \\pm 5)$", "d": "$(5, \\pm 5)$"}, "answer": "b", "solution": "$(3,\\\\pm3)$"}, {"num": 109, "subject": "Mathematics", "question": "Let $\\mathrm{A}=\\lim _{\\mathrm{x} \\rightarrow 0^{+}}\\left(1+\\tan ^2 \\sqrt{x}\\right)^{\\frac{1}{2 x}}$, then $\\log _{\\mathrm{e}} \\mathrm{A}=$", "options": {"a": "2", "b": "1", "c": "$\\frac{1}{2}$", "d": "$\\frac{1}{4}$"}, "answer": "c", "solution": "$\\\\frac{1}{2}$"}, {"num": 110, "subject": "Mathematics", "question": "Number of switches in alternative equivalent simple circuit for the circuit is (are)\n<img src=\"https://cdn.quizrr.in/question-assets/mhtcet/mhtcet2025/zAUZ80cUPe-1e38PVDjmzdalaFif6_aLGo79wrFl6OY.original.fullsize.png\"><br>", "options": {"a": "0", "b": "1", "c": "2", "d": "3"}, "answer": "b", "solution": "$1$"}, {"num": 111, "subject": "Mathematics", "question": "Consider the statements given by following\n(A) If $4+3=8$, then $5+3=9$\n(B) If $6+4=10$, then moon is flat\n(C) If both (A) and (B) are true, then $5+6=17$\nThen which of the following statement is correct?", "options": {"a": "(A) is true while (B) and (C) are false", "b": "(A) and (B) are false, while (c) is true", "c": "(A) and (C) are true, while (B) is false", "d": "(A) is false, but (B) and (C) are true"}, "answer": "a", "solution": "(A) is true while (B) and (C) are false"}, {"num": 112, "subject": "Mathematics", "question": "In a triangle with one of the angles $120^{\\circ}$, the lengths of the sides form an A.P. If length of the greatest side is 7 m , then the area of the triangle is", "options": {"a": "$\\frac{15 \\sqrt{3}}{4} \\mathrm{~m}^2$", "b": "$\\frac{15 \\sqrt{3}}{2} \\mathrm{~m}^2$", "c": "$\\frac{15}{2} \\mathrm{~m}^2$", "d": "$\\frac{15}{4} \\mathrm{~m}^2$"}, "answer": "a", "solution": "$\\\\frac{15\\\\sqrt{3}}{4}\\\\mathrm{~m^2}$"}, {"num": 113, "subject": "Mathematics", "question": "In a triangle ABC with usual notations if $b \\sin C(b \\cos C+c \\cos B)=42$, then area of triangle $A B C=$", "options": {"a": "42 sq.units", "b": "21 sq.units", "c": "24 sq.units", "d": "12 sq.units"}, "answer": "b", "solution": "$21$ sq.units"}, {"num": 114, "subject": "Mathematics", "question": "If $A=\\left[\\begin{array}{rrr}1 & -1 & 1 \\\\ 0 & 2 & -3 \\\\ 2 & 1 & 0\\end{array}\\right], B=\\operatorname{adj} A$ and $C=5 A$, then $\\frac{|\\operatorname{adj} B|}{|C|}=$", "options": {"a": "2", "b": "4", "c": "1", "d": "5"}, "answer": "c", "solution": "$1$"}, {"num": 115, "subject": "Mathematics", "question": "If $0 \\leqslant \\cos ^{-1} x \\leqslant \\pi$ and $\\frac{-\\pi}{2} \\leqslant \\sin ^{-1} x \\leqslant \\frac{\\pi}{2}$, then at $x=\\frac{1}{5}$ the value of $\\cos \\left(2 \\cos ^{-1} x+\\sin ^{-1} x\\right)$ is", "options": {"a": "$-\\sqrt{\\frac{24}{25}}$", "b": "$\\sqrt{\\frac{24}{25}}$", "c": "$\\frac{\\sqrt{24}}{25}$", "d": "$\\frac{-\\sqrt{24}}{25}$"}, "answer": "a", "solution": "$-\\\\sqrt{24/25}$"}, {"num": 116, "subject": "Mathematics", "question": "If $\\left(\\cos ^{-1} x\\right)^2-\\left(\\sin ^{-1} x\\right)^2>0$, then", "options": {"a": "$x < \\frac{1}{2}$", "b": "$-1 < x < \\sqrt{2}$", "c": "$0 \\leqslant x < \\frac{1}{\\sqrt{2}}$", "d": "$-1 \\leqslant x < \\frac{1}{\\sqrt{2}}$"}, "answer": "d", "solution": "$-1\\\\leq x<\\\\frac{1}{\\\\sqrt{2}}$"}, {"num": 117, "subject": "Mathematics", "question": "$f(x)=\\left\\{\\begin{array}{cc}\n3-x, & -1 \\leqslant x < 0 \\\\\n1+\\frac{5 x}{3}, & -3 \\leqslant x \\leqslant 2\n\\end{array}\\right.$\nand $g(x)=\\left\\{\\begin{array}{rr}-x, & -2 \\leqslant x \\leqslant 3 \\\\ x, & 0 \\leqslant x \\leqslant 1\\end{array}\\right.$ then range of $(f o g)(x)$ is", "options": {"a": "$\\left[1, \\frac{8}{3}\\right]$", "b": "$\\left[-4, \\frac{8}{3}\\right]$", "c": "$\\left[-4, \\frac{13}{3}\\right]$", "d": "$\\left[\\frac{8}{3}, \\frac{10}{3}\\right]$"}, "answer": "c", "solution": "$[-4,13/3]$"}, {"num": 118, "subject": "Mathematics", "question": "The function $\\mathrm{f}(x)=2 x-\\left|x-x^2\\right|$ is", "options": {"a": "continuous at $x=1$.", "b": "discontinuous at $x=1$.", "c": "not defined at $x=1$.", "d": "discontinuous at $x=0$."}, "answer": "a", "solution": "continuous at $x=1$"}, {"num": 119, "subject": "Mathematics", "question": "If $x=\\mathrm{e}^{\\tan ^{-1}\\left(\\frac{\\mathrm{y}-x^2}{x^2}\\right)}$, then $\\left(\\frac{\\mathrm{dy}}{\\mathrm{d} x}\\right)$ at $x=1$ is", "options": {"a": "1", "b": "0", "c": "2", "d": "3"}, "answer": "c", "solution": "$2$"}, {"num": 120, "subject": "Mathematics", "question": "If $x=\\sin \\theta, y=\\sin ^3 \\theta$, then $\\frac{d^2 y}{d x^2}$ at $\\theta=\\frac{\\pi}{6}$ is", "options": {"a": "$\\frac{1}{2}$", "b": "$\\frac{\\sqrt{3}}{2}$", "c": "3", "d": "6"}, "answer": "d", "solution": "$6$"}, {"num": 121, "subject": "Mathematics", "question": "If $\\mathrm{f}(x)=3 x^3+2 x^2 \\mathrm{f}^{\\prime}(1)+x \\mathrm{f}^{\\prime \\prime}(2)+\\mathrm{f}^{\\prime \\prime \\prime}(3)$ then $\\mathrm{f}(x)=$ $\\qquad$", "options": {"a": "$\\frac{1}{7}\\left(3 x^3-90 x^2+72 x+18\\right)$", "b": "$\\frac{1}{7}\\left(21 x^3-90 x^2+72 x+126\\right)$", "c": "$3 x^3-90 x^2+72 x+18$", "d": "$3 x^3-45 x^2+36 x+9$"}, "answer": "b", "solution": "$\\\\frac{1}{7}(21x^3-90x^2+72x+126)$"}, {"num": 122, "subject": "Mathematics", "question": "The length and breadth of a rectangle are $x \\mathrm{~cm}$ and y cm respectively. If the length decreases at the rate of $5 \\mathrm{~cm} /$ minute and the breadth increases at the rate of $3 \\mathrm{~cm} /$ minute, then the rates of change of the perimeter and area respectively when the length is 5 cm and breadth is 2 cm , are", "options": {"a": "-4 and 5", "b": "-5 and 3", "c": "3 and 5", "d": "3 and -5"}, "answer": "a", "solution": "$-4$ and $5$"}, {"num": 123, "subject": "Mathematics", "question": "The combined equation of the tangent and normal to the curve $x y=100$ at the point $(5,20)$ is ________.", "options": {"a": "$15 x^2-15 y^2+16 x y=480$", "b": "$15 x^2+16 x y-198 x+10 y+480-15 y^2=0$", "c": "$15 x^2-16 x y+19 x-10 y-480+15 y^2=0$", "d": "None of these"}, "answer": "b", "solution": "$15x^2+16xy-198x+10y+480-15y^2=0$"}, {"num": 124, "subject": "Mathematics", "question": "The sum of two nonzero numbers is 4 . The minimum value of the sum of their reciprocals is", "options": {"a": "$\\frac{3}{4}$", "b": "$\\frac{6}{5}$", "c": "$1$", "d": "$4$"}, "answer": "c", "solution": "$1$"}, {"num": 125, "subject": "Mathematics", "question": "If the line $\\mathrm{a} x+$ by $+\\mathrm{c}=0$ is normal to the curve $x \\mathrm{y}=1$, then", "options": {"a": "$a>0, \\quad b>0$", "b": "$a>0, \\quad b < 0$", "c": "$a < 0, \\quad b \\geqslant 0$", "d": "$a < 0, \\quad b < 0$"}, "answer": "b", "solution": "$a>0,b<0$"}, {"num": 126, "subject": "Mathematics", "question": "The rate of change of volume of spherical balloon at any instant is directly proportional to its surface area. If initially its radius is 3 cm , after 2 minutes its radius becomes 9 cm , then radius of balloon after 4 minutes is", "options": {"a": "12 cm", "b": "14 cm", "c": "15 cm", "d": "18 cm"}, "answer": "c", "solution": "$15$ cm"}, {"num": 127, "subject": "Mathematics", "question": "$\\int \\sqrt{x^2+3 x} \\mathrm{~d} x=$", "options": {"a": "$\\sqrt{x^2+3 x}+\\log \\sqrt{x^2+3 x}+c$\nwhere $c$ is the constant of integration.", "b": "$\\frac{2 x+3}{4} \\sqrt{x^2+3 x}-\\frac{9}{8} \\log \\left(x+\\frac{3}{2}+\\sqrt{x^2+3 x}\\right)+c$\nwhere $c$ is the constant of integration.", "c": "$x \\sqrt{x^2+3 x}+\\log \\left(x+\\sqrt{x^2+3 x}\\right)+c$\nwhere $c$ is the constant of integration.", "d": "$x+3 \\sqrt{x^2+3 x}+\\frac{3}{2} \\log \\left(x+\\sqrt{x^2+3 x}\\right)+\\mathrm{c}$\nwhere $c$ is the constant of integration."}, "answer": "b", "solution": "$\\\\frac{2x+3}{4}\\\\sqrt{x^2+3x}-\\\\frac{9}{8}\\\\log(x+\\\\frac{3}{2}+\\\\sqrt{x^2+3x})+c$"}, {"num": 128, "subject": "Mathematics", "question": "$\\int \\frac{x}{1+x^4} \\mathrm{~d} x=$", "options": {"a": "$\\frac{1}{2} \\tan ^{-1} x^2+c$, where $c$ is the constant of integration", "b": "$2 \\tan ^{-1} x+c$, where $c$ is the constant of integration", "c": "$\\frac{1}{2} \\tan ^{-1} x+c, \\quad$ where $c$ is the constant of integration", "d": "$\\tan ^{-1} x^2+c, \\quad$ where $c$ is the constant of integration"}, "answer": "a", "solution": "$\\\\frac{1}{2}\\\\tan^{-1}x^2+c$"}, {"num": 129, "subject": "Mathematics", "question": "$\\int \\frac{(5 \\sin \\theta-2) \\cos \\theta}{\\left(5-\\cos ^2 \\theta-4 \\sin \\theta\\right)} d \\theta=$", "options": {"a": "$\\log (5 \\sin \\theta-2)+c$, where $c$ is the constant of integration", "b": "$5 \\log (\\sin \\theta-2)-\\frac{8}{(\\sin \\theta-2)}+c$, where $c$ is the constant of integration", "c": "$\\log (5 \\sin \\theta-2)+\\frac{8}{(\\sin \\theta-2)}+c, \\quad$ where $c$ is the constant of integration", "d": "$\\log (5 \\sin \\theta-2)+\\frac{1}{(\\sin \\theta-2)}+c, \\quad$ where $c$ is the constant of integration"}, "answer": "c", "solution": "$\\\\log(5\\\\sin\\\\theta-2)+\\\\frac{8}{(\\\\sin\\\\theta-2)}+c$"}, {"num": 130, "subject": "Mathematics", "question": "$\\int_0^1 \\log \\left(\\frac{1}{x}-1\\right) \\mathrm{d} x=$", "options": {"a": "$\\frac{1}{2}$", "b": "1", "c": "2", "d": "0"}, "answer": "d", "solution": "$0$"}, {"num": 131, "subject": "Mathematics", "question": "$\\int_{\\frac{-\\pi}{2}}^{\\frac{\\pi}{2}}\\left(x^2+\\log \\left(\\frac{\\pi-x}{\\pi+x}\\right) \\cdot \\cos x\\right) \\mathrm{d} x=$", "options": {"a": "$0$", "b": "$\\frac{\\pi^3}{48}$", "c": "$\\frac{\\pi^3}{12}$", "d": "$\\frac{\\pi^3}{24}$"}, "answer": "d", "solution": "$\\\\frac{\\\\pi^3}{24}$"}, {"num": 132, "subject": "Mathematics", "question": "The area bounded by the curve $\\mathrm{y}=x^2+3, \\mathrm{y}=x, x=3$ and y -axis is...", "options": {"a": "$\\frac{9}{2}$ sq. units", "b": "18 sq. units", "c": "$\\frac{27}{2}$ sq. units", "d": "$\\frac{27}{3}$ sq. units"}, "answer": "c", "solution": "$\\\\frac{27}{2}$ sq. units"}, {"num": 133, "subject": "Mathematics", "question": "The differential equation whose solution is $\\mathrm{A} x^2+\\mathrm{By}^2=1$ where $A$ and $B$ are arbitrary constants is of", "options": {"a": "degree 1 and order 2", "b": "degree 2 and order 1", "c": "degree 3 and order 2", "d": "degree 1 and order 3"}, "answer": "a", "solution": "degree 1 and order 2"}, {"num": 134, "subject": "Mathematics", "question": "The integrating factor of $\\mathrm{y}+\\frac{\\mathrm{d}}{\\mathrm{d} x}(x \\mathrm{y})=x(\\sin x+\\log x)$ is", "options": {"a": "$x$", "b": "$\\log x^2$", "c": "$x^2$", "d": "$x^3$"}, "answer": "c", "solution": "$x^2$"}, {"num": 135, "subject": "Mathematics", "question": "Solution of $(2 y-x) \\frac{d y}{d x}=1$ is", "options": {"a": "$x=2(y-1)+c \\mathrm{e}^{-\\mathrm{y}}$, where c is the constant of integration", "b": "$x=2(y-1)+\\mathrm{ce}^{-x}$, where c is the constant of integration", "c": "$\\mathrm{y}=2(x-1)+\\mathrm{ce}^{-x}$, where c is the constant of integration", "d": "$\\mathrm{y}=2(x-1)+\\mathrm{ce}^{-\\mathrm{y}}$, where c is the constant of integration"}, "answer": "a", "solution": "$x=2(y-1)+ce^{-y}$"}, {"num": 136, "subject": "Mathematics", "question": "If $\\bar{a}=\\frac{1}{\\sqrt{10}}(3 \\hat{i}+\\hat{\\mathrm{k}})$ and $\\overline{\\mathrm{b}}=\\frac{1}{7}(2 \\hat{i}+3 \\hat{\\mathrm{j}}-6 \\hat{\\mathrm{k}})$ then the value of $(2 \\bar{a}-\\overline{\\mathrm{b}}) \\cdot((\\bar{a} \\times \\overline{\\mathrm{b}}) \\times(\\bar{a}+2 \\overline{\\mathrm{~b}}))=$", "options": {"a": "3", "b": "-3", "c": "5", "d": "-5"}, "answer": "c", "solution": "$5$"}, {"num": 137, "subject": "Mathematics", "question": "Let $\\bar{a}, \\overline{\\mathrm{~b}}, \\overline{\\mathrm{c}}$ be three vectors such that $\\bar{a}+\\overline{\\mathrm{b}}+\\overline{\\mathrm{c}}=\\overline{0},|\\bar{a}|=3,|\\overline{\\mathrm{~b}}|=4$, $|\\overline{\\mathrm{c}}|=5$, then $\\bar{a} \\cdot \\overline{\\mathrm{~b}}+\\overline{\\mathrm{b}} \\cdot \\bar{c}+\\overline{\\mathrm{c}} \\cdot \\bar{a}=$", "options": {"a": "$25$", "b": "$-25$", "c": "$50$", "d": "$-50$"}, "answer": "b", "solution": "$-25$"}, {"num": 138, "subject": "Mathematics", "question": "If $\\bar{a}=2 \\hat{i}+3 \\hat{j}+4 \\hat{k}, \\overline{\\mathrm{~b}}=\\hat{i}-2 \\hat{j}-2 \\hat{\\mathrm{k}}, \\overline{\\mathrm{c}}=-\\hat{i}+4 \\hat{j}+3 \\hat{\\mathrm{k}}$ and if $\\overline{\\mathrm{d}}$ is vector perpendicular to both $\\overline{\\mathrm{b}}$ and $\\overline{\\mathrm{c}}, \\overline{\\mathrm{a}} \\cdot \\overline{\\mathrm{d}}=18$, then $|\\overline{\\mathrm{a}} \\times \\overline{\\mathrm{d}}|^2=$", "options": {"a": "640", "b": "680", "c": "720", "d": "740"}, "answer": "a", "solution": "$640$"}, {"num": 139, "subject": "Mathematics", "question": "Let $\\bar{a}=\\hat{i}+\\hat{j}, \\overline{\\mathrm{~b}}=2 \\hat{i}-\\hat{\\mathrm{k}}, \\overline{\\mathrm{c}}=3 \\hat{i}-\\hat{\\mathrm{j}}+\\hat{\\mathrm{k}}$, then vector $\\overline{\\mathrm{p}}$ satisfying $\\overline{\\mathrm{p}} \\cdot \\bar{a}=0$ and $\\overline{\\mathrm{p}} \\times \\overline{\\mathrm{b}}=\\overline{\\mathrm{c}} \\times \\overline{\\mathrm{b}}$ is", "options": {"a": "$\\hat{i}-\\hat{j}+\\hat{k}$", "b": "$\\hat{i}-2 \\hat{j}+\\hat{k}$", "c": "$-\\hat{i}+\\hat{j}+\\hat{k}$", "d": "$\\hat{i}-\\hat{\\mathrm{j}}+2 \\hat{\\mathrm{k}}$"}, "answer": "d", "solution": "$\\\\hat{i}-\\\\hat{j}+2\\\\hat{k}$"}, {"num": 140, "subject": "Mathematics", "question": "The angle between the line $x=\\frac{\\mathrm{y}-1}{2}=\\frac{\\mathrm{z}-3}{\\lambda}$ and the plane $x+2 y+3 z=6$ is $\\cos ^{-1} \\sqrt{\\frac{5}{14}}$, then the value of $\\lambda$ is", "options": {"a": "$\\frac{2}{3}$", "b": "$\\frac{4}{3}$", "c": "$\\frac{1}{3}$", "d": "$\\frac{5}{3}$"}, "answer": "d", "solution": "$\\\\frac{5}{3}$"}, {"num": 141, "subject": "Mathematics", "question": "Let the plane passing through point $(2,1,-1)$ containing line joining the points $(1,3,2)$ and $(1,2,1)$ makes intercepts p,q,r on co-ordinate axes, then $\\mathrm{p}+\\mathrm{q}+\\mathrm{r}=$", "options": {"a": "$0$", "b": "$3$", "c": "$2$", "d": "$-2$"}, "answer": "a", "solution": "$0$"}, {"num": 142, "subject": "Mathematics", "question": "If the foot of the perpendicular drawn from the origin to a plane is $\\mathrm{P}(2,-1,4)$, then the equation of the plane is", "options": {"a": "$2 x+y+4 z-19=0$", "b": "$x+y+z-5=0$", "c": "$2 x-2 y-3 z+6=0$", "d": "$2 x-y+4 z-21=0$"}, "answer": "d", "solution": "$2x-y+4z-21=0$"}, {"num": 143, "subject": "Mathematics", "question": "The angle between the lines $x=\\mathrm{y}, \\mathrm{z}=0$ and $\\mathrm{y}=0, \\mathrm{z}=0$ is", "options": {"a": "$30^{\\circ}$", "b": "$45^{\\circ}$", "c": "$60^{\\circ}$", "d": "$90^{\\circ}$"}, "answer": "b", "solution": "$45^\\\\circ$"}, {"num": 144, "subject": "Mathematics", "question": "The line passing through the points $(a, 1,6)$ and $(3,4, b)$ crosses the yz -plane at $\\left(0, \\frac{17}{2}, \\frac{-13}{2}\\right)$, then the value of $(3 a+4 b)$ is", "options": {"a": "19", "b": "16", "c": "21", "d": "23"}, "answer": "c", "solution": "$21$"}, {"num": 145, "subject": "Mathematics", "question": "If $\\theta$ is the angle between the lines whose direction cosines are given by $6 m n-2 n l+5 l m=0$ and $3 l+m+5 n=0$, then $\\sin \\theta=$", "options": {"a": "$\\frac{\\sqrt{35}}{6}$", "b": "$\\frac{1}{6}$", "c": "$\\frac{\\sqrt{37}}{6}$", "d": "$\\frac{5}{6}$"}, "answer": "a", "solution": "$\\\\frac{\\\\sqrt{35}}{6}$"}, {"num": 146, "subject": "Mathematics", "question": "The difference between the maximum value and minimum value of objective function $\\mathrm{z}=3 x+5 y$ subject to constraints $x+3 y \\leqslant 60$, $x+\\mathrm{y} \\geqslant 10, x-\\mathrm{y}=0, x, \\mathrm{y} \\geqslant 0$ is", "options": {"a": "60", "b": "20", "c": "40", "d": "80"}, "answer": "a", "solution": "$60$"}, {"num": 147, "subject": "Mathematics", "question": "If $A$ and $B$ are independent events such that $P\\left(A \\cap B^{\\prime}\\right)=\\frac{3}{25}$ and $\\mathrm{P}\\left(\\mathrm{A}^{\\prime} \\cap \\mathrm{B}\\right)=\\frac{8}{25}$, then $\\mathrm{P}(\\mathrm{A})=$", "options": {"a": "$\\frac{3}{8}$", "b": "$\\frac{4}{5}$", "c": "$\\frac{1}{5}$", "d": "$\\frac{2}{5}$"}, "answer": "c", "solution": "$\\\\frac{1}{5}$"}, {"num": 148, "subject": "Mathematics", "question": "The probability distribution of a random variable X is given by\n<table> <thead> <tr> <th>$\\mathrm{X}=x_i$ </th> <th>0 </th> <th>1 </th> <th>2 </th> <th>3 </th> <th>4 </th> </tr> </thead> <tbody> <tr> <td>$\\mathrm{P}\\left(\\mathrm{X}=x_i\\right)$ </td> <td>$0.4$ </td> <td>$0.3$ </td> <td>$0.1$ </td> <td>$0.1$ </td> <td>$0.1$ </td> </tr> </tbody> </table>\nThen the variance of X is", "options": {"a": "$1.76$", "b": "$2.45$", "c": "$3.2$", "d": "$4.$"}, "answer": "a", "solution": "$1.76$"}, {"num": 149, "subject": "Mathematics", "question": "A random variable $X$ has following p.d.f.\n$\\mathrm{f}(\\mathrm{x})=\\mathrm{k} x(1-x), 0 \\leqslant x \\leqslant 1$\nand $\\mathrm{P}(x>a)=\\frac{20}{27}$, then $a=$", "options": {"a": "$\\frac{1}{3}$", "b": "$\\frac{2}{3}$", "c": "$\\frac{1}{2}$", "d": "$\\frac{1}{4}$"}, "answer": "a", "solution": "$\\\\frac{1}{3}$"}, {"num": 150, "subject": "Mathematics", "question": "If $x \\sim B\\left(6, \\frac{1}{2}\\right)$, then $p(|x-2| \\leqslant 1)=$", "options": {"a": "$\\frac{31}{32}$", "b": "$\\frac{41}{64}$", "c": "$\\frac{51}{64}$", "d": "$\\frac{63}{64}$"}, "answer": "b", "solution": "$\\\\frac{41}{64}$"}];
+
+/* ── CONSTANTS ─────────────────────────── */
+const S = {NV:0, NA:1, ANS:2, MRK:3};
+const RANGE = {Physics:[1,50], Chemistry:[51,100], Mathematics:[101,150]};
+const MARKS = {Physics:1, Chemistry:1, Mathematics:2};
+
+/* ── STATE ─────────────────────────────── */
+let qs = {}; // {num: {status, answer}}
+for(let i=1;i<=150;i++) qs[i]={status:S.NV,answer:null};
+let curSubj = 'Physics';
+let curQ = 1;
+let sec = 1;
+let t1 = 90*60, t2 = 90*60;
+let ticker = null;
+let starVal = 0;
+let palBuilt = {d:false, m:false};
+
+/* ── LOGIN ─────────────────────────────── */
+function doLogin(){
+  if(!document.getElementById('pwd').value.trim()){
+    alert('Please enter your password (Date of Birth).');return;
+  }
+  show('exam-screen');
+  gotoQ(1);
+  buildPalette('d');
+  buildPalette('m');
+  startTicker();
+}
+
+/* ── SCREEN ─────────────────────────────── */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ── TIMER ─────────────────────────────── */
+function startTicker(){
+  ticker = setInterval(()=>{
+    if(sec===1){
+      t1--;
+      setTimerUI(t1);
+      if(t1<=0){ clearInterval(ticker); autoToSec2(); }
+    } else {
+      t2--;
+      setTimerUI(t2);
+      if(t2<=0){ clearInterval(ticker); autoSubmit(); }
+    }
+  },1000);
+}
+
+function setTimerUI(s){
+  const m = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  document.getElementById('timer-val').textContent = m+':'+ss;
+  const w = document.getElementById('timer-wrap');
+  w.classList.toggle('warn', s<=300 && s>60);
+  w.classList.toggle('crit', s<=60);
+}
+
+function autoToSec2(){
+  sec=2;
+  document.getElementById('tab-phy').disabled=true;
+  document.getElementById('tab-chem').disabled=true;
+  document.getElementById('tab-math').disabled=false;
+  document.getElementById('hdr-sec').textContent='Section 2 · Mathematics';
+  setTimerUI(t2);
+  switchSubj('Mathematics');
+  ticker = setInterval(()=>{
+    t2--;
+    setTimerUI(t2);
+    if(t2<=0){ clearInterval(ticker); autoSubmit(); }
+  },1000);
+}
+
+function autoSubmit(){
+  show('survey-screen');
+}
+
+/* ── SUBJECT SWITCH ─────────────────────── */
+function switchSubj(subj){
+  if(sec===1 && subj==='Mathematics') return;
+  if(sec===2 && subj!=='Mathematics') return;
+  curSubj=subj;
+  ['phy','chem','math'].forEach(k=>document.getElementById('tab-'+k).classList.remove('active'));
+  document.getElementById('tab-'+{Physics:'phy',Chemistry:'chem',Mathematics:'math'}[subj]).classList.add('active');
+  gotoQ(RANGE[subj][0]);
+}
+
+/* ── QUESTION NAV ───────────────────────── */
+function gotoQ(n){
+  curQ=n;
+  if(qs[n].status===S.NV) qs[n].status=S.NA;
+  renderQ(n);
+  updatePalette();
+}
+
+function navNext(){
+  const [,e]=RANGE[curSubj]; if(curQ<e) gotoQ(curQ+1);
+}
+function navPrev(){
+  const [s]=RANGE[curSubj]; if(curQ>s) gotoQ(curQ-1);
+}
+function doSave(){
+  const sel=getOpt();
+  if(sel){ qs[curQ].answer=sel; qs[curQ].status=S.ANS; }
+  navNext(); updatePalette();
+}
+function doMark(){
+  const sel=getOpt();
+  if(sel) qs[curQ].answer=sel;
+  qs[curQ].status=S.MRK;
+  navNext(); updatePalette();
+}
+function doClear(){
+  qs[curQ].answer=null; qs[curQ].status=S.NA;
+  renderQ(curQ); updatePalette();
+}
+function getOpt(){
+  const r=document.querySelector('input[name="opt"]:checked');
+  return r?r.value:null;
+}
+
+/* ── RENDER QUESTION ────────────────────── */
+function renderQ(n){
+  const q=QUESTIONS[n-1], st=qs[n];
+  const [s,e]=RANGE[q.subject];
+  document.getElementById('q-num').textContent=`Q ${n-s+1} / ${e-s+1}`;
+  document.getElementById('q-marks').textContent=q.subject==='Mathematics'?'+2 Marks':'+1 Mark';
+  document.getElementById('q-text').innerHTML=q.question;
+  const opts=document.getElementById('opts');
+  opts.innerHTML='';
+  ['a','b','c','d'].forEach(v=>{
+    const lbl=document.createElement('label');
+    lbl.className='opt'+(st.answer===v?' sel':'');
+    lbl.innerHTML=`
+      <input type="radio" name="opt" value="${v}"${st.answer===v?' checked':''}>
+      <span class="opt-key">${v.toUpperCase()}</span>
+      <span class="opt-text">${q.options[v]}</span>
+    `;
+    lbl.querySelector('input').addEventListener('change',()=>{
+      document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+      lbl.classList.add('sel');
+    });
+    opts.appendChild(lbl);
+  });
+  const [rs,re]=RANGE[curSubj];
+  document.getElementById('btn-prev').disabled=n<=rs;
+  document.getElementById('btn-next').disabled=n>=re;
+  if(window.MathJax&&MathJax.typesetPromise){
+    MathJax.typesetPromise([document.getElementById('q-panel')]).catch(()=>{});
+  }
+}
+
+/* ── PALETTE (build once, update in-place) ── */
+function buildPalette(which){
+  const suffix = which==='d'?'-d':'-m';
+  const grid = document.getElementById('p-grid'+suffix);
+  grid.innerHTML='';
+  for(let i=1;i<=150;i++){
+    const btn=document.createElement('button');
+    btn.className='pq';
+    btn.id='pq-'+which+'-'+i;
+    const subj=QUESTIONS[i-1].subject;
+    const [s]=RANGE[subj];
+    btn.textContent=i-s+1;
+    btn.onclick=(()=>{
+      const _i=i, _subj=subj;
+      return ()=>{ jumpQ(_i,_subj); if(which==='m') closeOv(); };
+    })();
+    grid.appendChild(btn);
+  }
+  palBuilt[which]=true;
+}
+
+/* update only classes — no DOM rebuild → no flicker */
+function updatePalette(){
+  const [s,e]=RANGE[curSubj];
+  let ans=0,na=0,mrk=0,nv=0;
+  for(let i=s;i<=e;i++){
+    const st=qs[i].status;
+    if(st===S.ANS) ans++;
+    else if(st===S.NA) na++;
+    else if(st===S.MRK) mrk++;
+    else nv++;
+  }
+  const statsHtml=`
+    <div class="ps ps-g"><div class="n">${ans}</div><div class="l">Answered</div></div>
+    <div class="ps ps-r"><div class="n">${na}</div><div class="l">Not Ans.</div></div>
+    <div class="ps ps-p"><div class="n">${mrk}</div><div class="l">Marked</div></div>
+    <div class="ps ps-y"><div class="n">${nv}</div><div class="l">Not Visited</div></div>
+  `;
+  document.getElementById('p-stats-d').innerHTML=statsHtml;
+  document.getElementById('p-stats-m').innerHTML=statsHtml;
+
+  /* Update each button class individually */
+  ['d','m'].forEach(w=>{
+    for(let i=1;i<=150;i++){
+      const btn=document.getElementById('pq-'+w+'-'+i);
+      if(!btn) continue;
+      const [qs_s,qs_e]=RANGE[curSubj];
+      const vis=(i>=qs_s && i<=qs_e);
+      btn.style.display=vis?'':'none';
+      if(!vis) continue;
+      const st=qs[i].status;
+      btn.className='pq'
+        +(st===S.ANS?' ans':st===S.NA?' nans':st===S.MRK?' mrk':'')
+        +(i===curQ?' cur':'');
+    }
+  });
+}
+
+function jumpQ(n,subj){
+  if(sec===1 && subj==='Mathematics') return;
+  if(sec===2 && subj!=='Mathematics') return;
+  curSubj=subj;
+  ['phy','chem','math'].forEach(k=>document.getElementById('tab-'+k).classList.remove('active'));
+  document.getElementById('tab-'+{Physics:'phy',Chemistry:'chem',Mathematics:'math'}[subj]).classList.add('active');
+  gotoQ(n);
+}
+
+/* ── OVERLAY ─────────────────────────────── */
+function openOv(){ updatePalette(); document.getElementById('p-overlay').classList.add('open'); }
+function closeOv(){ document.getElementById('p-overlay').classList.remove('open'); }
+function maybeCloseOv(e){ if(e.target===document.getElementById('p-overlay')) closeOv(); }
+
+/* ── FINAL MODAL ─────────────────────────── */
+function showFinalModal(){
+  let ans=0,na=0,mrk=0,nv=0;
+  for(let i=1;i<=150;i++){
+    const st=qs[i].status;
+    if(st===S.ANS) ans++;
+    else if(st===S.NA) na++;
+    else if(st===S.MRK) mrk++;
+    else nv++;
+  }
+  document.getElementById('mfinal-grid').innerHTML=`
+    <div class="mg-item mg-g"><div class="mg-n">${ans}</div><div class="mg-l">Answered</div></div>
+    <div class="mg-item mg-r"><div class="mg-n">${na+nv}</div><div class="mg-l">Not Attempted</div></div>
+    <div class="mg-item mg-p"><div class="mg-n">${mrk}</div><div class="mg-l">Marked</div></div>
+    <div class="mg-item mg-y"><div class="mg-n">150</div><div class="mg-l">Total</div></div>
+  `;
+  document.getElementById('modal-final').classList.add('open');
+}
+function doFinalSubmit(){
+  clearInterval(ticker);
+  document.getElementById('modal-final').classList.remove('open');
+  show('survey-screen');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+/* ── SURVEY ─────────────────────────────── */
+function setStar(n){
+  starVal=n;
+  document.querySelectorAll('.star').forEach((b,i)=>b.classList.toggle('lit',i<n));
+}
+function goResults(){ show('result-screen'); renderResults(); }
+
+/* ── RESULTS ─────────────────────────────── */
+function renderResults(){
+  let py=0,ch=0,ma=0,pyA=0,chA=0,maA=0,totC=0,totA=0;
+  QUESTIONS.forEach(q=>{
+    const st=qs[q.num];
+    const att=st.status===S.ANS||st.status===S.MRK;
+    const ok=att&&st.answer===q.answer;
+    if(q.subject==='Physics'){if(att)pyA++;if(ok){py++;totC++;}}
+    else if(q.subject==='Chemistry'){if(att)chA++;if(ok){ch++;totC++;}}
+    else{if(att)maA++;if(ok){ma+=2;totC++;}}
+    if(att)totA++;
+  });
+  const total=py+ch+ma;
+  const acc=totA?Math.round(totC/totA*100):0;
+
+  let html=`
+    <div class="res-hero">
+      <div><h2>Examination Results</h2><p>MHT-CET 2025 · 23 April · Shift 2</p></div>
+      <div style="text-align:right"><div class="res-score-big">${total}<span>/200</span></div><div style="font-size:12px;opacity:.7;margin-top:4px">${acc}% accuracy</div></div>
+    </div>
+    <div class="score-row">
+      <div class="sc sc-t"><div class="sv">${total}<span style="font-size:13px;font-weight:400">/200</span></div><div class="sl">Total Score</div></div>
+      <div class="sc sc-p"><div class="sv">${py}<span style="font-size:13px;font-weight:400">/50</span></div><div class="sl">Physics</div></div>
+      <div class="sc sc-c"><div class="sv">${ch}<span style="font-size:13px;font-weight:400">/50</span></div><div class="sl">Chemistry</div></div>
+      <div class="sc sc-m"><div class="sv">${ma}<span style="font-size:13px;font-weight:400">/100</span></div><div class="sl">Mathematics</div></div>
+      <div class="sc"><div class="sv">${acc}%</div><div class="sl">Accuracy</div></div>
+      <div class="sc"><div class="sv">${totA}</div><div class="sl">Attempted</div></div>
+      <div class="sc"><div class="sv">${totC}</div><div class="sl">Correct</div></div>
+      <div class="sc"><div class="sv">${totA-totC}</div><div class="sl">Wrong</div></div>
+    </div>
+    <div class="save-banner">
+      <div class="sb-icon">⚠️</div>
+      <div class="sb-text">
+        <strong>Save This Analysis Before Closing!</strong>
+        <p>This analysis only exists in your current browser session. Once you close or reload this page, all results will be permanently lost. Print or save as PDF to keep a copy.</p>
+        <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+      </div>
+    </div>
+  `;
+
+  ['Physics','Chemistry','Mathematics'].forEach(subj=>{
+    const icon={Physics:'⚛',Chemistry:'🧪',Mathematics:'∫'}[subj];
+    const qs_arr=QUESTIONS.filter(q=>q.subject===subj);
+    const [s]=RANGE[subj];
+    html+=`<div class="analysis-block"><h3>${icon} ${subj} — Detailed Analysis</h3>`;
+    qs_arr.forEach(q=>{
+      const st=qs[q.num];
+      const att=st.status===S.ANS||st.status===S.MRK;
+      const ok=att&&st.answer===q.answer;
+      const cls=!att?'sk':ok?'ok':'ng';
+      const tag=!att?'Not Attempted':ok?'✓ Correct':'✗ Wrong';
+      const tagcls=!att?'sk':ok?'ok':'ng';
+      const idx=q.num-s+1;
+      let uchip='';
+      if(!att) uchip=`<span class="qa-chip u-sk">Not Attempted</span>`;
+      else if(ok) uchip=`<span class="qa-chip u-ok">Your Answer: (${st.answer.toUpperCase()})</span>`;
+      else uchip=`<span class="qa-chip u-ng">Your Answer: (${st.answer?st.answer.toUpperCase():'—'})</span>`;
+      html+=`
+        <div class="qa ${cls}">
+          <div class="qa-top">
+            <span class="qa-qnum">Q${idx} &nbsp;·&nbsp; Q.No.${q.num}</span>
+            <span class="qa-tag ${tagcls}">${tag}</span>
+          </div>
+          <div class="qa-body">${q.question}</div>
+          <div class="qa-ans-row">
+            ${uchip}
+            <span class="qa-chip c">Correct: (${q.answer.toUpperCase()}) — ${q.solution}</span>
+          </div>
+        </div>
+      `;
+    });
+    html+='</div>';
+  });
+
+  const wrap=document.getElementById('res-wrap');
+  wrap.innerHTML=html;
+  if(window.MathJax&&MathJax.typesetPromise){
+    MathJax.typesetPromise([wrap]).catch(()=>{});
+  }
+}
+</script>
+</body>
+</html>
