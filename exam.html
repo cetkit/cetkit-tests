@@ -249,9 +249,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
 .q-scroll{flex:1;overflow-y:auto;overflow-x:auto;padding:16px}
 .q-zwrap{transform-origin:top left;transition:transform .22s ease;min-width:100%;display:inline-block}
 .q-text{font-size:19px;line-height:1.8;color:var(--tx);margin-bottom:16px}
-.q-img{width:auto;max-width:68%;max-height:300px;object-fit:contain;display:block;margin:10px auto;border:1px solid var(--bdr);border-radius:6px}
-.content-img{max-width:60%;max-height:220px;object-fit:contain;display:block;border:1px solid var(--bdr);border-radius:6px;margin:6px 0}
-.opt-img-only{max-width:100%;max-height:130px;object-fit:contain;display:block;border:1px solid var(--bdr);border-radius:6px;margin:3px 0}
+.q-img{width:auto;max-width:80%;max-height:400px;object-fit:contain;display:block;margin:10px auto;border:1px solid var(--bdr);border-radius:6px}
+.content-img{max-width:70%;max-height:280px;object-fit:contain;display:block;border:1px solid var(--bdr);border-radius:6px;margin:6px 0}
+.opt-img-only{max-width:100%;max-height:160px;object-fit:contain;display:block;border:1px solid var(--bdr);border-radius:6px;margin:3px 0}
 /* Threshold effect: crush grays to white via extreme contrast, then multiply-blend
    so the white areas visually disappear into whatever background sits behind them. */
 .q-img,.content-img,.opt-img-only,.an-img{filter:grayscale(100%) contrast(var(--img-bw-contrast));mix-blend-mode:multiply}
@@ -427,7 +427,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
 .st-skip{background:#f5f5f5;color:#666}
 .an-body{padding:13px}
 .an-qt{font-size:17px;line-height:1.75;margin-bottom:10px}
-.an-img{max-width:55%;max-height:150px;object-fit:contain;display:block;margin:8px 0;border:1px solid var(--bdr);border-radius:6px}
+.an-img{max-width:65%;max-height:190px;object-fit:contain;display:block;margin:8px 0;border:1px solid var(--bdr);border-radius:6px}
 .an-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px}
 .an-opt{padding:8px 10px;border-radius:6px;font-size:15px;line-height:1.6;border:1.5px solid var(--bdr);background:#f8fafc}
 .an-opt.cor{background:#e8f5e9;border-color:#4caf50}
@@ -476,10 +476,10 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
   .is-rhdr{padding:8px 14px;font-size:14px}
   .is-bottom{padding:7px 14px;gap:8px}
   .is-chk-label{font-size:11px}
-  .q-img{max-width:46%;max-height:160px}
-  .content-img{max-width:45%;max-height:120px}
+  .q-img{max-width:58%;max-height:210px}
+  .content-img{max-width:55%;max-height:160px}
   .opt-img-only{max-height:80px}
-  .an-img{max-width:35%;max-height:100px}
+  .an-img{max-width:45%;max-height:130px}
 }
 
 /* PRINT */
@@ -922,108 +922,15 @@ const FREE_SOLUTION_LIMIT = 6; // free users see full solutions for Q1–Q6 only
 let questions=[],userAnswers={},markedReview={},visited={};
 let currentQId=1,examRunning=false,sec1Locked=false,sec1LockDone=false;
 
-// Cache rendered (canvas → data URL) images in memory so we don't re-fetch/re-draw when revisiting questions
-const imageBlobCache = new Map();
-
-// Public Supabase Storage URLs look like:
-//   https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path/to/file.png>
-// This pulls out {bucket, path} so we can request a short-lived signed URL instead of
-// hitting the public (permanent) link directly.
-function parseSupabasePublicUrl(url) {
-  const m = url.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
-  if (!m) return null;
-  return { bucket: m[1], path: decodeURIComponent(m[2]) };
-}
-
-const SIGNED_URL_TTL_SECONDS = 120; // short-lived; re-signed on cache miss
-
-async function resolveImageFetchUrl(originalUrl) {
-  const parsed = parseSupabasePublicUrl(originalUrl);
-  if (!parsed) return originalUrl; // not a Supabase Storage public URL — use as-is
-  try {
-    const { data, error } = await _supa.storage
-      .from(parsed.bucket)
-      .createSignedUrl(parsed.path, SIGNED_URL_TTL_SECONDS);
-    if (error || !data?.signedUrl) throw error || new Error('No signed URL returned');
-    return data.signedUrl;
-  } catch (err) {
-    console.error('Failed to create signed URL, falling back to public URL:', err);
-    return originalUrl;
-  }
-}
-
-// Draws the image onto an offscreen canvas with a light repeating watermark, then hands
-// back a data URL. This stops right-click "Save image as" / drag-out on the <img> (there's
-// no real image resource to save) and ties any screenshot back to the exam context.
-function renderWatermarkedDataUrl(image) {
-  const canvas = document.createElement('canvas');
-  canvas.width = image.naturalWidth || image.width;
-  canvas.height = image.naturalHeight || image.height;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-  // Repeating diagonal watermark
-  ctx.save();
-  ctx.globalAlpha = 0.12;
-  ctx.fillStyle = '#000';
-  ctx.font = `${Math.max(14, Math.round(canvas.width / 22))}px sans-serif`;
-  ctx.textBaseline = 'middle';
-  const label = 'CETkit' + (studentEmail ? ' • ' + studentEmail : '');
-  const stepX = ctx.measureText(label).width + 60;
-  const stepY = 80;
-  ctx.rotate(-Math.PI / 8);
-  const diag = Math.sqrt(canvas.width ** 2 + canvas.height ** 2);
-  for (let y = -diag; y < diag; y += stepY) {
-    for (let x = -diag; x < diag; x += stepX) {
-      ctx.fillText(label, x, y);
-    }
-  }
-  ctx.restore();
-
-  return canvas.toDataURL('image/png');
-}
-
-async function setSafeImageSrc(imgElement, originalUrl) {
+// Just point the <img> straight at the CDN URL — no fetch/blob/canvas/watermark step.
+function setSafeImageSrc(imgElement, originalUrl) {
   if (!originalUrl || !originalUrl.trim()) {
     imgElement.style.display = 'none';
     imgElement.src = '';
     return;
   }
-
-  const url = originalUrl.trim();
-
-  // If already cached, reuse the rendered data URL
-  if (imageBlobCache.has(url)) {
-    imgElement.src = imageBlobCache.get(url);
-    imgElement.style.display = 'block';
-    return;
-  }
-
-  try {
-    const fetchUrl = await resolveImageFetchUrl(url);
-    const response = await fetch(fetchUrl);
-    const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
-
-    const image = await new Promise((resolve, reject) => {
-      const im = new Image();
-      im.onload = () => resolve(im);
-      im.onerror = reject;
-      im.src = objectUrl;
-    });
-
-    const dataUrl = renderWatermarkedDataUrl(image);
-    URL.revokeObjectURL(objectUrl);
-
-    imageBlobCache.set(url, dataUrl);
-    imgElement.src = dataUrl;
-    imgElement.style.display = 'block';
-  } catch (err) {
-    console.error("Failed to load/render image:", err);
-    // Fallback to original URL if fetch/render fails, so the question isn't blocked
-    imgElement.src = url;
-    imgElement.style.display = 'block';
-  }
+  imgElement.src = originalUrl.trim();
+  imgElement.style.display = 'block';
 }
 let totalSeconds=180*60,timerInterval=null,surveyRating=0;
 let attemptSyncInterval=null;
