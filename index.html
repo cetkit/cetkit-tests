@@ -1935,8 +1935,8 @@
     .qmt-btn:hover { filter: brightness(1.08); }
     /* ═══════════════════════════════════════════
        CUSTOM TEST PROMO BANNER — attention-grabbing, animated gradient sheen,
-       pulsing "New" badge. Placement (above/below leaderboard) is controlled
-       by ctPlacePromo() in the script section based on CT_PROMO_CUTOFF.
+       pulsing "New" badge. Always placed directly below the leaderboard by
+       ctPlacePromo() in the script section.
     ═══════════════════════════════════════════ */
     #ct-promo-anchor { width: 100%; display: flex; flex-direction: column; gap: 1.4rem; }
 
@@ -2250,9 +2250,8 @@
 
       <div class="divider"></div>
 
-      <!-- ═══ CUSTOM TEST PROMO — positioned above/below the leaderboard by ctPlacePromo(),
-           which runs once on load and moves #ct-promo-anchor to the right spot in the DOM
-           depending on today's date vs CT_PROMO_CUTOFF (see script near end of file). ═══ -->
+      <!-- ═══ CUSTOM TEST PROMO — always placed directly below the leaderboard by
+           ctPlacePromo(), which runs once on load (see script near end of file). ═══ -->
       <div id="ct-promo-anchor">
         <!-- Custom Test Banner -->
         <button type="button" class="ct-banner" id="ct-banner-btn" onclick="openCustomTestBuilder()">
@@ -4834,22 +4833,15 @@
     let _ctChaptersLoaded = false;
     let _ctBuilding = false;
 
-    /* ── Promo placement: shown ABOVE the leaderboard (prime real estate) until the cutoff
-       date, then automatically relocated BELOW it for good, no code change needed later.
+    /* ── Promo placement: leaderboard always comes first, custom-test banner always after it.
        #ct-promo-anchor carries its own trailing divider, so moving the one node is enough
-       to keep spacing correct in either position. ── */
-    const CT_PROMO_CUTOFF = new Date('2027-08-18T00:00:00+05:30'); // 1 year from ship date
+       to keep spacing correct. ── */
     function ctPlacePromo() {
       const anchor = document.getElementById('ct-promo-anchor');
       const lb = document.getElementById('cetxp-leaderboard');
       if (!anchor || !lb || !lb.parentNode) return;
-      const showAbove = new Date() < CT_PROMO_CUTOFF;
-      anchor.classList.toggle('ct-promo-hero', showAbove);
-      if (showAbove) {
-        lb.parentNode.insertBefore(anchor, lb); // promo, then leaderboard
-      } else {
-        lb.parentNode.insertBefore(anchor, lb.nextSibling); // leaderboard, then promo
-      }
+      anchor.classList.remove('ct-promo-hero');
+      lb.parentNode.insertBefore(anchor, lb.nextSibling); // leaderboard, then promo
     }
     ctPlacePromo(); // run immediately — placement doesn't depend on auth state
 
@@ -5051,7 +5043,7 @@
     async function ctFetchSubjectQuestions(subjectDef, chapters, years, count, idOffset) {
       const { data, error } = await _supa
         .from(subjectDef.table)
-        .select('question,opta,optb,optc,optd,ans,solution,opta_img,optb_img,optc_img,optd_img,shift,"chapter name"')
+        .select('question,opta,optb,optc,optd,ans,solution,"CDN",opta_img,optb_img,optc_img,optd_img,shift,"chapter name"')
         .in('chapter name', chapters);
       if (error) throw error;
       const allRows = data || [];
@@ -5091,6 +5083,7 @@
         question_id: idOffset + i + 1,
         question: row.question, opta: row.opta, optb: row.optb, optc: row.optc, optd: row.optd,
         ans: row.ans, solution: row.solution,
+        CDN: row.CDN || '',
         opta_img: row.opta_img, optb_img: row.optb_img, optc_img: row.optc_img, optd_img: row.optd_img,
         shift: row.shift || ''
       }));
@@ -5162,7 +5155,7 @@
           .select('id, label, created_at')
           .eq('email', _authUser.email)
           .order('created_at', { ascending: false })
-          .limit(5);
+          .limit(2);
         if (testErr) throw testErr;
         if (!tests || !tests.length) { section.style.display = 'none'; return; }
 
