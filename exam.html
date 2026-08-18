@@ -879,7 +879,14 @@ document.addEventListener('contextmenu', (e) => e.preventDefault());
 
 /* ═══ 0. URL & SUPABASE ═══ */
 const urlParams=new URLSearchParams(window.location.search);
-let targetTable=urlParams.get('shift');
+/* Custom tests (built via index.html's "Make your own custom test") pass ?custom=<customTests.id>
+   instead of ?shift=<tableName>. We resolve that to a synthetic shift key "custom_<id>" so every
+   existing attemptData / RPC / analysis code path below works completely unchanged — the only
+   difference is fetchQuestions() pulls from the customTests.questions jsonb column instead of
+   querying a table named after targetTable. */
+const customTestId=urlParams.get('custom')||'';
+let targetTable=customTestId?('custom_'+customTestId):urlParams.get('shift');
+let customTestLabel=''; // populated after fetchQuestions() for custom tests, used in place of shiftLabel()
 if(!targetTable){
   console.warn('❌ No exam shift specified. Using fallback for preview.');
   targetTable = 'demo_shift'; // Prevent null error and sandbox redirection crash
@@ -992,7 +999,7 @@ document.addEventListener('contextmenu',e=>{if(_isProtectedImg(e.target))e.preve
 function getSubject(q){if(q<=50)return'Physics';if(q<=100)return'Chemistry';return'Mathematics';}
 function formatTime(s){return`${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
 function getQStatus(q){const a=userAnswers[q]!=null,m=markedReview[q],v=visited[q];if(!v)return'not-visited';if(m&&a)return'marked-answered';if(m)return'marked';if(a)return'answered';return'not-answered';}
-function shiftLabel(t){return(t||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+function shiftLabel(t){if(customTestId&&customTestLabel)return customTestLabel;return(t||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
 function runMathJax(el){if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise(el?[el]:undefined).catch(()=>{});}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>{s.style.display='none';s.classList.remove('active');});const el=document.getElementById(id);el.style.display='flex';el.classList.add('active');}
 
@@ -1196,6 +1203,16 @@ function startLoading(){
     .catch(err=>{clearTimeout(wt);clearInterval(mi2);alert('❌ Failed to fetch: '+(err.message||err));});
 }
 async function fetchQuestions(){
+  if(customTestId){
+    const{data,error}=await _supa.from('customTests').select('*').eq('id',customTestId).maybeSingle();
+    if(error)throw error;
+    if(!data)throw new Error('Custom test not found: '+customTestId);
+    const qs=data.questions;
+    if(!qs||!qs.length)throw new Error('No questions found in custom test: '+customTestId);
+    questions=qs.slice().sort((a,b)=>a.question_id-b.question_id);
+    customTestLabel=data.label||'Custom Test';
+    return;
+  }
   const{data,error}=await _supa.from(targetTable).select('*').order('question_id',{ascending:true});
   if(error)throw error;
   if(!data||!data.length)throw new Error('No questions found in: '+targetTable);

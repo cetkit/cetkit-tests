@@ -1933,6 +1933,239 @@
       text-decoration: none; white-space: nowrap; transition: filter .15s;
     }
     .qmt-btn:hover { filter: brightness(1.08); }
+    /* ═══════════════════════════════════════════
+       CUSTOM TEST PROMO BANNER — attention-grabbing, animated gradient sheen,
+       pulsing "New" badge. Placement (above/below leaderboard) is controlled
+       by ctPlacePromo() in the script section based on CT_PROMO_CUTOFF.
+    ═══════════════════════════════════════════ */
+    #ct-promo-anchor { width: 100%; display: flex; flex-direction: column; gap: 1.4rem; }
+
+    @keyframes ctSheen {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    @keyframes ctPulseBadge {
+      0%, 100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,255,255,.5); }
+      50%      { transform: scale(1.07); box-shadow: 0 0 0 6px rgba(255,255,255,0); }
+    }
+    @keyframes ctFloat {
+      0%, 100% { transform: translateY(0) rotate(-6deg); }
+      50%      { transform: translateY(-4px) rotate(4deg); }
+    }
+    @keyframes ctGlowSweep {
+      0%   { transform: translateX(-30%) rotate(8deg); }
+      100% { transform: translateX(130%) rotate(8deg); }
+    }
+
+    .ct-banner {
+      width: 100%; display: flex; align-items: center; gap: 1rem;
+      background: linear-gradient(100deg, #0b1a3f 0%, #1c4ed8 28%, #7c3aed 55%, #1c4ed8 78%, #0b1a3f 100%);
+      background-size: 260% 100%;
+      animation: ctSheen 9s linear infinite;
+      border-radius: 18px; padding: 1.2rem 1.35rem;
+      box-shadow: 0 10px 32px rgba(28,78,216,.28), 0 2px 8px rgba(0,0,0,.08);
+      cursor: pointer; border: none; text-align: left;
+      color: #fff; transition: transform .25s cubic-bezier(.34,1.45,.64,1), box-shadow var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .ct-banner::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 88% 15%, rgba(255,255,255,.22), transparent 55%);
+      pointer-events: none;
+    }
+    /* Diagonal light sweep that glides across the banner on a loop — the "hooky" bit */
+    .ct-banner-glow {
+      position: absolute; top: -60%; left: 0; width: 22%; height: 220%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      animation: ctGlowSweep 3.4s ease-in-out infinite;
+      animation-delay: 1s; pointer-events: none;
+    }
+    .ct-banner:hover { transform: translateY(-3px) scale(1.008); box-shadow: 0 16px 44px rgba(28,78,216,.36), 0 4px 12px rgba(0,0,0,.1); }
+    .ct-banner:active { transform: translateY(-1px) scale(1); }
+
+    .ct-banner-badge {
+      position: absolute; top: 10px; right: 14px; z-index: 2;
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      color: #1a1917; font-size: .62rem; font-weight: 700; letter-spacing: .03em;
+      padding: .22rem .5rem; border-radius: 999px;
+      animation: ctPulseBadge 2.2s ease-in-out infinite;
+    }
+    .ct-banner-icon {
+      flex-shrink: 0; width: 48px; height: 48px; border-radius: 14px;
+      background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center;
+      font-size: 1.55rem; position: relative; z-index: 1;
+      animation: ctFloat 3s ease-in-out infinite;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+    }
+    .ct-banner-text { flex: 1; min-width: 0; position: relative; z-index: 1; }
+    .ct-banner-title {
+      font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.12rem;
+      margin-bottom: .2rem; letter-spacing: -.01em;
+    }
+    .ct-banner-sub { font-size: .81rem; opacity: .88; line-height: 1.4; max-width: 34ch; }
+    .ct-banner-right {
+      flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: .45rem;
+      position: relative; z-index: 1;
+    }
+    .ct-banner-cta {
+      display: flex; align-items: center; gap: .3rem; white-space: nowrap;
+      background: #fff; color: var(--accent-dk); font-weight: 600; font-size: .78rem;
+      padding: .42rem .8rem; border-radius: 10px;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .ct-banner:hover .ct-banner-cta { transform: translateX(2px); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+    .ct-coin { display: inline-flex; width: 15px; height: 15px; }
+
+    /* Above-leaderboard placement gets a touch more presence */
+    #ct-promo-anchor.ct-promo-hero .ct-banner { padding: 1.4rem 1.5rem; }
+    #ct-promo-anchor.ct-promo-hero .ct-banner-title { font-size: 1.24rem; }
+    #ct-promo-anchor.ct-promo-hero .ct-banner-icon { width: 54px; height: 54px; font-size: 1.75rem; }
+
+    @media (max-width: 560px) {
+      .ct-banner { flex-wrap: wrap; padding: 1.1rem 1.1rem 1rem; }
+      .ct-banner-right { flex-direction: row; width: 100%; justify-content: space-between; margin-top: .3rem; }
+      .ct-banner-badge { top: 8px; right: 10px; }
+    }
+
+    /* ═══════════════════════════════════════════
+       CUSTOM TEST BUILDER OVERLAY
+    ═══════════════════════════════════════════ */
+    #ct-overlay {
+      position: fixed; inset: 0; z-index: 750;
+      background: rgba(8,10,24,.72); backdrop-filter: blur(8px);
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 1.2rem; overflow-y: auto;
+      opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s;
+    }
+    #ct-overlay.active { opacity: 1; visibility: visible; }
+    .ct-card {
+      background: #fff; border-radius: 20px; width: 100%; max-width: 640px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.22); margin: auto 0;
+      transform: scale(.94) translateY(16px); transition: transform .35s cubic-bezier(.34,1.45,.64,1);
+      overflow: hidden;
+    }
+    #ct-overlay.active .ct-card { transform: scale(1) translateY(0); }
+    .ct-card-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1.2rem 1.4rem; border-bottom: 1px solid var(--border);
+    }
+    .ct-card-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.25rem; }
+    .ct-card-credits {
+      display: flex; align-items: center; gap: .35rem; background: var(--accent-lt);
+      color: var(--accent-dk); border-radius: 999px; padding: .35rem .75rem;
+      font-family: 'IBM Plex Mono', monospace; font-size: .8rem; font-weight: 600;
+    }
+    .ct-close-btn {
+      background: none; border: none; cursor: pointer; color: var(--muted); padding: .3rem;
+      border-radius: 8px; display: flex; transition: background var(--transition), color var(--transition);
+    }
+    .ct-close-btn:hover { background: #f0ede8; color: var(--text); }
+    .ct-card-body { padding: 1.3rem 1.4rem; max-height: 68vh; overflow-y: auto; }
+    .ct-step { display: none; }
+    .ct-step.active { display: block; }
+
+    .ct-subject-block { margin-bottom: 1.3rem; }
+    .ct-subject-block:last-child { margin-bottom: 0; }
+    .ct-subject-hdr {
+      display: flex; align-items: center; gap: .5rem; margin-bottom: .6rem;
+      font-weight: 600; font-size: .92rem;
+    }
+    .ct-subject-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .ct-subject-count { margin-left: auto; font-size: .75rem; color: var(--muted); font-weight: 400; }
+    .ct-chapter-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: .5rem;
+      max-height: 190px; overflow-y: auto; padding: .2rem;
+      border: 1px solid var(--border); border-radius: 10px; padding: .6rem;
+      background: #fbfaf8;
+    }
+    .ct-chip {
+      display: flex; align-items: center; gap: .4rem; padding: .45rem .6rem;
+      background: #fff; border: 1px solid var(--border); border-radius: 8px;
+      font-size: .78rem; cursor: pointer; user-select: none; line-height: 1.25;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .ct-chip:hover { border-color: #bfcbf5; }
+    .ct-chip.checked { background: var(--accent-lt); border-color: var(--accent); color: var(--accent-dk); font-weight: 500; }
+    .ct-chip input { accent-color: var(--accent); flex-shrink: 0; margin: 0; }
+    .ct-chapter-loading, .ct-chapter-empty { font-size: .8rem; color: var(--muted); padding: .5rem; }
+
+    .ct-years-row { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .9rem; }
+    .ct-year-chip {
+      padding: .4rem .7rem; background: #fff; border: 1px solid var(--border); border-radius: 999px;
+      font-size: .78rem; font-family: 'IBM Plex Mono', monospace; cursor: pointer; user-select: none;
+      transition: border-color var(--transition), background var(--transition), color var(--transition);
+    }
+    .ct-year-chip.checked { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
+    .ct-years-label { font-size: .8rem; color: var(--subtext); margin-top: 1.1rem; margin-bottom: -.3rem; font-weight: 500; }
+
+    .ct-card-footer {
+      display: flex; align-items: center; justify-content: space-between; gap: .8rem;
+      padding: 1rem 1.4rem; border-top: 1px solid var(--border); background: #fbfaf8;
+    }
+    .ct-footer-note { font-size: .75rem; color: var(--muted); }
+    .ct-btn-primary {
+      background: var(--accent); color: #fff; border: none; border-radius: 10px;
+      padding: .65rem 1.3rem; font-size: .85rem; font-weight: 600; cursor: pointer;
+      transition: background var(--transition); display: flex; align-items: center; gap: .4rem;
+    }
+    .ct-btn-primary:hover { background: var(--accent-dk); }
+    .ct-btn-primary:disabled { background: var(--muted); cursor: not-allowed; }
+    .ct-btn-secondary {
+      background: none; color: var(--subtext); border: 1px solid var(--border); border-radius: 10px;
+      padding: .65rem 1.1rem; font-size: .85rem; font-weight: 500; cursor: pointer;
+      transition: background var(--transition);
+    }
+    .ct-btn-secondary:hover { background: #f0ede8; }
+
+    /* Summary step */
+    .ct-summary-subject { margin-bottom: 1rem; }
+    .ct-summary-subject-hdr { display: flex; align-items: center; gap: .5rem; font-weight: 600; font-size: .88rem; margin-bottom: .4rem; }
+    .ct-summary-chapters { font-size: .78rem; color: var(--subtext); line-height: 1.6; padding-left: 1.4rem; }
+    .ct-summary-box {
+      background: var(--accent-lt); border-radius: 12px; padding: .9rem 1.1rem; margin-bottom: 1.1rem;
+      display: flex; align-items: center; gap: .7rem;
+    }
+    .ct-summary-box-icon { font-size: 1.4rem; }
+    .ct-summary-box-text { font-size: .82rem; color: var(--accent-dk); line-height: 1.4; }
+    .ct-summary-cost {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      background: #fbfaf8; border: 1px dashed var(--border); border-radius: 10px;
+      padding: .8rem 1rem; margin-top: 1rem; font-size: .85rem;
+    }
+
+    /* Progress dots */
+    .ct-steps-dots { display: flex; gap: .4rem; align-items: center; }
+    .ct-step-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background var(--transition), width var(--transition); }
+    .ct-step-dot.active { background: var(--accent); width: 18px; border-radius: 3px; }
+
+    /* ═══════════════════════════════════════════
+       RECENT CUSTOM-TEST ATTEMPTS (welcome screen)
+    ═══════════════════════════════════════════ */
+    .ct-recent-section { width: 100%; }
+    .ct-recent-title { font-size: .95rem; font-weight: 600; margin-bottom: .7rem; display: flex; align-items: center; gap: .4rem; }
+    .ct-recent-list { display: flex; flex-direction: column; gap: .55rem; }
+    .ct-recent-card {
+      display: flex; align-items: center; gap: .8rem; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px; padding: .8rem 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .ct-recent-icon {
+      flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--accent-lt);
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .ct-recent-info { flex: 1; min-width: 0; }
+    .ct-recent-label { font-size: .85rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ct-recent-meta { font-size: .74rem; color: var(--muted); margin-top: .1rem; }
+    .ct-recent-actions { flex-shrink: 0; display: flex; gap: .4rem; }
+    .ct-recent-actions button {
+      font-size: .74rem; font-weight: 500; padding: .4rem .65rem; border-radius: 7px; cursor: pointer;
+      border: 1px solid var(--border); background: #fff; color: var(--subtext);
+      transition: background var(--transition);
+    }
+    .ct-recent-actions button:hover { background: #f0ede8; }
+    .ct-recent-actions .ct-view-btn { border-color: var(--accent); color: var(--accent); }
+    .ct-recent-actions .ct-view-btn:hover { background: var(--accent-lt); }
   </style>
 </head>
 <body>
@@ -2002,6 +2235,35 @@
       </header>
 
       <div class="divider"></div>
+
+      <!-- ═══ CUSTOM TEST PROMO — positioned above/below the leaderboard by ctPlacePromo(),
+           which runs once on load and moves #ct-promo-anchor to the right spot in the DOM
+           depending on today's date vs CT_PROMO_CUTOFF (see script near end of file). ═══ -->
+      <div id="ct-promo-anchor">
+        <!-- Custom Test Banner -->
+        <button type="button" class="ct-banner" id="ct-banner-btn" onclick="openCustomTestBuilder()">
+          <span class="ct-banner-glow"></span>
+          <span class="ct-banner-badge">✨ New</span>
+          <span class="ct-banner-icon">🎯</span>
+          <span class="ct-banner-text">
+            <div class="ct-banner-title">Syllabus not completed yet?</div>
+            <div class="ct-banner-sub">Build your own test from just the chapters you've finished — any subject, any year, 150 questions.</div>
+          </span>
+          <span class="ct-banner-right">
+            <span class="ct-banner-cta">Build my test
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M6 4l4 4-4 4"/></svg>
+            </span>
+          </span>
+        </button>
+
+        <!-- Recent custom-test attempts -->
+        <div class="ct-recent-section" id="ct-recent-section" style="display:none;">
+          <div class="ct-recent-title">🕓 Your Recent Custom Tests</div>
+          <div class="ct-recent-list" id="ct-recent-list"></div>
+        </div>
+
+        <div class="divider" id="ct-promo-divider"></div>
+      </div>
 
       <div class="lb-section" id="cetxp-leaderboard">
         <div class="lb-header">
@@ -2916,6 +3178,87 @@
         Made by a CET aspirant, for CET aspirants
       </div>
 
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CUSTOM TEST BUILDER OVERLAY
+  ═══════════════════════════════════════════ -->
+  <div id="ct-overlay">
+    <div class="ct-card">
+      <div class="ct-card-header">
+        <div class="ct-card-title" id="ct-header-title">Build Your Custom Test</div>
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <div class="ct-card-credits" id="ct-header-credits">
+            <svg class="ct-coin" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.3"/><path d="M8 5v6M6 6.3c0-.9.9-1.3 2-1.3s2 .5 2 1.2c0 1.7-4 1-4 2.7 0 .7 1 1.2 2 1.2s2-.4 2-1.3" stroke-linecap="round"/></svg>
+            <span id="ct-header-credits-val">6</span> credits
+          </div>
+          <button type="button" class="ct-close-btn" onclick="closeCustomTestBuilder()">
+            <svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="ct-card-body">
+
+        <!-- STEP 1: choose chapters + years -->
+        <div class="ct-step active" id="ct-step-select">
+          <div class="ct-subject-block">
+            <div class="ct-subject-hdr"><span class="ct-subject-dot" style="background:#3b82f6;"></span>Physics<span class="ct-subject-count" id="ct-count-physics">0 selected</span></div>
+            <div class="ct-chapter-grid" id="ct-chapters-physics"><div class="ct-chapter-loading">Loading chapters…</div></div>
+          </div>
+          <div class="ct-subject-block">
+            <div class="ct-subject-hdr"><span class="ct-subject-dot" style="background:#f59e0b;"></span>Chemistry<span class="ct-subject-count" id="ct-count-chemistry">0 selected</span></div>
+            <div class="ct-chapter-grid" id="ct-chapters-chemistry"><div class="ct-chapter-loading">Loading chapters…</div></div>
+          </div>
+          <div class="ct-subject-block">
+            <div class="ct-subject-hdr"><span class="ct-subject-dot" style="background:#10b981;"></span>Mathematics<span class="ct-subject-count" id="ct-count-maths">0 selected</span></div>
+            <div class="ct-chapter-grid" id="ct-chapters-maths"><div class="ct-chapter-loading">Loading chapters…</div></div>
+          </div>
+
+          <div class="ct-years-label">Attempt questions from which years?</div>
+          <div class="ct-years-row" id="ct-years-row"></div>
+        </div>
+
+        <!-- STEP 2: summary + confirm -->
+        <div class="ct-step" id="ct-step-summary">
+          <div class="ct-summary-box">
+            <span class="ct-summary-box-icon">📋</span>
+            <span class="ct-summary-box-text">We'll pick 50 random questions per subject from your selected chapters &amp; years — 150 total, scored just like a real MHT-CET paper.</span>
+          </div>
+          <div id="ct-summary-content"></div>
+          <div class="ct-summary-cost">
+            <span>Starting this test will use</span>
+            <span class="ct-card-credits" style="background:var(--accent-lt);color:var(--accent-dk);">
+              <svg class="ct-coin" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.3"/><path d="M8 5v6M6 6.3c0-.9.9-1.3 2-1.3s2 .5 2 1.2c0 1.7-4 1-4 2.7 0 .7 1 1.2 2 1.2s2-.4 2-1.3" stroke-linecap="round"/></svg>
+              <span id="ct-summary-cost-val">2 credits</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- STEP 3: building -->
+        <div class="ct-step" id="ct-step-building">
+          <div style="text-align:center;padding:2rem 1rem;">
+            <div style="font-size:2rem;margin-bottom:.8rem;">🧩</div>
+            <div style="font-weight:600;margin-bottom:.3rem;">Assembling your test…</div>
+            <div style="font-size:.82rem;color:var(--muted);" id="ct-building-msg">Fetching questions from your selected chapters</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="ct-card-footer">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <div class="ct-steps-dots" id="ct-steps-dots">
+            <span class="ct-step-dot active"></span><span class="ct-step-dot"></span>
+          </div>
+          <span class="ct-footer-note" id="ct-footer-note">Select at least 1 chapter per subject</span>
+        </div>
+        <div style="display:flex;gap:.6rem;">
+          <button type="button" class="ct-btn-secondary" id="ct-back-btn" style="display:none;" onclick="ctGoToStep('select')">Back</button>
+          <button type="button" class="ct-btn-primary" id="ct-next-btn" onclick="ctGoToSummary()" disabled>Review Selection</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -3917,9 +4260,13 @@
     const FREE_TRIAL_FILE  = 'cbt25s2.html'; // legacy ref kept for compat
     const FREE_TRIAL_FILES = new Set(['cbt25s2.html', 'exam.html?shift=q26a16s2', 'exam.html?shift=q26a18s1', 'exam.html?shift=q26a11s1', 'exam.html?shift=q26a11s2']);
 
-    /* Free-trial check that ignores extra params (e.g. &mode=analysis) tacked onto exam.html links */
+    /* Free-trial check that ignores extra params (e.g. &mode=analysis) tacked onto exam.html links.
+       Custom tests (exam.html?custom=<id>) are also treated as "free" from loadExam's paywall
+       perspective — they're gated separately by the credits system in the Custom Test Builder,
+       not by the has_access paywall, so they must bypass this check to avoid double-gating. */
     function isFreeFile(file) {
       if (FREE_TRIAL_FILES.has(file)) return true;
+      if (/^exam\.html\?custom=/i.test(String(file || ''))) return true;
       const m = String(file || '').match(/^exam\.html\?shift=([a-z0-9]+)/i);
       if (m) return FREE_TRIAL_FILES.has('exam.html?shift=' + m[1]);
       return false;
@@ -4277,11 +4624,12 @@
       }
     }
     let _myCetXp = 0;
+    let _myCredits = 6; // free-tier default; overwritten from profiles.credits once fetched
     async function fetchProfile(user) {
       // Search by ID (Primary Key) instead of email
       const { data, error } = await _supa
         .from('profiles')
-        .select('has_access')
+        .select('has_access, credits')
         .eq('id', user.id)
         .maybeSingle(); // returns null (not a 406 error) when no row exists yet
 
@@ -4301,6 +4649,8 @@
           console.error('Failed to create profile row (check RLS policies on `profiles`):', insertErr.message);
         }
         _myCetXp = 0;
+        _myCredits = 6;
+        updateCreditsUI();
         return false;
       }
 
@@ -4315,6 +4665,9 @@
       } else {
         _myCetXp = Number(xpData) || 0;
       }
+
+      _myCredits = (data.credits == null) ? 6 : Number(data.credits);
+      updateCreditsUI();
 
       return !!data.has_access;
     }
@@ -4443,6 +4796,369 @@
     }
 
     /* ═══════════════════════════════════════════
+       CUSTOM TEST BUILDER
+    ═══════════════════════════════════════════ */
+    const CT_SUBJECTS = [
+      { key: 'physics',   table: 'physicsChapterWise',   label: 'Physics'     },
+      { key: 'chemistry', table: 'chemistryChapterWise', label: 'Chemistry'   },
+      { key: 'maths',     table: 'mathsChapterWise',     label: 'Mathematics' }
+    ];
+    const CT_START_CREDITS_COST = 2;
+    let _ctChapters   = { physics: [], chemistry: [], maths: [] }; // available chapter names per subject
+    let _ctSelected   = { physics: new Set(), chemistry: new Set(), maths: new Set() };
+    let _ctYearsAvail  = [];      // available years (numbers), newest first
+    let _ctYearsSelected = new Set();
+    let _ctChaptersLoaded = false;
+    let _ctBuilding = false;
+
+    /* ── Promo placement: shown ABOVE the leaderboard (prime real estate) until the cutoff
+       date, then automatically relocated BELOW it for good, no code change needed later.
+       #ct-promo-anchor carries its own trailing divider, so moving the one node is enough
+       to keep spacing correct in either position. ── */
+    const CT_PROMO_CUTOFF = new Date('2027-08-18T00:00:00+05:30'); // 1 year from ship date
+    function ctPlacePromo() {
+      const anchor = document.getElementById('ct-promo-anchor');
+      const lb = document.getElementById('cetxp-leaderboard');
+      if (!anchor || !lb || !lb.parentNode) return;
+      const showAbove = new Date() < CT_PROMO_CUTOFF;
+      anchor.classList.toggle('ct-promo-hero', showAbove);
+      if (showAbove) {
+        lb.parentNode.insertBefore(anchor, lb); // promo, then leaderboard
+      } else {
+        lb.parentNode.insertBefore(anchor, lb.nextSibling); // leaderboard, then promo
+      }
+    }
+    ctPlacePromo(); // run immediately — placement doesn't depend on auth state
+
+    function updateCreditsUI() {
+      // Credits are intentionally NOT shown on the home-screen banner — only once the
+      // user opens the builder overlay, where #ct-header-credits-val lives.
+      const unlimited = _hasAccess;
+      const headerVal = document.getElementById('ct-header-credits-val');
+      const headerPill = document.getElementById('ct-header-credits');
+      if (headerVal) headerVal.textContent = unlimited ? '∞' : String(_myCredits);
+      if (headerPill) headerPill.title = unlimited ? 'Premium — unlimited custom tests' : `${_myCredits} credits left`;
+    }
+
+    function openCustomTestBuilder() {
+      if (!_authUser) {
+        document.getElementById('login-overlay').classList.add('active');
+        return;
+      }
+      document.getElementById('ct-overlay').classList.add('active');
+      ctGoToStep('select');
+      updateCreditsUI();
+      if (!_ctChaptersLoaded) loadCtChapters();
+    }
+    function closeCustomTestBuilder() {
+      document.getElementById('ct-overlay').classList.remove('active');
+    }
+
+    async function loadCtChapters() {
+      _ctChaptersLoaded = true; // set eagerly so a slow/failed load doesn't retry-spam on every open
+      try {
+        const results = await Promise.all(CT_SUBJECTS.map(s =>
+          _supa.from(s.table).select('"chapter name", shift')
+        ));
+
+        const yearSet = new Set();
+        results.forEach((res, i) => {
+          const subj = CT_SUBJECTS[i].key;
+          if (res.error) {
+            console.error(`Failed to load ${subj} chapters:`, res.error.message);
+            _ctChapters[subj] = [];
+            return;
+          }
+          const chapterSet = new Set();
+          (res.data || []).forEach(row => {
+            const ch = row['chapter name'];
+            if (ch) chapterSet.add(ch);
+            const m = String(row.shift || '').match(/(\d{4})/);
+            if (m) yearSet.add(Number(m[1]));
+          });
+          _ctChapters[subj] = Array.from(chapterSet).sort();
+        });
+
+        _ctYearsAvail = Array.from(yearSet).sort((a, b) => b - a);
+        renderCtChapters();
+        renderCtYears();
+      } catch (e) {
+        console.error('Failed to load custom test chapters:', e);
+        CT_SUBJECTS.forEach(s => {
+          document.getElementById('ct-chapters-' + s.key).innerHTML =
+            '<div class="ct-chapter-empty">Couldn\'t load chapters. Please close and try again.</div>';
+        });
+      }
+    }
+
+    function renderCtChapters() {
+      CT_SUBJECTS.forEach(s => {
+        const wrap = document.getElementById('ct-chapters-' + s.key);
+        const chapters = _ctChapters[s.key];
+        if (!chapters.length) {
+          wrap.innerHTML = '<div class="ct-chapter-empty">No chapters found.</div>';
+          return;
+        }
+        wrap.innerHTML = chapters.map(ch => {
+          const id = 'ctchip-' + s.key + '-' + ch.replace(/[^a-z0-9]+/gi, '');
+          return `<label class="ct-chip" for="${id}">
+            <input type="checkbox" id="${id}" data-subject="${s.key}" data-chapter="${escapeHtml(ch)}" onchange="ctToggleChapter(this)" />
+            <span>${escapeHtml(ch)}</span>
+          </label>`;
+        }).join('');
+      });
+    }
+
+    function renderCtYears() {
+      const wrap = document.getElementById('ct-years-row');
+      if (!_ctYearsAvail.length) {
+        wrap.innerHTML = '<div class="ct-chapter-empty">No year data found.</div>';
+        return;
+      }
+      // Default: all years selected
+      _ctYearsAvail.forEach(y => _ctYearsSelected.add(y));
+      wrap.innerHTML = `<div class="ct-year-chip checked" id="ct-year-all" onclick="ctToggleAllYears()">All Years</div>` +
+        _ctYearsAvail.map(y => `<div class="ct-year-chip checked" data-year="${y}" onclick="ctToggleYear(${y})">${y}</div>`).join('');
+    }
+
+    function ctToggleChapter(el) {
+      const subject = el.dataset.subject;
+      const chapter = el.dataset.chapter;
+      const chip = el.closest('.ct-chip');
+      if (el.checked) { _ctSelected[subject].add(chapter); chip.classList.add('checked'); }
+      else { _ctSelected[subject].delete(chapter); chip.classList.remove('checked'); }
+      CT_SUBJECTS.forEach(s => {
+        document.getElementById('ct-count-' + s.key).textContent = `${_ctSelected[s.key].size} selected`;
+      });
+      ctValidateSelectStep();
+    }
+
+    function ctToggleYear(year) {
+      const chip = document.querySelector(`.ct-year-chip[data-year="${year}"]`);
+      if (_ctYearsSelected.has(year)) { _ctYearsSelected.delete(year); chip.classList.remove('checked'); }
+      else { _ctYearsSelected.add(year); chip.classList.add('checked'); }
+      const allChip = document.getElementById('ct-year-all');
+      if (allChip) allChip.classList.toggle('checked', _ctYearsSelected.size === _ctYearsAvail.length);
+      ctValidateSelectStep();
+    }
+
+    function ctToggleAllYears() {
+      const allChip = document.getElementById('ct-year-all');
+      const selectAll = _ctYearsSelected.size !== _ctYearsAvail.length;
+      _ctYearsSelected = selectAll ? new Set(_ctYearsAvail) : new Set();
+      allChip.classList.toggle('checked', selectAll);
+      document.querySelectorAll('.ct-year-chip[data-year]').forEach(chip => chip.classList.toggle('checked', selectAll));
+      ctValidateSelectStep();
+    }
+
+    function ctValidateSelectStep() {
+      const hasAll = CT_SUBJECTS.every(s => _ctSelected[s.key].size > 0);
+      const hasYear = _ctYearsSelected.size > 0;
+      const ok = hasAll && hasYear;
+      document.getElementById('ct-next-btn').disabled = !ok;
+      document.getElementById('ct-footer-note').textContent = ok
+        ? 'Ready to review your custom test'
+        : (!hasYear ? 'Select at least one year' : 'Select at least 1 chapter per subject');
+    }
+
+    function ctGoToStep(step) {
+      document.querySelectorAll('.ct-step').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.ct-step-dot').forEach(el => el.classList.remove('active'));
+      if (step === 'select') {
+        document.getElementById('ct-step-select').classList.add('active');
+        document.querySelectorAll('.ct-step-dot')[0].classList.add('active');
+        document.getElementById('ct-back-btn').style.display = 'none';
+        document.getElementById('ct-next-btn').style.display = '';
+        document.getElementById('ct-next-btn').textContent = 'Review Selection';
+        document.getElementById('ct-next-btn').onclick = ctGoToSummary;
+        ctValidateSelectStep();
+      } else if (step === 'summary') {
+        document.getElementById('ct-step-summary').classList.add('active');
+        document.querySelectorAll('.ct-step-dot')[1].classList.add('active');
+        document.getElementById('ct-back-btn').style.display = '';
+        document.getElementById('ct-next-btn').style.display = '';
+        const cost = _hasAccess ? 'Free (Premium)' : `${CT_START_CREDITS_COST} credits`;
+        document.getElementById('ct-next-btn').textContent = `Start Test · ${cost}`;
+        document.getElementById('ct-next-btn').onclick = ctStartCustomTest;
+        document.getElementById('ct-next-btn').disabled = false;
+        document.getElementById('ct-footer-note').textContent = 'Reattempts of this test later won\'t cost credits';
+      } else if (step === 'building') {
+        document.getElementById('ct-step-building').classList.add('active');
+        document.getElementById('ct-back-btn').style.display = 'none';
+        document.getElementById('ct-next-btn').style.display = 'none';
+        document.getElementById('ct-footer-note').textContent = 'Please don\'t close this window…';
+      }
+    }
+
+    function ctGoToSummary() {
+      const html = CT_SUBJECTS.map(s => {
+        const chosen = Array.from(_ctSelected[s.key]);
+        return `<div class="ct-summary-subject">
+          <div class="ct-summary-subject-hdr">${s.label} <span style="color:var(--muted);font-weight:400;">(${chosen.length} chapter${chosen.length === 1 ? '' : 's'})</span></div>
+          <div class="ct-summary-chapters">${chosen.map(escapeHtml).join(' &middot; ')}</div>
+        </div>`;
+      }).join('');
+      const yearsText = (_ctYearsSelected.size === _ctYearsAvail.length)
+        ? 'All years'
+        : Array.from(_ctYearsSelected).sort((a, b) => b - a).join(', ');
+      document.getElementById('ct-summary-content').innerHTML = html +
+        `<div class="ct-summary-subject"><div class="ct-summary-subject-hdr">📅 Years <span style="color:var(--muted);font-weight:400;">${escapeHtml(yearsText)}</span></div></div>`;
+      document.getElementById('ct-summary-cost-val').textContent = _hasAccess ? 'Free (Premium)' : `${CT_START_CREDITS_COST} credits`;
+      ctGoToStep('summary');
+    }
+
+    /* Fetch up to `count` random questions for one subject from the rows matching the
+       selected chapters + years, then re-tag them with sequential question_id 1..count
+       so exam.html's positional logic (Q1-50 physics etc.) works unchanged. */
+    async function ctFetchSubjectQuestions(subjectDef, chapters, years, count, idOffset) {
+      const { data, error } = await _supa
+        .from(subjectDef.table)
+        .select('question,opta,optb,optc,optd,ans,solution,opta_img,optb_img,optc_img,optd_img,shift,"chapter name"')
+        .in('chapter name', chapters);
+      if (error) throw error;
+
+      const yearFiltered = (years.size === _ctYearsAvail.length)
+        ? (data || [])
+        : (data || []).filter(row => {
+            const m = String(row.shift || '').match(/(\d{4})/);
+            return m && years.has(Number(m[1]));
+          });
+
+      if (!yearFiltered.length) throw new Error(`No questions found for ${subjectDef.label} with the selected chapters/years.`);
+
+      // Shuffle (Fisher–Yates) and take up to `count`, allowing repeats only if the pool is smaller than needed.
+      const pool = yearFiltered.slice();
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      const picked = [];
+      for (let i = 0; i < count; i++) picked.push(pool[i % pool.length]);
+
+      return picked.map((row, i) => ({
+        question_id: idOffset + i + 1,
+        question: row.question, opta: row.opta, optb: row.optb, optc: row.optc, optd: row.optd,
+        ans: row.ans, solution: row.solution,
+        opta_img: row.opta_img, optb_img: row.optb_img, optc_img: row.optc_img, optd_img: row.optd_img
+      }));
+    }
+
+    async function ctStartCustomTest() {
+      if (_ctBuilding) return;
+      if (!_hasAccess && _myCredits < CT_START_CREDITS_COST) {
+        document.getElementById('ct-overlay').classList.remove('active');
+        document.getElementById('premium-overlay').classList.add('active');
+        return;
+      }
+      _ctBuilding = true;
+      ctGoToStep('building');
+      const msgEl = document.getElementById('ct-building-msg');
+      try {
+        msgEl.textContent = 'Fetching Physics questions…';
+        const physics = await ctFetchSubjectQuestions(CT_SUBJECTS[0], Array.from(_ctSelected.physics), _ctYearsSelected, 50, 0);
+        msgEl.textContent = 'Fetching Chemistry questions…';
+        const chemistry = await ctFetchSubjectQuestions(CT_SUBJECTS[1], Array.from(_ctSelected.chemistry), _ctYearsSelected, 50, 50);
+        msgEl.textContent = 'Fetching Mathematics questions…';
+        const maths = await ctFetchSubjectQuestions(CT_SUBJECTS[2], Array.from(_ctSelected.maths), _ctYearsSelected, 50, 100);
+
+        const allQuestions = physics.concat(chemistry, maths);
+        const label = 'Custom Test · ' + new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        const config = {
+          physics: Array.from(_ctSelected.physics), chemistry: Array.from(_ctSelected.chemistry), maths: Array.from(_ctSelected.maths),
+          years: Array.from(_ctYearsSelected)
+        };
+
+        msgEl.textContent = 'Saving your test…';
+        const { data: inserted, error: insertErr } = await _supa
+          .from('customTests')
+          .insert([{ email: _authUser.email, label, config, questions: allQuestions }])
+          .select('id')
+          .single();
+        if (insertErr) throw insertErr;
+
+        // Deduct credits only after the test is successfully built & saved (premium users pay nothing).
+        if (!_hasAccess) {
+          const newCredits = Math.max(0, _myCredits - CT_START_CREDITS_COST);
+          const { error: creditErr } = await _supa.from('profiles').update({ credits: newCredits }).eq('id', _authUser.id);
+          if (creditErr) console.error('Failed to deduct credits:', creditErr.message);
+          else { _myCredits = newCredits; updateCreditsUI(); }
+        }
+
+        _ctBuilding = false;
+        closeCustomTestBuilder();
+        const file = `exam.html?custom=${inserted.id}`;
+        executeExamLoad(file, label, '', true); // credits already charged — skip loadExam's paywall gate entirely
+      } catch (e) {
+        _ctBuilding = false;
+        console.error('Custom test build failed:', e);
+        alert('❌ Failed to build your custom test: ' + (e.message || e) + '\nNo credits were used — please try again.');
+        ctGoToStep('summary');
+      }
+    }
+
+    /* ═══════════════════════════════════════════
+       RECENT CUSTOM TEST ATTEMPTS (welcome screen)
+    ═══════════════════════════════════════════ */
+    async function fetchRecentCustomTests() {
+      const section = document.getElementById('ct-recent-section');
+      const list = document.getElementById('ct-recent-list');
+      if (!_authUser || !_authUser.email) { section.style.display = 'none'; return; }
+      try {
+        const { data: tests, error: testErr } = await _supa
+          .from('customTests')
+          .select('id, label, created_at')
+          .eq('email', _authUser.email)
+          .order('created_at', { ascending: false })
+          .limit(5);
+        if (testErr) throw testErr;
+        if (!tests || !tests.length) { section.style.display = 'none'; return; }
+
+        const shifts = tests.map(t => 'custom_' + t.id);
+        const { data: attempts, error: attErr } = await _supa
+          .from('attemptData')
+          .select('shift, attempt_completed, total_score')
+          .eq('email', _authUser.email)
+          .in('shift', shifts);
+        if (attErr) console.error('Failed to fetch custom attempt statuses:', attErr.message);
+
+        const attemptMap = new Map((attempts || []).map(a => [a.shift, a]));
+
+        section.style.display = '';
+        list.innerHTML = tests.map(t => {
+          const shift = 'custom_' + t.id;
+          const attempt = attemptMap.get(shift);
+          const dateStr = new Date(t.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+          if (attempt && attempt.attempt_completed) {
+            return `<div class="ct-recent-card">
+              <span class="ct-recent-icon">🎯</span>
+              <span class="ct-recent-info">
+                <div class="ct-recent-label">${escapeHtml(t.label)}</div>
+                <div class="ct-recent-meta">✓ Attempted${attempt.total_score != null ? ' · ' + escapeHtml(String(attempt.total_score)) + '/200' : ''} · ${dateStr}</div>
+              </span>
+              <span class="ct-recent-actions">
+                <button type="button" class="ct-view-btn" onclick="viewAnalysis('${shift}','${escapeHtml(t.label).replace(/'/g, "\\'")}')">View Analysis</button>
+                <button type="button" onclick="reattemptExam('${shift}','${escapeHtml(t.label).replace(/'/g, "\\'")}')">Reattempt</button>
+              </span>
+            </div>`;
+          }
+          return `<div class="ct-recent-card">
+            <span class="ct-recent-icon">🎯</span>
+            <span class="ct-recent-info">
+              <div class="ct-recent-label">${escapeHtml(t.label)}</div>
+              <div class="ct-recent-meta">Not attempted yet · ${dateStr}</div>
+            </span>
+            <span class="ct-recent-actions">
+              <button type="button" class="ct-view-btn" onclick="reattemptExam('${shift}','${escapeHtml(t.label).replace(/'/g, "\\'")}')">Start</button>
+            </span>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        console.error('Failed to load recent custom tests:', e);
+        section.style.display = 'none';
+      }
+    }
+
+    /* ═══════════════════════════════════════════
        CETXP LEADERBOARD — top 10 + current user's rank
     ═══════════════════════════════════════════ */
     function escapeHtml(s) {
@@ -4528,7 +5244,9 @@
       }
       updateAuthButton();
       updateCardLocks();
+      updateCreditsUI();
       fetchAttemptStatuses();
+      fetchRecentCustomTests();
       loadLeaderboard();
 
       /* Listen for subsequent auth changes (e.g. after OAuth redirect) */
@@ -4542,10 +5260,13 @@
           _authUser  = null;
           window._authUser = null;
           _hasAccess = false;
+          _myCredits = 6;
         }
         updateAuthButton();
         updateCardLocks();
+        updateCreditsUI();
         fetchAttemptStatuses();
+        fetchRecentCustomTests();
         loadLeaderboard();
 
         if (_authUser) {
