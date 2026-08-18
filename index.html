@@ -4804,16 +4804,22 @@
       });
     }
 
-    /* "View Analysis" → launch exam.html directly onto its result screen for this shift */
+    /* "View Analysis" and "Reattempt" are only ever offered for a shift the user has already
+       completed (see applyAttemptStatuses()/fetchRecentCustomTests() — both only render these
+       buttons when an attempt exists). Having a completed attempt already proves access, so these
+       go straight to executeExamLoad and skip loadExam's has_access paywall entirely — otherwise a
+       lapsed-access or non-trial-shift user gets wrongly blocked from reviewing a test they've
+       already taken. */
     function viewAnalysis(shift, label) {
       const file = `exam.html?shift=${shift}&mode=analysis`;
-      window.loadExam(file, label, '', true);
+      if (!_authUser) { document.getElementById('login-overlay').classList.add('active'); return; }
+      executeExamLoad(file, label, '', true);
     }
 
-    /* "Reattempt" → normal start flow; exam.html erases the old attempt row before writing the fresh one */
     function reattemptExam(shift, label) {
       const file = `exam.html?shift=${shift}&mode=reattempt`;
-      window.loadExam(file, label, '', true);
+      if (!_authUser) { document.getElementById('login-overlay').classList.add('active'); return; }
+      executeExamLoad(file, label, '', true);
     }
 
     /* ═══════════════════════════════════════════
