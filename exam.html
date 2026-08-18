@@ -266,6 +266,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
 .mrv-bar label{font-size:12px;font-weight:600;color:#5a4000;cursor:pointer;display:flex;align-items:center;gap:6px}
 .mrv-bar input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--pu)}
 .op-scroll{flex:1;overflow-y:auto;padding:10px}
+.q-shift-tag{flex-shrink:0;padding:7px 12px;background:var(--cbb);border-top:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--cbk);text-align:center;letter-spacing:.2px}
 .op-row{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border-radius:6px;margin-bottom:7px;cursor:pointer;border:1.5px solid var(--bdr);transition:all .15s;background:#fff}
 .op-row:hover{border-color:var(--cbl);background:var(--cbb)}
 .op-row.sel{border-color:var(--cbk);background:var(--cbb)}
@@ -694,6 +695,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
         <span style="font-size:10px;color:#5a4000;margin-left:auto">⭐ Flagged</span>
       </div>
       <div class="op-scroll" id="optionsContainer"></div>
+      <div class="q-shift-tag" id="qShiftTag" style="display:none"></div>
     </div>
 
     <div class="sidebar">
@@ -1000,6 +1002,32 @@ function getSubject(q){if(q<=50)return'Physics';if(q<=100)return'Chemistry';retu
 function formatTime(s){return`${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
 function getQStatus(q){const a=userAnswers[q]!=null,m=markedReview[q],v=visited[q];if(!v)return'not-visited';if(m&&a)return'marked-answered';if(m)return'marked';if(a)return'answered';return'not-answered';}
 function shiftLabel(t){if(customTestId&&customTestLabel)return customTestLabel;return(t||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+// Formats a raw per-question shift string (as stored in the *ChapterWise tables' `shift` column,
+// e.g. "MHT CET 2026 (16 April Shift 2)") into a display label like "16th April 2026 Shift-2".
+// Handles the older rows too, where the parenthetical may omit the day/month (e.g.
+// "MHT CET 2019 (Shift 1)") or be missing entirely (e.g. "MHT CET 2007") — those fall back to
+// progressively shorter labels instead of guessing at a day/month that isn't there.
+const _SHIFT_MONTHS={jan:'January',feb:'February',mar:'March',apr:'April',may:'May',jun:'June',jul:'July',aug:'August',sep:'September',oct:'October',nov:'November',dec:'December'};
+function _ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+function formatQuestionShift(raw){
+  if(!raw)return'';
+  const s=String(raw).trim();
+  const yearM=s.match(/(\d{4})/);
+  const year=yearM?yearM[1]:'';
+  // Day + month + shift number, e.g. "(16 April Shift 2)" or "(02 May Shift 1)"
+  let m=s.match(/(\d{1,2})\s+([a-zA-Z]{3,})\s+Shift\s*(\d)/i);
+  if(m){
+    const day=parseInt(m[1],10),monKey=m[2].slice(0,3).toLowerCase(),shiftNum=m[3];
+    const mon=_SHIFT_MONTHS[monKey]||m[2];
+    return`${_ordinal(day)} ${mon}${year?' '+year:''} Shift-${shiftNum}`;
+  }
+  // Shift number only, no day/month, e.g. "(Shift 1)"
+  m=s.match(/Shift\s*(\d)/i);
+  if(m)return`${year?year+' ':''}Shift-${m[1]}`;
+  // No shift info at all, e.g. "MHT CET 2007" — just show the year.
+  if(year)return`MHT CET ${year}`;
+  return s;
+}
 function runMathJax(el){if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise(el?[el]:undefined).catch(()=>{});}
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>{s.style.display='none';s.classList.remove('active');});const el=document.getElementById(id);el.style.display='flex';el.classList.add('active');}
 
@@ -1326,6 +1354,11 @@ function renderQuestion(qid){
     else{row.innerHTML=`<input type="radio" name="opt_${qid}" id="o_${qid}_${o.val}" ${userAnswers[qid]===o.val?'checked':''}><label class="op-lbl" for="o_${qid}_${o.val}"><span class="op-key">${o.key}.</span>${renderContent(rv,'content-img')}</label>`;}
     row.addEventListener('click',()=>selectOption(qid,o.val));oc.appendChild(row);
   });
+  const shiftTag=document.getElementById('qShiftTag');
+  if(shiftTag){
+    if(customTestId&&q.shift){shiftTag.textContent=formatQuestionShift(q.shift);shiftTag.style.display='block';}
+    else{shiftTag.style.display='none';shiftTag.textContent='';}
+  }
   document.getElementById('markReviewChk').checked=!!markedReview[qid];
   const eo=document.getElementById('lockedOverlay');if(eo)eo.remove();
   if(sec1Locked&&qid<=100){const ov=document.createElement('div');ov.className='locked-ov';ov.id='lockedOverlay';ov.innerHTML='<div class="locked-ic">🔒</div><div class="locked-ms">Section 1 is locked. Navigate to Mathematics (Q101–150).</div>';document.getElementById('questionPane').appendChild(ov);}

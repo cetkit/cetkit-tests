@@ -1944,9 +1944,15 @@
       0%   { background-position: 0% 50%; }
       100% { background-position: 200% 50%; }
     }
+    /* GPU-cheap pulse: transform + opacity only (no box-shadow animation, which forces a
+       paint on every frame). A static ::after ring is scaled/faded instead — compositor-only. */
     @keyframes ctPulseBadge {
-      0%, 100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,255,255,.5); }
-      50%      { transform: scale(1.07); box-shadow: 0 0 0 6px rgba(255,255,255,0); }
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.07); }
+    }
+    @keyframes ctPulseRing {
+      0%   { transform: scale(1);   opacity: .5; }
+      100% { transform: scale(1.6); opacity: 0; }
     }
     @keyframes ctFloat {
       0%, 100% { transform: translateY(0) rotate(-6deg); }
@@ -1989,6 +1995,14 @@
       color: #1a1917; font-size: .62rem; font-weight: 700; letter-spacing: .03em;
       padding: .22rem .5rem; border-radius: 999px;
       animation: ctPulseBadge 2.2s ease-in-out infinite;
+      will-change: transform;
+    }
+    .ct-banner-badge::after {
+      content: ''; position: absolute; inset: 0; border-radius: 999px;
+      background: rgba(255,255,255,.5);
+      animation: ctPulseRing 2.2s ease-in-out infinite;
+      will-change: transform, opacity;
+      pointer-events: none;
     }
     .ct-banner-icon {
       flex-shrink: 0; width: 48px; height: 48px; border-radius: 14px;
@@ -4804,6 +4818,15 @@
       { key: 'maths',     table: 'mathsChapterWise',     label: 'Mathematics' }
     ];
     const CT_START_CREDITS_COST = 2;
+    // Fixed chapter picker list — shown regardless of which chapters happen to have rows in the
+    // DB right now, so the picker never silently drops a chapter just because that subject/year
+    // combo hasn't been populated yet. ctFetchSubjectQuestions() still queries the DB directly by
+    // chapter name, so this list only needs to stay in sync with the official chapter names.
+    const CT_FIXED_CHAPTERS = {
+      physics: ['Alternating Current','Atomic Physics','Capacitance','Center of Mass Momentum and Collision','Communication System','Current Electricity','Dual Nature of Matter','Electromagnetic Induction','Electromagnetic Waves','Electrostatics','Experimental Physics','Gravitation','Kinetic Theory of Gases','Laws of Motion','Magnetic Effects of Current','Magnetic Properties of Matter','Mathematics in Physics','Mechanical Properties of Fluids','Mechanical Properties of Solids','Motion In One Dimension','Motion In Two Dimensions','Nuclear Physics','Oscillations','Ray Optics','Rotational Motion','Semiconductors','Thermal Properties of Matter','Thermodynamics','Units and Dimensions','Wave Optics','Waves and Sound','Work Power Energy'],
+      chemistry: ['Alcohols Phenols and Ethers','Aldehydes and Ketones','Amines','Biomolecules','Carboxylic Acid Derivatives','Chemical Bonding and Molecular Structure','Chemical Equilibrium','Chemical Kinetics','Chemistry in Everyday Life','Classification of Elements and Periodicity in Properties','Coordination Compounds','Electrochemistry','Environmental Chemistry','General Organic Chemistry','General Principles and Processes of Isolation of Metals','Haloalkanes and Haloarenes','Hydrocarbons','Hydrogen','Ionic Equilibrium','Polymers','Practical Chemistry','Redox Reactions','Solid State','Solutions','Some Basic Concepts of Chemistry','States of Matter','Structure of Atom','Surface Chemistry','Thermodynamics (C)','d and f Block Elements','p Block Elements (Group 13 & 14)','p Block Elements (Group 15, 16, 17 & 18)','s Block Elements'],
+      maths: ['Application of Derivatives','Area Under Curves','Basic of Mathematics','Binomial Theorem','Circle','Complex Number','Continuity and Differentiability','Definite Integration','Determinants','Differential Equations','Differentiation','Ellipse','Functions','Heights and Distances','Hyperbola','Indefinite Integration','Inverse Trigonometric Functions','Limits','Linear Programming','Mathematical Induction','Mathematical Reasoning','Matrices','Pair of Lines','Parabola','Permutation Combination','Probability','Properties of Triangles','Quadratic Equation','Sequences and Series','Sets and Relations','Statistics','Straight Lines','Three Dimensional Geometry','Trigonometric Equations','Trigonometric Ratios & Identities','Vector Algebra']
+    };
     let _ctChapters   = { physics: [], chemistry: [], maths: [] }; // available chapter names per subject
     let _ctSelected   = { physics: new Set(), chemistry: new Set(), maths: new Set() };
     let _ctYearsAvail  = [];      // available years (numbers), newest first
@@ -4856,38 +4879,32 @@
 
     async function loadCtChapters() {
       _ctChaptersLoaded = true; // set eagerly so a slow/failed load doesn't retry-spam on every open
+      // Chapter lists are fixed (CT_FIXED_CHAPTERS) — shown up front, no DB round-trip needed.
+      _ctChapters = { physics: CT_FIXED_CHAPTERS.physics.slice(), chemistry: CT_FIXED_CHAPTERS.chemistry.slice(), maths: CT_FIXED_CHAPTERS.maths.slice() };
+      renderCtChapters();
       try {
+        // Still need the DB just to know which years actually have data, for the year picker.
         const results = await Promise.all(CT_SUBJECTS.map(s =>
-          _supa.from(s.table).select('"chapter name", shift')
+          _supa.from(s.table).select('shift')
         ));
-
         const yearSet = new Set();
         results.forEach((res, i) => {
           const subj = CT_SUBJECTS[i].key;
           if (res.error) {
-            console.error(`Failed to load ${subj} chapters:`, res.error.message);
-            _ctChapters[subj] = [];
+            console.error(`Failed to load ${subj} years:`, res.error.message);
             return;
           }
-          const chapterSet = new Set();
           (res.data || []).forEach(row => {
-            const ch = row['chapter name'];
-            if (ch) chapterSet.add(ch);
             const m = String(row.shift || '').match(/(\d{4})/);
             if (m) yearSet.add(Number(m[1]));
           });
-          _ctChapters[subj] = Array.from(chapterSet).sort();
         });
-
         _ctYearsAvail = Array.from(yearSet).sort((a, b) => b - a);
-        renderCtChapters();
         renderCtYears();
       } catch (e) {
-        console.error('Failed to load custom test chapters:', e);
-        CT_SUBJECTS.forEach(s => {
-          document.getElementById('ct-chapters-' + s.key).innerHTML =
-            '<div class="ct-chapter-empty">Couldn\'t load chapters. Please close and try again.</div>';
-        });
+        console.error('Failed to load custom test years:', e);
+        document.getElementById('ct-years-row').innerHTML =
+          '<div class="ct-chapter-empty">Couldn\'t load years. Please close and try again.</div>';
       }
     }
 
@@ -4915,10 +4932,13 @@
         wrap.innerHTML = '<div class="ct-chapter-empty">No year data found.</div>';
         return;
       }
-      // Default: all years selected
-      _ctYearsAvail.forEach(y => _ctYearsSelected.add(y));
-      wrap.innerHTML = `<div class="ct-year-chip checked" id="ct-year-all" onclick="ctToggleAllYears()">All Years</div>` +
-        _ctYearsAvail.map(y => `<div class="ct-year-chip checked" data-year="${y}" onclick="ctToggleYear(${y})">${y}</div>`).join('');
+      // Default: only 2026 and 2025 selected (not every available year).
+      _ctYearsSelected = new Set(_ctYearsAvail.filter(y => y === 2026 || y === 2025));
+      if (!_ctYearsSelected.size) _ctYearsAvail.forEach(y => _ctYearsSelected.add(y)); // fallback if neither exists
+      const allChecked = _ctYearsSelected.size === _ctYearsAvail.length;
+      wrap.innerHTML = `<div class="ct-year-chip${allChecked ? ' checked' : ''}" id="ct-year-all" onclick="ctToggleAllYears()">All Years</div>` +
+        _ctYearsAvail.map(y => `<div class="ct-year-chip${_ctYearsSelected.has(y) ? ' checked' : ''}" data-year="${y}" onclick="ctToggleYear(${y})">${y}</div>`).join('');
+      ctValidateSelectStep();
     }
 
     function ctToggleChapter(el) {
@@ -5007,39 +5027,72 @@
       ctGoToStep('summary');
     }
 
-    /* Fetch up to `count` random questions for one subject from the rows matching the
-       selected chapters + years, then re-tag them with sequential question_id 1..count
-       so exam.html's positional logic (Q1-50 physics etc.) works unchanged. */
+    function shuffled(arr) {
+      const pool = arr.slice();
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool;
+    }
+    function rowYear(row) {
+      const m = String(row.shift || '').match(/(\d{4})/);
+      return m ? Number(m[1]) : null;
+    }
+
+    /* Fetch up to `count` random questions for one subject from the rows matching the selected
+       chapters + years, then re-tag them with sequential question_id 1..count so exam.html's
+       positional logic (Q1-50 physics etc.) works unchanged.
+
+       Fallback: if the selected chapters/years don't have enough questions to fill `count` (e.g.
+       chapter A + "2026 only" has fewer than 50), top up the remainder with 2025 questions from
+       the SAME chapters before repeating any question — 2025 is only used as a filler pool when
+       the primary selection genuinely falls short, and only in that shortfall amount. */
     async function ctFetchSubjectQuestions(subjectDef, chapters, years, count, idOffset) {
       const { data, error } = await _supa
         .from(subjectDef.table)
         .select('question,opta,optb,optc,optd,ans,solution,opta_img,optb_img,optc_img,optd_img,shift,"chapter name"')
         .in('chapter name', chapters);
       if (error) throw error;
+      const allRows = data || [];
 
-      const yearFiltered = (years.size === _ctYearsAvail.length)
-        ? (data || [])
-        : (data || []).filter(row => {
-            const m = String(row.shift || '').match(/(\d{4})/);
-            return m && years.has(Number(m[1]));
-          });
+      const primary = (years.size === _ctYearsAvail.length)
+        ? allRows
+        : allRows.filter(row => years.has(rowYear(row)));
 
-      if (!yearFiltered.length) throw new Error(`No questions found for ${subjectDef.label} with the selected chapters/years.`);
+      if (!primary.length) throw new Error(`No questions found for ${subjectDef.label} with the selected chapters/years.`);
 
-      // Shuffle (Fisher–Yates) and take up to `count`, allowing repeats only if the pool is smaller than needed.
-      const pool = yearFiltered.slice();
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
+      let picked = shuffled(primary).slice(0, count);
+
+      // Fallback fill: selected years didn't cover `count` questions for these chapters — top up
+      // with 2025 rows from the same chapters (skip 2025 if it was already part of the primary
+      // selection, since those rows are already in `picked`'s pool).
+      if (picked.length < count && !years.has(2025)) {
+        const fallbackPool = shuffled(allRows.filter(row => rowYear(row) === 2025));
+        let fi = 0;
+        while (picked.length < count && fallbackPool.length) {
+          picked.push(fallbackPool[fi % fallbackPool.length]);
+          fi++;
+        }
       }
-      const picked = [];
-      for (let i = 0; i < count; i++) picked.push(pool[i % pool.length]);
+
+      // Still short (neither selection nor 2025 fallback had enough unique rows) — repeat from
+      // whatever pool we do have so the subject always ends up with exactly `count` questions.
+      if (picked.length < count) {
+        const repeatPool = picked.length ? picked : primary;
+        let ri = 0;
+        while (picked.length < count) {
+          picked.push(repeatPool[ri % repeatPool.length]);
+          ri++;
+        }
+      }
 
       return picked.map((row, i) => ({
         question_id: idOffset + i + 1,
         question: row.question, opta: row.opta, optb: row.optb, optc: row.optc, optd: row.optd,
         ans: row.ans, solution: row.solution,
-        opta_img: row.opta_img, optb_img: row.optb_img, optc_img: row.optc_img, optd_img: row.optd_img
+        opta_img: row.opta_img, optb_img: row.optb_img, optc_img: row.optc_img, optd_img: row.optd_img,
+        shift: row.shift || ''
       }));
     }
 
