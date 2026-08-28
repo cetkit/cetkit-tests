@@ -77,6 +77,18 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
 .lg-toast-close{background:none;border:none;color:#8aaccc;font-size:18px;cursor:pointer;flex-shrink:0;padding:0;line-height:1}
 .lg-toast-close:hover{color:#fff}
 
+/* ORIENTATION / FULLSCREEN TOAST — global, floats above whichever screen is active */
+.ori-toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-16px);background:#7a1f1f;border:1px solid #b33939;color:#fff0f0;padding:14px 18px 14px 14px;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:460px;width:92%;display:flex;align-items:flex-start;gap:10px;opacity:0;transition:opacity .4s ease,transform .4s ease;pointer-events:none;z-index:10000}
+.ori-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.ori-toast-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+.ori-toast-body{flex:1}
+.ori-toast-title{font-size:13px;font-weight:700;color:#ffd166;margin-bottom:3px}
+.ori-toast-msg{font-size:12.5px;line-height:1.55;color:#ffe0e0;margin-bottom:8px}
+.ori-toast-retry{background:#fff;color:#7a1f1f;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.ori-toast-retry:hover{background:#ffe0e0}
+.ori-toast-close{background:none;border:none;color:#ffcccc;font-size:18px;cursor:pointer;flex-shrink:0;padding:0;line-height:1}
+.ori-toast-close:hover{color:#fff}
+
 /* LOADING */
 #loadingScreen{background:linear-gradient(135deg,#1a4e8a,#6ab0e0);align-items:center;justify-content:center}
 .ld-box{text-align:center;color:#fff}
@@ -536,6 +548,17 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
   <button class="lg-toast-close" id="loginToastClose">✕</button>
 </div>
 
+<!-- ORIENTATION / FULLSCREEN TOAST (global — visible on any screen) -->
+<div class="ori-toast" id="orientationToast">
+  <div class="ori-toast-icon">📱</div>
+  <div class="ori-toast-body">
+    <div class="ori-toast-title">Please switch to Fullscreen + Landscape</div>
+    <div class="ori-toast-msg" id="orientationToastMsg"></div>
+    <button class="ori-toast-retry" id="orientationToastRetry">🔄 Try Again</button>
+  </div>
+  <button class="ori-toast-close" id="orientationToastClose" title="Dismiss">✕</button>
+</div>
+
 <!-- LOADING -->
 <div id="loadingScreen" class="screen" style="display:none">
   <div class="ld-box">
@@ -794,6 +817,19 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
   </div>
 </div>
 
+<!-- LEAVE EXAM CONFIRMATION MODAL (replaces native confirm() — confirm() kicks iOS out of fullscreen) -->
+<div class="modal-ov" id="modalLeaveExam">
+  <div class="modal-box">
+    <h3>⚠️ Leave the exam now?</h3>
+    <p style="font-size:13px;color:var(--txm);margin-bottom:10px">This response will <strong>NOT</strong> be stored — it is only saved once you fully submit the exam.</p>
+    <p style="font-size:13px;color:#c62828;margin-bottom:14px">You will not be granted any CETXP for this attempt if you leave now.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="btnCancelLeaveExam">Stay in Exam</button>
+      <button class="btn-confirm btn-confirm-red" id="btnConfirmLeaveExam">Leave Exam</button>
+    </div>
+  </div>
+</div>
+
 <!-- SURVEY MODAL -->
 <div class="modal-ov" id="modalSurvey">
   <div class="modal-box survey-box">
@@ -878,6 +914,77 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
 // Blocks the browser context menu site-wide. Only intercepts contextmenu — click/pointer
 // events (answer selection, buttons, etc.) are untouched, so this can't break exam interaction.
 document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+/* ═══ 0b. FULLSCREEN / LANDSCAPE ENFORCEMENT ═══
+   index.html (the parent page) is responsible for putting the whole tab into fullscreen +
+   landscape before sending the student here. Some iOS browsers can't actually hold either
+   state — Safari on iPhone has no Fullscreen API at all, and even iPadOS can silently drop
+   out of it — so on arrival here we double-check, try to force it again ourselves, and if it
+   still isn't fullscreen + landscape we tell the user honestly instead of pretending it worked. */
+function isFullscreenActive(){
+  const d=document;
+  if(d.fullscreenElement||d.webkitFullscreenElement||d.mozFullScreenElement||d.msFullscreenElement)return true;
+  try{ // exam.html may be running inside index.html's iframe — the fullscreen element usually lives on the top document
+    if(window.top&&window.top!==window){
+      const td=window.top.document;
+      if(td.fullscreenElement||td.webkitFullscreenElement||td.mozFullScreenElement||td.msFullscreenElement)return true;
+    }
+  }catch(e){/* cross-origin or blocked — can't check, fall through */}
+  return false;
+}
+function isLandscapeActive(){
+  if(screen.orientation&&screen.orientation.type)return screen.orientation.type.indexOf('landscape')===0;
+  if(typeof window.orientation==='number')return Math.abs(window.orientation)===90;
+  return window.innerWidth>window.innerHeight;
+}
+function tryForceFullscreenLandscape(){
+  try{
+    const el=document.documentElement;
+    const req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+    if(req&&!isFullscreenActive())req.call(el).catch(()=>{});
+  }catch(e){}
+  try{ // also try the top document, in case this frame itself isn't allowed to go fullscreen
+    if(window.top&&window.top!==window){
+      const tel=window.top.document.documentElement;
+      const treq=tel.requestFullscreen||tel.webkitRequestFullscreen||tel.mozRequestFullScreen||tel.msRequestFullscreen;
+      if(treq&&!isFullscreenActive())treq.call(tel).catch(()=>{});
+    }
+  }catch(e){}
+  try{
+    if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{});
+  }catch(e){}
+}
+function showOrientationToast(){
+  const el=document.getElementById('orientationToast');
+  const msgEl=document.getElementById('orientationToastMsg');
+  if(!el||!msgEl)return;
+  msgEl.textContent="iOS doesn't allow us to keep you fullscreen — sorry for the inconvenience! Please switch to landscape and enter fullscreen manually if you can. This test works fine in landscape, but for the smoothest experience we recommend using an Android device or a laptop.";
+  el.classList.add('show');
+}
+function hideOrientationToast(){
+  const el=document.getElementById('orientationToast');
+  if(el)el.classList.remove('show');
+}
+function enforceFullscreenLandscape(){
+  if(isFullscreenActive()&&isLandscapeActive()){hideOrientationToast();return;}
+  tryForceFullscreenLandscape();
+  setTimeout(()=>{
+    if(isFullscreenActive()&&isLandscapeActive()){hideOrientationToast();}
+    else{showOrientationToast();}
+  },700);
+}
+window.addEventListener('load',()=>setTimeout(enforceFullscreenLandscape,500));
+document.addEventListener('fullscreenchange',enforceFullscreenLandscape);
+document.addEventListener('webkitfullscreenchange',enforceFullscreenLandscape);
+window.addEventListener('orientationchange',()=>setTimeout(enforceFullscreenLandscape,300));
+if(screen.orientation)screen.orientation.addEventListener('change',()=>setTimeout(enforceFullscreenLandscape,300));
+document.getElementById('orientationToastClose').addEventListener('click',hideOrientationToast);
+document.getElementById('orientationToastRetry').addEventListener('click',()=>{
+  // Runs inside a real click (user gesture), so requestFullscreen has a much better chance here
+  // than the auto-attempt on load — this is the honest "let the user try it themselves" fallback.
+  tryForceFullscreenLandscape();
+  setTimeout(()=>{if(isFullscreenActive()&&isLandscapeActive())hideOrientationToast();},500);
+});
 
 /* ═══ 0. URL & SUPABASE ═══ */
 const urlParams=new URLSearchParams(window.location.search);
@@ -1484,16 +1591,14 @@ function exitToMenu(){
   }
 }
 
-/* Header button — visible only during the exam. Always warns before exiting,
-   since leaving now means this attempt is NOT saved and earns no CETXP. */
-document.getElementById('btnReturnMenu').addEventListener('click',()=>{
-  const ok = confirm(
-    'Leave the exam now?\n\n'+
-    'This response will NOT be stored — it is only saved once you fully submit the exam.\n'+
-    'You will not be granted any CETXP for this attempt if you leave now.\n\n'+
-    'Are you sure you want to exit?'
-  );
-  if(!ok) return;
+/* Header button — visible only during the exam. Always warns before exiting, since leaving
+   now means this attempt is NOT saved and earns no CETXP. Uses our own modal instead of
+   confirm() — the native confirm() dialog drops iOS Safari straight out of fullscreen the
+   moment it opens, even if the user cancels, which silently breaks the exam lockdown. */
+document.getElementById('btnReturnMenu').addEventListener('click',()=>openModal('modalLeaveExam'));
+document.getElementById('btnCancelLeaveExam').addEventListener('click',()=>closeModal('modalLeaveExam'));
+document.getElementById('btnConfirmLeaveExam').addEventListener('click',()=>{
+  closeModal('modalLeaveExam');
   exitToMenu();
 });
 
