@@ -1051,6 +1051,50 @@ let attemptSyncInterval=null;
 let zoomLevel=0;
 const zoomSteps=[1,1.2,1.4,1.65];
 
+/* ═══ 1b. LOCAL RESUME CACHE ═══
+   Purely client-side safety net so a refresh, browser crash, or lost internet never costs the
+   student their progress mid-test. Independent of the Supabase attemptSync above (which needs
+   an email + network and only writes every 2.5 min) — this writes to localStorage instantly on
+   every change and needs neither. Only ever cleared on a genuine finish (doSubmit) or an explicit
+   "leave exam" confirmation — never on reload, tab close, or network loss. */
+const RESUME_KEY='cbt_resume_'+(customTestId?('custom_'+customTestId):targetTable)+'_'+(studentEmail||'anon');
+let _resumeSaveQueued=false;
+function queueSaveResumeState(){
+  if(_resumeSaveQueued)return;
+  _resumeSaveQueued=true;
+  setTimeout(()=>{_resumeSaveQueued=false;saveResumeState();},300); // debounce rapid-fire calls (typing/nav)
+}
+function saveResumeState(){
+  if(!examRunning)return;
+  try{
+    const state={
+      v:1,
+      savedAt:Date.now(),
+      targetTable,customTestId,customTestLabel,studentEmail,
+      questions, // full question set, so a reload never depends on Supabase/network being back up
+      userAnswers,markedReview,visited,
+      currentQId,totalSeconds,sec1Locked,sec1LockDone,
+      currentPalSub
+    };
+    localStorage.setItem(RESUME_KEY,JSON.stringify(state));
+  }catch(e){console.error('saveResumeState failed (localStorage full/unavailable):',e);}
+}
+function loadResumeState(){
+  try{
+    const raw=localStorage.getItem(RESUME_KEY);
+    if(!raw)return null;
+    const state=JSON.parse(raw);
+    if(!state||state.v!==1||!Array.isArray(state.questions)||!state.questions.length)return null;
+    // Discard anything absurdly old (e.g. left overnight) — beyond exam duration + generous slack.
+    if(Date.now()-state.savedAt>6*60*60*1000)return null;
+    if(typeof state.totalSeconds==='number'&&state.totalSeconds<=0)return null; // time had already run out
+    return state;
+  }catch(e){console.error('loadResumeState failed:',e);return null;}
+}
+function clearResumeState(){
+  try{localStorage.removeItem(RESUME_KEY);}catch(e){}
+}
+
 /* ═══ 2a. EXAM TOAST ═══ */
 let _examToastTimer=null;
 function showExamToast(msg,mode){
@@ -1174,9 +1218,9 @@ async function eraseExistingAttempt(){
     if(error)console.error('Erase previous attempt failed:',error.message);
   }catch(e){console.error('Erase previous attempt error:',e);}
 }
-async function startAttemptSync(){
+async function startAttemptSync(freshStart){
   if(!studentEmail)return;
-  await eraseExistingAttempt(); // wipe any prior attempt for this email+shift before writing fresh data
+  if(freshStart!==false)await eraseExistingAttempt(); // wipe any prior attempt for this email+shift before writing fresh data — skipped on resume (freshStart===false) so we don't erase server progress mid-recovery
   await syncAttempt(false);     // baseline row as soon as the exam starts
   attemptSyncInterval=setInterval(()=>syncAttempt(false),150000); // every 2.5 min
 }
@@ -1391,9 +1435,51 @@ function initExam(){
   const mo=document.querySelector('#subjectSelect option[value="maths"]');
   if(mo){mo.disabled=true;mo.text='Mathematics (unlocks at 90 min)';}
   showScreen('examScreen');buildPalette('physics');navigateTo(1);startTimer();examRunning=true;
-  startAttemptSync();
+  startAttemptSync(true);
   // Toast 1 – exam start
   showExamToast('Exam has started. Duration: 3 hours. All the best!','brief');
+  queueSaveResumeState();
+}
+
+/* ═══ 6b. RESUME AFTER REFRESH/NETWORK LOSS ═══
+   Restores everything: which questions were loaded, every selected option, marked-for-review
+   flags, visited flags, current question, remaining time and section-lock state — so the
+   student lands exactly where they left off, not back at question 1 or the login screen.
+   Only triggered by a page load with a matching saved snapshot; never by clicking "leave exam". */
+function resumeExamFromState(state){
+  questions=state.questions;
+  customTestLabel=state.customTestLabel||customTestLabel;
+  userAnswers=state.userAnswers||{};
+  markedReview=state.markedReview||{};
+  visited=state.visited||{};
+  currentQId=state.currentQId||1;
+  totalSeconds=typeof state.totalSeconds==='number'?state.totalSeconds:totalSeconds;
+  sec1Locked=!!state.sec1Locked;
+  sec1LockDone=!!state.sec1LockDone;
+  // Fill in any question IDs the saved state predates (shouldn't normally happen, but keeps
+  // getQStatus/palette from choking on an undefined entry).
+  for(let i=1;i<=questions.length;i++){
+    if(userAnswers[i]===undefined)userAnswers[i]=null;
+    if(markedReview[i]===undefined)markedReview[i]=false;
+    if(visited[i]===undefined)visited[i]=false;
+  }
+  const mo=document.querySelector('#subjectSelect option[value="maths"]');
+  if(mo){
+    if(sec1LockDone){mo.disabled=false;mo.text='Mathematics (101–150)';}
+    else{mo.disabled=true;mo.text='Mathematics (unlocks at 90 min)';}
+  }
+  if(sec1Locked)document.getElementById('secLockBanner').style.display='block';
+  showScreen('examScreen');
+  const startSub=state.currentPalSub||(currentQId<=50?'physics':currentQId<=100?'chemistry':'maths');
+  buildPalette(startSub);
+  const ss=document.getElementById('subjectSelect');
+  if(ss)ss.value=startSub;
+  navigateTo(currentQId);
+  startTimer();
+  examRunning=true;
+  startAttemptSync(false); // re-establishes the 2.5-min server sync WITHOUT erasing the existing server row
+  showExamToast('Welcome back — your progress was restored.','brief');
+  queueSaveResumeState();
 }
 
 /* ═══ 7. TIMER ═══ */
@@ -1416,6 +1502,7 @@ function startTimer(){
       showExamToast('60 minutes remaining for final submission.','brief');
     if(totalSeconds===60)   // 1 min remaining – breathes until time runs out
       showExamToast('⚠️ 1 minute remaining! Submit before time runs out.','continuous');
+    if(totalSeconds%5===0)queueSaveResumeState(); // keep the resume snapshot's clock fresh, ~every 5s
   },1000);
 }
 function lockSection1(){
@@ -1425,6 +1512,7 @@ function lockSection1(){
   if(mo){mo.disabled=false;mo.text='Mathematics (101–150)';}
   document.getElementById('subjectSelect').value='maths';
   buildPalette('maths');navigateTo(101);
+  queueSaveResumeState();
   alert('⏰ Section 1 (Physics & Chemistry) is now LOCKED.\nYou are now in Section 2 – Mathematics.');
 }
 function autoSubmit(){alert('⏰ Time is up! The exam is being submitted automatically.');doSubmit();}
@@ -1436,6 +1524,7 @@ function navigateTo(qid){
   if(sec1Locked&&qid<=100)return;
   currentQId=qid;visited[qid]=true;
   renderQuestion(qid);updatePaletteHighlight();updateFooterBtns();
+  queueSaveResumeState();
 }
 function renderQuestion(qid){
   const q=questions.find(r=>r.question_id===qid);if(!q)return;
@@ -1478,6 +1567,7 @@ function selectOption(qid,val){
   userAnswers[qid]=val;
   document.querySelectorAll('.op-row').forEach(r=>{r.classList.toggle('sel',r.dataset.val===val);r.querySelector('input').checked=r.dataset.val===val;});
   updatePaletteBtn(qid);
+  queueSaveResumeState();
 }
 function updateFooterBtns(){
   document.getElementById('btnPrev').disabled=currentQId<=1||(sec1Locked&&currentQId===101);
@@ -1509,8 +1599,9 @@ document.getElementById('btnReset').addEventListener('click',()=>{
   document.getElementById('markReviewChk').checked=false;
   document.querySelectorAll('.op-row').forEach(r=>{r.classList.remove('sel');r.querySelector('input').checked=false;});
   updatePaletteBtn(currentQId);updatePalStats();
+  queueSaveResumeState();
 });
-document.getElementById('markReviewChk').addEventListener('change',function(){markedReview[currentQId]=this.checked;updatePaletteBtn(currentQId);updatePalStats();});
+document.getElementById('markReviewChk').addEventListener('change',function(){markedReview[currentQId]=this.checked;updatePaletteBtn(currentQId);updatePalStats();queueSaveResumeState();});
 document.getElementById('subjectSelect').addEventListener('change',function(){
   const s=this.value;
   if(!sec1LockDone&&s==='maths'){this.value=currentQId<=50?'physics':'chemistry';return;}
@@ -1553,6 +1644,7 @@ document.querySelectorAll('.star-btn').forEach(b=>b.addEventListener('click',()=
 document.getElementById('btnSubmitSurvey').addEventListener('click',()=>{closeModal('modalSurvey');doSubmit();});
 async function doSubmit(){
   clearInterval(timerInterval);stopAttemptSync();examRunning=false;hideExamToast();
+  clearResumeState(); // exam genuinely finished — nothing left to resume
   try{await syncAttempt(true);}catch(e){console.error('syncAttempt failed, continuing to result:',e);} // must land before award_cetxp reads the row server-side, but never blocks the result screen
   submitFeedback(); // fire-and-forget, never blocks the result screen
   try{localStorage.setItem('cbt_pending_reload','1');}catch(e){} // tells index.html to hard-reload once user returns "home"
@@ -1599,6 +1691,7 @@ document.getElementById('btnReturnMenu').addEventListener('click',()=>openModal(
 document.getElementById('btnCancelLeaveExam').addEventListener('click',()=>closeModal('modalLeaveExam'));
 document.getElementById('btnConfirmLeaveExam').addEventListener('click',()=>{
   closeModal('modalLeaveExam');
+  clearResumeState(); // explicit, confirmed exit — this attempt is being abandoned, not resumed later
   exitToMenu();
 });
 
@@ -1867,8 +1960,11 @@ document.getElementById('btnSavePdf').addEventListener('click',async()=>{
 
 /* ═══ 17. INIT ═══ */
 document.querySelectorAll('.screen').forEach(s=>{s.style.display='none';});
+const _resumeState=(examMode==='analysis')?null:loadResumeState();
 if(examMode==='analysis'){
   startAnalysisMode();
+}else if(_resumeState){
+  resumeExamFromState(_resumeState);
 }else{
   document.getElementById('loginScreen').style.display='flex';
   if(examMode==='reattempt'){
