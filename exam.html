@@ -108,7 +108,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
 .is-pal-item{display:flex;align-items:center;gap:7px}
 .is-pal-dot{width:26px;height:26px;border-radius:4px}
 .is-pal-text{font-size:12px}
-.is-bottom{background:#fff;border-top:1px solid var(--bdr);padding:11px 24px;flex-shrink:0;display:flex;align-items:center;gap:16px}
+.is-bottom{background:#fff;border-top:1px solid var(--bdr);padding:11px 24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:16px}
 .is-chk-label{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--tx);cursor:pointer;flex:1}
 .is-chk-label input{margin-top:2px;width:17px;height:17px;accent-color:var(--cbk);cursor:pointer;flex-shrink:0}
 .is-timer{font-size:13px;color:#c62828;font-weight:700;white-space:nowrap}
@@ -122,7 +122,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
   .is-right{flex:1;min-height:0}
   .is-content{padding:10px 14px}
   .is-bottom{
-    flex-direction:column;align-items:stretch;gap:6px;
+    flex-direction:column;align-items:center;justify-content:center;gap:6px;
     padding:8px 14px calc(8px + env(safe-area-inset-bottom));
     position:sticky;bottom:0;z-index:20;
     box-shadow:0 -4px 14px rgba(0,0,0,.12);
@@ -512,7 +512,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--fn);background:var(--bg)
       <h2>Login</h2>
       <div class="lg-field"><input type="text" id="loginUserId" value="MHT2026001" disabled></div>
       <div class="lg-field"><input type="password" id="loginPassword" placeholder="Password" value="01011990"></div>
-      <button class="btn-lg" id="btnLogin">Login</button>
+      <button class="btn-lg" id="btnLogin">Start Exam</button>
     </div>
     <div class="lg-dob">ℹ️ Password is your Date of Birth (DDMMYYYY)</div>
     <div class="lg-dob" id="reattemptNotice" style="display:none;background:rgba(0,0,0,.25);border-radius:6px;padding:8px 12px;margin-top:6px;color:#fff">🔁 Reattempting this shift — your previous attempt &amp; analysis will be replaced once you begin.</div>
