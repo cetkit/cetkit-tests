@@ -432,6 +432,16 @@
     }
     #launch-chooser-overlay.active { opacity: 1; visibility: visible; }
 
+    #resume-attempt-overlay {
+      position: fixed; inset: 0; z-index: 610;
+      background: rgba(8,10,24,.62); backdrop-filter: blur(7px);
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+      opacity: 0; visibility: hidden;
+      transition: opacity .28s, visibility .28s;
+    }
+    #resume-attempt-overlay.active { opacity: 1; visibility: visible; }
+    #resume-attempt-overlay.active .lc-card { transform: scale(1) translateY(0); }
+
     .lc-card {
       background: var(--surface); border-radius: 22px;
       box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0,0,0,.05);
@@ -3313,6 +3323,42 @@
 
   <iframe id="exam-frame" allowfullscreen></iframe>
 
+  <div id="resume-attempt-overlay">
+    <div class="lc-card">
+      <div class="lc-header">
+        <div class="lc-eyebrow">Unfinished Attempt Found</div>
+        <div class="lc-title">Got disconnected? We've fetched your current attempt — you can start where you left off.</div>
+        <div class="lc-sub" id="ra-sub">Your progress, answers and timer were saved automatically.</div>
+      </div>
+
+      <div class="lc-options">
+
+        <button class="lc-option lc-opt-sim" id="ra-resume-btn" onclick="resumeUnfinishedAttempt()">
+          <div class="lc-opt-icon">⏩</div>
+          <div class="lc-opt-body">
+            <div class="lc-opt-title">Resume Where I Left Off</div>
+            <div class="lc-opt-desc" id="ra-resume-desc">Continue this attempt with your answers and remaining time intact.</div>
+          </div>
+          <div class="lc-opt-arrow">
+            <svg viewBox="0 0 16 16" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </div>
+        </button>
+
+        <button class="lc-option lc-opt-direct" onclick="discardUnfinishedAttempt()">
+          <div class="lc-opt-icon">🔄</div>
+          <div class="lc-opt-body">
+            <div class="lc-opt-title">Start Fresh Instead</div>
+            <div class="lc-opt-desc">Discard the saved attempt and go back to the home page as normal.</div>
+          </div>
+          <div class="lc-opt-arrow">
+            <svg viewBox="0 0 16 16" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </div>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
   <div id="launch-chooser-overlay">
     <div class="lc-card">
       <div class="lc-header">
@@ -5294,6 +5340,100 @@
       }
     }
 
+    /* ═══════════════════════════════════════════
+       RESUME UNFINISHED ATTEMPT
+       exam.html (a same-origin iframe) writes a small shared index of in-progress attempts to
+       localStorage as the student answers questions. On load here, we check that index and, if
+       an unfinished attempt exists, offer to resume it instead of silently dropping the student
+       back on the home page.
+    ═══════════════════════════════════════════ */
+    const RESUME_INDEX_KEY = 'cbt_resume_index';
+    let _pendingResumeEntry = null;
+
+    function _readResumeIndex() {
+      try {
+        const raw = localStorage.getItem(RESUME_INDEX_KEY);
+        const idx = raw ? JSON.parse(raw) : [];
+        return Array.isArray(idx) ? idx : [];
+      } catch (e) { return []; }
+    }
+
+    function checkForUnfinishedAttempt() {
+      let idx = _readResumeIndex();
+      if (!idx.length) return;
+
+      const MAX_AGE_MS = 6 * 60 * 60 * 1000; // matches exam.html's own staleness cutoff
+      const now = Date.now();
+      const currentEmail = (window._authUser && window._authUser.email) || '';
+
+      // Drop anything stale or already timed-out; prune the stored index to match.
+      const fresh = idx.filter(r => r && r.savedAt && (now - r.savedAt) < MAX_AGE_MS && (r.totalSeconds || 0) > 0);
+      if (fresh.length !== idx.length) {
+        try { localStorage.setItem(RESUME_INDEX_KEY, JSON.stringify(fresh)); } catch (e) {}
+      }
+      if (!fresh.length) return;
+
+      // Prefer an attempt matching the logged-in user's email; if signed out, or none match,
+      // fall back to the single most recent entry (covers attempts saved before login finished).
+      let candidate = null;
+      if (currentEmail) candidate = fresh.find(r => (r.studentEmail || '') === currentEmail) || null;
+      if (!candidate) candidate = fresh.slice().sort((a, b) => b.savedAt - a.savedAt)[0];
+      if (!candidate) return;
+
+      _pendingResumeEntry = candidate;
+      showResumeAttemptModal(candidate);
+    }
+
+    function _formatResumeTime(totalSeconds) {
+      const s = Math.max(0, totalSeconds || 0);
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+      if (h > 0) return `${h}h ${m}m left`;
+      return `${m}m left`;
+    }
+
+    function showResumeAttemptModal(entry) {
+      const descEl = document.getElementById('ra-resume-desc');
+      const subEl  = document.getElementById('ra-sub');
+      if (descEl) {
+        const answered = (entry.answeredCount != null && entry.totalCount)
+          ? `${entry.answeredCount}/${entry.totalCount} answered · `
+          : '';
+        descEl.textContent = `${entry.label || 'Your test'} — ${answered}${_formatResumeTime(entry.totalSeconds)}.`;
+      }
+      if (subEl) subEl.textContent = 'Your progress, answers and timer were saved automatically.';
+      document.getElementById('resume-attempt-overlay').classList.add('active');
+    }
+
+    function closeResumeAttemptModal() {
+      document.getElementById('resume-attempt-overlay').classList.remove('active');
+    }
+
+    function resumeUnfinishedAttempt() {
+      const entry = _pendingResumeEntry;
+      closeResumeAttemptModal();
+      if (!entry || !entry.url) return;
+      // Reuse the existing launch pipeline (fullscreen → iframe load) but skip the launch
+      // chooser and disclaimer entirely — resuming isn't a fresh attempt.
+      pendingFile  = entry.url;
+      pendingLabel = entry.label || 'Your Test';
+      pendingPdf   = '';
+      pendingNoPdf = true;
+      startExam();
+    }
+
+    function discardUnfinishedAttempt() {
+      const entry = _pendingResumeEntry;
+      closeResumeAttemptModal();
+      if (!entry) return;
+      try {
+        localStorage.removeItem(entry.key);
+        const remaining = _readResumeIndex().filter(r => r && r.key !== entry.key);
+        localStorage.setItem(RESUME_INDEX_KEY, JSON.stringify(remaining));
+      } catch (e) {}
+      _pendingResumeEntry = null;
+      // No further action needed — the home page is already showing normally underneath.
+    }
+
     /* ── On-load auth state check ── */
     (async function initAuth() {
       const { data: { session } } = await _supa.auth.getSession();
@@ -5308,8 +5448,7 @@
       fetchAttemptStatuses();
       fetchRecentCustomTests();
       loadLeaderboard();
-
-      /* Listen for subsequent auth changes (e.g. after OAuth redirect) */
+      checkForUnfinishedAttempt();
       _supa.auth.onAuthStateChange(async (event, sess) => {
         const hadAccess = _hasAccess;
         if (sess?.user) {

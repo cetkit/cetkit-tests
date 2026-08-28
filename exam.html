@@ -1056,13 +1056,31 @@ const zoomSteps=[1,1.2,1.4,1.65];
    student their progress mid-test. Independent of the Supabase attemptSync above (which needs
    an email + network and only writes every 2.5 min) — this writes to localStorage instantly on
    every change and needs neither. Only ever cleared on a genuine finish (doSubmit) or an explicit
-   "leave exam" confirmation — never on reload, tab close, or network loss. */
-const RESUME_KEY='cbt_resume_'+(customTestId?('custom_'+customTestId):targetTable)+'_'+(studentEmail||'anon');
+   "leave exam" confirmation — never on reload, tab close, or network loss.
+
+   Alongside the full per-attempt snapshot (RESUME_KEY), we maintain a small shared index
+   (RESUME_INDEX_KEY) listing every in-progress attempt across all shifts/custom tests. index.html
+   (same-origin parent of this iframe, so it shares localStorage) reads that index on load to offer
+   "resume your unfinished attempt" — without needing to know this page's key-naming scheme. */
+const RESUME_INDEX_KEY='cbt_resume_index';
+const RESUME_ID=customTestId?('custom_'+customTestId):targetTable;
+const RESUME_KEY='cbt_resume_'+RESUME_ID+'_'+(studentEmail||'anon');
 let _resumeSaveQueued=false;
 function queueSaveResumeState(){
   if(_resumeSaveQueued)return;
   _resumeSaveQueued=true;
   setTimeout(()=>{_resumeSaveQueued=false;saveResumeState();},300); // debounce rapid-fire calls (typing/nav)
+}
+function _updateResumeIndex(entry){
+  // entry===null removes this attempt's index row; otherwise upserts it, keyed by RESUME_KEY.
+  try{
+    let idx=[];
+    try{const raw=localStorage.getItem(RESUME_INDEX_KEY);if(raw)idx=JSON.parse(raw)||[];}catch(e){idx=[];}
+    if(!Array.isArray(idx))idx=[];
+    idx=idx.filter(r=>r&&r.key!==RESUME_KEY);
+    if(entry)idx.push(entry);
+    localStorage.setItem(RESUME_INDEX_KEY,JSON.stringify(idx));
+  }catch(e){console.error('_updateResumeIndex failed:',e);}
 }
 function saveResumeState(){
   if(!examRunning)return;
@@ -1077,6 +1095,20 @@ function saveResumeState(){
       currentPalSub
     };
     localStorage.setItem(RESUME_KEY,JSON.stringify(state));
+    // Build the exact URL index.html should relaunch the iframe with to resume this attempt.
+    const relaunchUrl=customTestId
+      ?('exam.html?custom='+encodeURIComponent(customTestId)+(studentEmail?'&email='+encodeURIComponent(studentEmail):''))
+      :('exam.html?shift='+encodeURIComponent(targetTable)+(studentEmail?'&email='+encodeURIComponent(studentEmail):''));
+    _updateResumeIndex({
+      key:RESUME_KEY,
+      label:shiftLabel(targetTable),
+      studentEmail,
+      savedAt:state.savedAt,
+      totalSeconds,
+      answeredCount:Object.values(userAnswers).filter(v=>v!=null).length,
+      totalCount:questions.length,
+      url:relaunchUrl
+    });
   }catch(e){console.error('saveResumeState failed (localStorage full/unavailable):',e);}
 }
 function loadResumeState(){
@@ -1093,6 +1125,7 @@ function loadResumeState(){
 }
 function clearResumeState(){
   try{localStorage.removeItem(RESUME_KEY);}catch(e){}
+  _updateResumeIndex(null);
 }
 
 /* ═══ 2a. EXAM TOAST ═══ */
