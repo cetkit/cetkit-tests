@@ -3129,7 +3129,7 @@
           <div class="benefit-icon" style="background:#fdf4ff;">⚡</div>
           <div class="benefit-text">
             <div class="benefit-title">Automatic Activation</div>
-            <div class="benefit-sub">Pay directly via UPI — access is granted automatically within a few minutes, no screenshots or manual verification needed.</div>
+            <div class="benefit-sub">Pay directly via UPI — access is granted automatically and instantly, no screenshots or manual verification needed.</div>
           </div>
         </div>
 
@@ -3146,7 +3146,7 @@
       <div class="premium-qr-section">
         <div class="premium-qr-info" style="width:100%;">
           <div class="premium-qr-title">Pay &#8377;99 via UPI</div>
-          <div class="premium-qr-sub" id="premium-pay-sub">Access will be granted automatically to <strong id="premium-pay-email">your account</strong> within a few minutes of payment.</div>
+          <div class="premium-qr-sub" id="premium-pay-sub">Access will be granted automatically to <strong id="premium-pay-email">your account</strong> instantly after payment.</div>
 
           <!-- Desktop notice — shown instead of the pay button when not on mobile -->
           <div class="desktop-pay-notice" id="desktop-pay-notice" style="display:none;">
@@ -3158,7 +3158,7 @@
           </div>
 
           <!-- Always visible: payment verification / 12h contact-us fallback -->
-          <div class="contact-us-notice" id="contact-us-notice">
+          <div class="contact-us-notice" id="contact-us-notice" style="display:none;">
             <div class="cun-text">Payment verification might take a few moments to process. If you haven't been granted access even after 12 hours of payment, contact us.</div>
             <a class="cun-btn" id="contact-us-btn" href="mailto:cetkit00@gmail.com?subject=Payment%20not%20reflecting%20-%20CETkit%20Premium" target="_blank" rel="noopener">Contact Us</a>
           </div>
@@ -5349,6 +5349,7 @@
       const UPI_PA   = 'vybhat28@okhdfcbank';
       const UPI_NAME = 'Vedant Bhat';
       const CONTACT_DELAY_MS = 12 * 60 * 60 * 1000; // 12 hours
+      const EARLY_CONTACT_DELAY_MS = 20 * 1000; // 20 seconds — surfaces the same notice sooner if a bank/network delay is holding things up
 
       /* iOS has no system-level chooser for the generic upi:// scheme — it gets claimed by
          whichever installed app registered it first (often WhatsApp), regardless of what
@@ -5417,6 +5418,25 @@
         }, CONTACT_DELAY_MS);
       }
 
+      /* Access is normally instant, but occasional bank/network-side delays can hold it up.
+         If the user is still waiting 20s after a payment attempt, surface the same notice
+         early so they're not left guessing — this doesn't replace the 12h check above. */
+      function scheduleEarlyContactUsCheck() {
+        setTimeout(async () => {
+          try {
+            if (window._hasAccess) return; // already unlocked, nothing to show
+            if (window._authUser) {
+              const stillNoAccess = await fetchProfile(window._authUser);
+              if (stillNoAccess) return; // fetchProfile returned true = has access now
+            }
+            const notice = document.getElementById('contact-us-notice');
+            if (notice) notice.style.display = '';
+          } catch (e) {
+            console.warn('Early contact-us check failed:', e);
+          }
+        }, EARLY_CONTACT_DELAY_MS);
+      }
+
       /* Tap handler (Android / generic) — on desktop, block the UPI intent and show a
          "use your phone" notice instead. On mobile, set 'tn' to the logged-in user's
          email, mark proceeded_to_payment, and proceed. */
@@ -5437,6 +5457,7 @@
         }
         markProceededToPayment(email);
         scheduleContactUsCheck();
+        scheduleEarlyContactUsCheck();
         startAccessPolling();
         return true;
       };
@@ -5458,6 +5479,7 @@
 
         markProceededToPayment(email);
         scheduleContactUsCheck();
+        scheduleEarlyContactUsCheck();
         startAccessPolling();
         window.location.href = href;
         return false;
