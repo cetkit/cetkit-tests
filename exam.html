@@ -1556,7 +1556,7 @@ function navigateTo(qid){
   if(!sec1LockDone&&qid>=101)return;
   if(sec1Locked&&qid<=100)return;
   currentQId=qid;visited[qid]=true;
-  renderQuestion(qid);updatePaletteHighlight();updateFooterBtns();
+  renderQuestion(qid);updatePaletteBtn(qid);updatePaletteHighlight();updateFooterBtns();
   queueSaveResumeState();
 }
 function renderQuestion(qid){
