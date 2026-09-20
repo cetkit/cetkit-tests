@@ -1494,6 +1494,7 @@
     #premium-overlay.active { opacity: 1; visibility: visible; }
 
     .premium-card {
+      position: relative;
       background: #fff; border-radius: 22px;
       box-shadow: 0 30px 80px rgba(0,0,0,.22), 0 0 0 1px rgba(0,0,0,.06);
       width: 100%; max-width: 440px;
@@ -1504,6 +1505,14 @@
       transition: transform .38s cubic-bezier(.34,1.45,.64,1);
     }
     #premium-overlay.active .premium-card { transform: scale(1) translateY(0); }
+    .premium-x {
+      position: absolute; top: .7rem; right: .7rem; z-index: 5;
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); color: #fff;
+      cursor: pointer; transition: background .15s, color .15s;
+    }
+    .premium-x:hover { background: rgba(255,255,255,.3); }
 
     /* Header gradient band */
     .premium-header {
@@ -1530,7 +1539,7 @@
     }
     .premium-brand span { color: #93c5fd; }
 
-    /* Price row — ₹499 shows immediately; strikethrough at .5s; ₹99 pops in at .8s */
+    /* Price row — ₹299 shows immediately; strikethrough at .5s; ₹99 pops in at .8s */
     .premium-price-row {
       display: flex; align-items: center; gap: .75rem; margin-top: .75rem;
     }
@@ -1685,13 +1694,6 @@
       padding: .7rem 1.6rem 1.1rem;
       display: flex; align-items: center; gap: .6rem;
     }
-    .premium-made-by {
-      display: flex; align-items: center; justify-content: center; gap: .4rem;
-      padding: 0 1.6rem 1.1rem; text-align: center;
-      font-family: 'IBM Plex Mono', monospace; font-size: .68rem; font-weight: 500;
-      letter-spacing: .03em; color: var(--accent-dk);
-    }
-    .premium-made-by svg { flex-shrink: 0; opacity: .85; }
     .desktop-pay-notice {
       margin-top: .7rem; display: flex; align-items: flex-start; gap: .55rem;
       padding: .65rem .8rem; background: var(--warn-bg); border: 1px solid var(--warn-bd);
@@ -3059,6 +3061,11 @@
   <div id="premium-overlay">
     <div class="premium-card">
 
+      <!-- Close (X) button, always visible top-right of the payment window -->
+      <button class="premium-x" onclick="closePremiumOverlay()" aria-label="Close" title="Close">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+
       <!-- Header -->
       <div class="premium-header">
         <div class="premium-header-inner">
@@ -3069,7 +3076,7 @@
           <div class="premium-brand">CET<span>kit</span> Premium</div>
           <div class="premium-price-row">
             <div>
-              <div class="price-old">&#8377;499</div>
+              <div class="price-old">&#8377;299</div>
             </div>
             <div class="price-new">&#8377;99</div>
             <div class="price-label">only<br/>one-time</div>
@@ -3202,11 +3209,6 @@
         <a id="upi-pay-link"
            href="upi://pay?pa=vybhat28@okhdfcbank&amp;pn=Vedant%20Bhat&amp;am=99&amp;cu=INR&amp;tn=CETkit+Premium+Access"
            style="display:none;" aria-hidden="true" tabindex="-1"></a>
-      </div>
-
-      <div class="premium-made-by">
-        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        Made by a CET aspirant, for CET aspirants
       </div>
 
     </div>
@@ -4859,7 +4861,13 @@
     function viewAnalysis(shift, label) {
       const file = `exam.html?shift=${shift}&mode=analysis`;
       if (!_authUser) { document.getElementById('login-overlay').classList.add('active'); return; }
-      executeExamLoad(file, label, '', true);
+      /* Skip the launch-chooser and disclaimer pop-ups entirely — go straight
+         into the analysis view at the stipulated href. */
+      pendingFile  = file;
+      pendingLabel = label;
+      pendingPdf   = '';
+      pendingNoPdf = true;
+      startExam();
     }
 
     function reattemptExam(shift, label) {
@@ -5860,6 +5868,100 @@
         }
         _origLoad(file, label, pdf, noPdf);
       };
+    })();
+  </script>
+
+  <script>
+    /* ═══════════════════════════════════════════
+       FIX: QR code / price going blank after the user leaves for an
+       external app (e.g. tapping "Contact Us" opens Mail) and comes back.
+       Mobile browsers can discard the QR canvas or freeze the price
+       animation mid-way while the tab is backgrounded. Re-assert both the
+       moment the page becomes visible again — on a real reload, on a
+       back-forward-cache restore, and on a plain tab/app switch.
+    ═══════════════════════════════════════════ */
+    (function() {
+      function refreshPaymentDisplay() {
+        const premiumOverlay = document.getElementById('premium-overlay');
+        if (!premiumOverlay || !premiumOverlay.classList.contains('active')) return;
+
+        const link  = document.getElementById('upi-pay-link');
+        const match = link ? /[?&]am=([^&]+)/.exec(link.href) : null;
+        const amount = match ? match[1] : '99';
+
+        const priceNew = document.querySelector('.price-new');
+        if (priceNew) {
+          if (!priceNew.innerHTML.trim()) priceNew.innerHTML = '&#8377;' + amount;
+          priceNew.style.opacity = '1';
+          priceNew.style.transform = 'none';
+        }
+        const priceOld = document.querySelector('.price-old');
+        if (priceOld) priceOld.style.opacity = '';
+
+        const qrTitle = document.querySelector('.premium-qr-title');
+        if (qrTitle && !qrTitle.textContent.trim()) qrTitle.innerHTML = 'Pay &#8377;' + amount + ' via UPI';
+
+        /* If the "Scan to Pay" QR window is open, redraw the QR code and
+           amount so nothing is left blank. */
+        const qrOverlay = document.getElementById('qr-modal-overlay');
+        const qrCode     = document.getElementById('qr-modal-code');
+        const needsQrRedraw = qrOverlay && qrOverlay.classList.contains('active')
+          && (!qrCode || !qrCode.querySelector('canvas, img'));
+        if (needsQrRedraw && window.openQrWindow) window.openQrWindow();
+      }
+
+      window.addEventListener('pageshow', refreshPaymentDisplay);
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') refreshPaymentDisplay();
+      });
+    })();
+  </script>
+
+  <script>
+    /* ═══════════════════════════════════════════
+       FIX: Android back button was closing the whole site instead of
+       just the payment/QR window. We push one history entry whenever
+       either overlay opens (whichever call site triggered it), so the
+       back button has somewhere to go: it now just closes the topmost
+       open window instead of exiting.
+    ═══════════════════════════════════════════ */
+    (function() {
+      let suppressAutoBack = false;
+
+      function watchOverlayForBackButton(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let pushed = false;
+        new MutationObserver(function() {
+          const active = el.classList.contains('active');
+          if (active && !pushed) {
+            history.pushState({ cetkitModal: id }, '');
+            pushed = true;
+          } else if (!active && pushed) {
+            pushed = false;
+            if (!suppressAutoBack) {
+              suppressAutoBack = true;
+              history.back();
+              setTimeout(function() { suppressAutoBack = false; }, 0);
+            }
+          }
+        }).observe(el, { attributes: true, attributeFilter: ['class'] });
+      }
+
+      watchOverlayForBackButton('qr-modal-overlay');
+      watchOverlayForBackButton('premium-overlay');
+
+      window.addEventListener('popstate', function() {
+        suppressAutoBack = true;
+        const qrOverlay      = document.getElementById('qr-modal-overlay');
+        const premiumOverlay = document.getElementById('premium-overlay');
+        if (qrOverlay && qrOverlay.classList.contains('active') && window.closeQrModal) {
+          window.closeQrModal();
+        } else if (premiumOverlay && premiumOverlay.classList.contains('active') && window.closePremiumOverlay) {
+          window.closePremiumOverlay();
+        }
+        setTimeout(function() { suppressAutoBack = false; }, 0);
+      });
     })();
   </script>
 
